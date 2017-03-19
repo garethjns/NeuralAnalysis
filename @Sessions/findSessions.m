@@ -1,5 +1,3 @@
-
-
 function allData = findSessions(obj, sub)
 % Compile list of all data collection sessions for each subject
 % Loads each file to calculate basic performance
@@ -18,8 +16,10 @@ fNeuralFolder = sub.paths.neural.TDTRaw;
 fNeuralPathMat = sub.paths.neural.extracted;
 behavPath = sub.paths.behav.data;
 % Make folder for extracted neural data if it doesn't exist already
+try
 if ~exist(fNeuralPathMat, 'dir')
     mkdir(fNeuralPathMat);
+end
 end
 
 tic
@@ -88,6 +88,7 @@ varNames = { ...
     NaN(nFiles,1), 'LocalAvailTDT', 'TDT tank available locally?';...
     NaN(nFiles,1), 'LocalAvailMat', 'Mat files available locally? (out of date?)';...
     cell(nFiles,1), 'BehavPath', 'Path to behavioural file';...
+    cell(nFiles,1), 'BehavFn', 'Name of behavioural file minus path';...
     cell(nFiles,1), 'PreProFilt', 'Path to filtered file, probably not saved'; ...
     cell(nFiles,1), 'PreProEpoch', 'Path to filtered/cleaned/epoched file'; ...
     cell(nFiles,1), 'AnalysisFile', 'Path to analysis file'; ...
@@ -111,8 +112,8 @@ for s = 1:length(sessions) % For each session
     fMat = sessions(s).name;
     disp(['Adding session ' num2str(s), '/', num2str(length(sessions)), ...
         ': ', fMat])
-    allData.BehavPath{row,1} = fMat;
-    
+    allData.BehavPath{row,1} = [behavPath, fMat];
+    allData.BehavFn{row,1} = fMat;
     % SessionNum
     % allData.SessionNum(row,1) = s;
     % Done after sorting after loop

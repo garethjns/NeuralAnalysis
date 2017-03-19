@@ -6,7 +6,10 @@ classdef Sessions
         subject
         fID
         levels
-        sessions
+        sessions % Tabulated list of sessions
+        sessionStats
+        sessionData = cell(1) % Exp objects containing data for sessions
+        nS
     end
     
     methods
@@ -34,22 +37,23 @@ classdef Sessions
                     disp('Load failed, importing...')
                     loadOK = false;
                 end
-
-               
-               if ~loadOK
-                   reImport = true;
-               end
+                
+                
+                if ~loadOK
+                    reImport = true;
+                end
             end
             
             % Reimport and save if not loaded
             if reImport
                 obj.sessions = obj.findSessions(sub);
+                obj.nS = height(obj.sessions);
                 obj.saveSessions(sub);
             end
             
         end
         
-        function saveSessions(obj, sub) 
+        function saveSessions(obj, sub)
             
             % Generate file names
             fns = dataSetFns(obj);
@@ -60,7 +64,7 @@ classdef Sessions
             disp('Saving .mat')
             save(fns{1}, ...
                 'sessions', 'sub')
-
+            
             disp('Writing table')
             writetable(obj.sessions, [obj.fID, '_', sub.subject, ...
                 fns{2}])
@@ -69,8 +73,17 @@ classdef Sessions
                 '_SessionDataset .mat/.txt'])
         end
         
-        function sessionSummary(obj)
-            % Plot summary of session data
+        
+        function obj = importData(obj, reImport)
+            % Create table for analysis from sess objects
+        
+            if ~reImport
+               % Load 
+            end
+            
+            for s = 1:obj.nS
+                obj.sessionData{s} = Sess(obj.sessions(s,:));
+            end
             
         end
         
@@ -91,7 +104,7 @@ classdef Sessions
             l = ('_' + string(levels'))';
             fn = l.join('').char();
         end
-    
+        
     end
     
     

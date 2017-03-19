@@ -30,4 +30,13 @@ sub.syncSubject
 
 %% Find sessions
 
-sub = sub.importSessions(false);
+sub = sub.importSessions(true);
+
+% Plot summary
+sub.sessions = sub.sessions.summary();
+
+
+%% Import sessions
+
+sub.sessions.importData(true)
+

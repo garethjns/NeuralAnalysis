@@ -182,7 +182,7 @@ fPaths.graphs.neuralEvents = [fPaths.neural.PP, ...
 % Path for behavioural graphs
 fPaths.behav.analysis = ['T:\Analysis\Behaving\', ...
     fParams.task, '\' fParams.subject2, '\BehavAnalysis\'];
-
+try
 % Make the directories, if they don't already exist
 fps = fieldnames(fPaths);
 for fp = 1:length(fps)
@@ -194,9 +194,9 @@ for fp = 1:length(fps)
         end
     end
 end
-
+end
 % Behavioural directory
-fPaths.behav.data = ['T:\Behavioural Data\', ...
+fPaths.behav.data = ['S:\Behavioural Data\', ...
     fParams.subject2, '\'];
 % Dropbox source
 fPaths.behav.source = ['R:\Dropbox\Data\', ...

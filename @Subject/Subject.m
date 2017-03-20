@@ -1,10 +1,14 @@
 classdef Subject
-    properties
+    
+    properties (SetAccess = immutable)
         subject % Short name
-        fID % Subject ID
         subject2 % Long name (subject + fID)
+        fID % Subject ID
         box = 'Nellie'
-        task
+        task = 'Temporal'
+    end
+    
+    properties
         levels = 11
         sessions % To hold sessions object
         params
@@ -36,6 +40,10 @@ classdef Subject
             
             obj.sessions = Sessions(obj, reImport);
             
+        end
+        
+        function tidy(obj)
+            % Close associated handles
         end
         
     end

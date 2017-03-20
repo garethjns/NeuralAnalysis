@@ -195,8 +195,9 @@ for fp = 1:length(fps)
     end
 end
 end
+
 % Behavioural directory
-fPaths.behav.data = ['S:\Behavioural Data\', ...
+fPaths.behav.data = ['T:\Behavioural Data\', ...
     fParams.subject2, '\'];
 % Dropbox source
 fPaths.behav.source = ['R:\Dropbox\Data\', ...

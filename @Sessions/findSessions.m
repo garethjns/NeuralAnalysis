@@ -42,7 +42,9 @@ for l = 1:length(sub.levels)
         ': ', num2str(length(newSesh)), ' sessions'])
 end
 
+% Preallocate output table
 nFiles = length(sessions);
+allData = obj.sessionsTable(nFiles);
 
 % Work out number of expected neural .mat files per block after extraction
 % Should be sum(EvIDs*nCchans)
@@ -51,62 +53,15 @@ for evs=1:length(sub.params.extractEvIDs)
     nMats = nMats+ length(sub.params.extractEvIDs{evs}{2});
 end
 
-% Prepare table
-% Suppress warnings about default row contents
-warning('off', 'MATLAB:table:RowsAddedExistingVars');
-warning('off','MATLAB:table:RowsAddedNewVars');
-
-% Create table and preallocate first row of dataset
-varNames = { ...
-    NaN(nFiles,1), 'SessionNum', 'Unique number of session'; ...
-    NaN(nFiles,1), 'DateNum', 'Date number from file name'; ...
-    cell(nFiles,1), 'Date', 'Human readable date'; ...
-    cell(nFiles,1), 'Time', 'AM or PM'; ... % AM or PM
-    cell(nFiles,1), 'Subject', ''; ...
-    cell(nFiles,1), 'Task', 'Should always be Temporal';...
-    NaN(nFiles,1), 'Level', ''; ...
-    cell(nFiles,1), 'WID', 'WeekID if level 9';
-    cell(nFiles,1), 'DID', 'DayID if level 10';
-    cell(nFiles,1), 'SID', 'SeedID if level 10';
-    NaN(nFiles,1), 'Training', 'Was this a training session? Eg. with repeating stim?'; ...
-    cell(nFiles,1), 'AttenRange', 'Atten range in session';
-    cell(nFiles,1), 'HoldRange', 'Range of hold times in session';
-    NaN(nFiles,1), 'Good', ''; ...
-    cell(nFiles,1), 'Rates', 'Vector of weights used in session';...
-    cell(nFiles,1), 'Types', 'Vector of types used in session. 2=A, 3=V, 4=AVs, 5=AVa'; ...
-    NaN(nFiles,1), 'nTrials' 'Length of saved file'; ...
-    NaN(nFiles,1), 'nTrials2' 'Number of trials used to calculate preformance %'; ...
-    NaN(nFiles,1), 'Perf1', 'Perf overall'; ... % Perf overall
-    NaN(nFiles,1), 'Perf2', 'Perf A';... % Perf A
-    NaN(nFiles,1), 'Perf3', 'Perf V';... % Perf V
-    NaN(nFiles,1), 'Perf4', 'Perf AVs';... % Per AVs
-    NaN(nFiles,1), 'Perf5', 'Perf AVa';... % Perv AVa
-    NaN(nFiles,1), 'NeuralData', '1=block name in file name';...
-    cell(nFiles,1), 'BlockName', 'Block name';...
-    NaN(nFiles,1), 'BlockNum', 'The numbers from block name ie. Block9-12 = 912';...
-    cell(nFiles,1), 'fNeuralPathTDT', 'Path to TDT tank'; ...
-    NaN(nFiles,1), 'LocalAvailTDT', 'TDT tank available locally?';...
-    NaN(nFiles,1), 'LocalAvailMat', 'Mat files available locally? (out of date?)';...
-    cell(nFiles,1), 'BehavPath', 'Path to behavioural file';...
-    cell(nFiles,1), 'BehavFn', 'Name of behavioural file minus path';...
-    cell(nFiles,1), 'PreProFilt', 'Path to filtered file, probably not saved'; ...
-    cell(nFiles,1), 'PreProEpoch', 'Path to filtered/cleaned/epoched file'; ...
-    cell(nFiles,1), 'AnalysisFile', 'Path to analysis file'; ...
-    cell(nFiles,1), 'OKMats', 'Not used'; ...
-    NaN(nFiles,1), 'FlipCables', 'Set to 1 if cables known to be in wrong way round'; ...
-    };
-
-allData = table(varNames{:,1}); % Note {} not ()
-allData.Properties.VariableNames = varNames(:,2);
-allData.Properties.VariableDescriptions = varNames(:,3);
-
-clear varNames
-
 % Start importing
 row = 0;
 for s = 1:length(sessions) % For each session
     clear fData
     row = row+1;
+    
+    % Add data from sub object (that's not in exp file)
+    allData.fID{row,1} = sub.fID;
+    allData.Subject{row,1} = sub.subject;
     
     % Behav path
     fMat = sessions(s).name;
@@ -205,7 +160,6 @@ for s = 1:length(sessions) % For each session
         allData.BlockName{row} = blockName;
         allData.fNeuralPathTDT{row} = fNeuralPathTDT;
         
-       
         % Assume cables not flipped unless listed here
         % Block 10-159 cables flipped
         if blockNum == 10159
@@ -231,6 +185,7 @@ for s = 1:length(sessions) % For each session
         
         % Assume cables were plugged in correct way around, for now
         allData.FlipCables(row,1) = 0;
+        
     end
     
     

@@ -38,5 +38,5 @@ sub.sessions = sub.sessions.summary();
 
 %% Import sessions
 
-sub.sessions.importData(true)
+sub.sessions = sub.sessions.importData(true);
 

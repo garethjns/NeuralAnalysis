@@ -1,4 +1,4 @@
-function emptyTable = sessionTable(obj,nTrials)
+function emptyTable = sessionTable(nTrials)
 % Create and return empty table of standard arrangement for all levels
 
 % Create table

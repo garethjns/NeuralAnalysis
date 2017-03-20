@@ -1,20 +1,25 @@
-classdef Sessions
+classdef Sessions 
     % Import list of sessions for subject
+    % Inherit session methods for reporting and plotting
     
-    
-    properties
+    properties (SetAccess = immutable)
         subject
         fID
+    end
+    
+    properties
         levels
         sessions % Tabulated list of sessions
         sessionStats
         sessionData = cell(1) % Exp objects containing data for sessions
-        nS
+        nS % Number of sessions
+        nT % Total number of trials available
     end
     
     methods
         
         function obj = Sessions(sub, reImport)
+            
             obj.subject = sub.subject;
             obj.levels = sub.levels;
             obj.fID = sub.fID;
@@ -22,13 +27,14 @@ classdef Sessions
             % Import sessions for subject
             % Reload or reimport?
             if ~reImport
-                % Attempt load
                 
+                % Attempt load
                 try
                     fns = dataSetFns(obj);
                     tic
                     load(fns{1})
-                    disp(['Loaded ', num2str(height(sessions.sessions)), ...
+                    disp(['Loaded ', ...
+                        num2str(height(sessions.sessions)), ...
                         ' trials in ', ...
                         num2str(toc), 's.'])
                     obj = sessions;
@@ -73,7 +79,6 @@ classdef Sessions
                 '_SessionDataset .mat/.txt'])
         end
         
-        
         function obj = importData(obj, reImport)
             % Create table for analysis from sess objects
         
@@ -82,7 +87,15 @@ classdef Sessions
             end
             
             for s = 1:obj.nS
+                % Report and time for debugging
+                a = string('*').pad(30, '*');
+                disp(a) 
+                disp(['Importing session: ', num2str(s), ...
+                    '/', num2str(obj.nS)])
+                tic
                 obj.sessionData{s} = Sess(obj.sessions(s,:));
+                b = toc;
+                disp(['Done in ', num2str(b) ', S @ ', num2str(obj.sessionData{s}.nTrials/b), ' t/S']) 
             end
             
         end
@@ -95,6 +108,7 @@ classdef Sessions
                 '_levels', l, '_SessionDataset.txt'];
         end
         
+        
     end
     
     
@@ -105,6 +119,8 @@ classdef Sessions
             fn = l.join('').char();
         end
         
+        % Template table for sessions (external file)
+        emptyTable = sessionsTable(nTrials)
     end
     
     

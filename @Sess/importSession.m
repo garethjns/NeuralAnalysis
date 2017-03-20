@@ -1,9 +1,8 @@
-function obj = importSession(obj)
+function obj = importSession(session, subject, fID)
 
 % Load behavioural file
-
-fMat = string(obj.session.BehavPath);
-nTrials = obj.session.nTrials;
+fMat = string(session.BehavPath);
+nTrials = session.nTrials;
 fData = open(fMat.char());
 
 % Check some data was saved...
@@ -25,8 +24,8 @@ end
 % If level 11 file, load seed2
 clear seed2
 if fData.saveData{2}.level == 11
-    fn = fMat.extractBefore(obj.session.BehavFn) ...
-        + obj.session.Subject ...
+    fn = fMat.extractBefore(session.BehavFn) ...
+        + session.Subject ...
         + '_SEEDID2_' ...
         +  fData.saveData{2}.seedID2 ...
         + '.mat';
@@ -35,7 +34,7 @@ end
 
 % Check box - not importing Dumbo
 % Add WE later
-switch obj.session.Box
+switch session.Box{1}
     case 'Nellie'
     otherwise
         disp('Skipping, wrong box')
@@ -44,12 +43,12 @@ switch obj.session.Box
 end
 
 % Prepare empty table
-data = obj.sessionTable(nTrials);
+data = Sess.sessionTable(nTrials);
 
 row = 0;
 for f = 1:nTrials
     % Get cell with trial data
-    trialData = fData.saveData{1,r};
+    trialData = fData.saveData{1,f};
     % Check it has data
     if isempty(trialData)
         continue
@@ -60,31 +59,30 @@ for f = 1:nTrials
     
     % Session
     data.SessionNum(row,1) = ...
-        obj.session.SessionNum(1,1);
+        session.SessionNum(1,1);
     
     % Neural info
-    if obj.session.NeuralData
-        data.NeuralData(row,1) = obj.session.NeuralData;
-        data.LocalAvailTDT(row,1) = obj.session.LocalAvailTDT;
-        data.LocalAvailMat(row,1) = obj.session.LocalAvailMat;
-        data.BlockNum(row,1) = obj.session.BlockNum;
-        data.BlockName{row,1} = obj.session.BlockName;
-        data.fNeuralPathTDT{row,1} = obj.session.fNeuralPathTDT;
-        % data.fNeuralPathMat(row,1) = obj.session.fNeuralPathMat;
+    if session.NeuralData
+        data.NeuralData(row,1) = session.NeuralData;
+        data.LocalAvailTDT(row,1) = session.LocalAvailTDT;
+        data.LocalAvailMat(row,1) = session.LocalAvailMat;
+        data.BlockNum(row,1) = session.BlockNum;
+        data.BlockName{row,1} = session.BlockName;
+        data.fNeuralPathTDT{row,1} = session.fNeuralPathTDT;
+        % data.fNeuralPathMat(row,1) = session.fNeuralPathMat;
         % data.EpochFile{row,1} = epochFile;
-        data.analysisFile{row,1} = obj.session.AnalysisFile;
+        data.analysisFile{row,1} = session.AnalysisFile;
     else
-       data.NeuralData(row,1) = obj.session.NeuralData;
+       data.NeuralData(row,1) = session.NeuralData;
     end
     
     % Add box
     data.Box{row,1} = trialData.box;
     
     % Add date
-    data.DateNum(row,1) = obj.session.DateNum;
+    data.DateNum(row,1) = session.DateNum;
     
     % Add paths
-    % HERE ******************************************
     data.fMatPath{row} = fMat;
     
     % Add stim
@@ -371,7 +369,7 @@ for f = 1:nTrials
         end
     end
     % fName
-    data.fName{row} = fName;
+    data.fName{row} = subject;
     
     % fID
     data.fID{row} = fID;
@@ -438,3 +436,6 @@ for f = 1:nTrials
         disp(['Added ', num2str(row), ' trials...'])
     end
 end
+
+% Save to object
+obj.data = data;

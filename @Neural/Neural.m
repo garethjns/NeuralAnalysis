@@ -1,4 +1,13 @@
-classdef neural
+classdef Neural < TDTHelper
+    % Extract neural data (using TDTHelper)
+    % Pre-process
+    % Clean
+    % Save to disk
+    % Analysis:
+    % Load from disk - either single or combined
+    % Epoch - using Sess or ComboSess data
+    % PSTH etc.
+    
     properties
         
     end

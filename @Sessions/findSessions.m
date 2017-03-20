@@ -17,16 +17,16 @@ fNeuralPathMat = sub.paths.neural.extracted;
 behavPath = sub.paths.behav.data;
 % Make folder for extracted neural data if it doesn't exist already
 try
-if ~exist(fNeuralPathMat, 'dir')
-    mkdir(fNeuralPathMat);
-end
+    if ~exist(fNeuralPathMat, 'dir')
+        mkdir(fNeuralPathMat);
+    end
 end
 
 tic
 
 % Try and load existing data set if requested
 
-%% Import 
+%% Import
 
 % Go to behavioural data directory and find how many sessions exist
 % Find sessions for selected levels
@@ -69,9 +69,6 @@ for s = 1:length(sessions) % For each session
         ': ', fMat])
     allData.BehavPath{row,1} = [behavPath, fMat];
     allData.BehavFn{row,1} = fMat;
-    % SessionNum
-    % allData.SessionNum(row,1) = s;
-    % Done after sorting after loop
     
     % Level
     try
@@ -88,13 +85,13 @@ for s = 1:length(sessions) % For each session
     
     % DateNum, Date
     % Get from file name, not modified time. First 10 chars.
-    allData.DateNum(row,1) = datenum(fMat.extractBefore(' ').char()... 
+    allData.DateNum(row,1) = datenum(fMat.extractBefore(' ').char()...
         ,'dd_mm_yyyy');
     allData.Date{row} = datestr(allData.DateNum(row,1));
     
     % Get time from filename, not modified date
     % ts = datestr(sessions(s).datenum);
-
+    
     tString = fMat.extractBetween([fName, ' '], ' ');
     
     % Convert hour to double
@@ -119,7 +116,7 @@ for s = 1:length(sessions) % For each session
         dnALMAt
     
     % Look for work "Block" in file name
-    blockAvail = fMat.contains('Block'); 
+    blockAvail = fMat.contains('Block');
     if  blockAvail
         % There's a reference to blockname in filename
         % There is neural data available somewhere
@@ -219,9 +216,9 @@ for s = 1:length(sessions) % For each session
                     end
                 end
             end
-
+            
             % For all data (perf 1)
-            % if any column contains a "correct" mark overall column as 
+            % if any column contains a "correct" mark overall column as
             % correct
             c(any(c')',1) = 1;
             % Can't tell NaNs from wrong here, so count correct...
@@ -318,19 +315,10 @@ for s = 1:length(sessions) % For each session
             allData.OKMats{row} = zeros(allData.nTrials(row), 32);
         end
         
-    catch err
-        disp(err)
-        disp('Could not open behavioural file - corrupt??')
-        allData.nTrials(row,1) = 0;
-        allData.Perf(row,1) = NaN;
-        allData.nTrials2(row,1) = 0;
-        allData.Good(row,1)=0;
-        allData.Rates{row} = NaN;
-        allData.Training(row,1) = NaN;
-        allData.Level(row,1) = NaN;
+        
     end
-end
-
+    
+end   
 
 %% Tidy
 
@@ -339,8 +327,8 @@ allData = sortrows(allData, 'DateNum');
 allData.SessionNum(1:height(allData),1) = 1:height(allData);
 
 bs = allData.nTrials<10;
-            allData = allData(~bs,:);
-            disp(['Dumped ', num2str(sum(bs)), ' sessions'])
-            
-            
+allData = allData(~bs,:);
+disp(['Dumped ', num2str(sum(bs)), ' sessions'])
 
+    
+    

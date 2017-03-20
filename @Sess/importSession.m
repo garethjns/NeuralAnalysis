@@ -1,4 +1,4 @@
-function obj = importSession(session, subject, fID)
+function data = importSession(session, subject, fID)
 
 % Load behavioural file
 fMat = string(session.BehavPath);
@@ -60,6 +60,9 @@ for f = 1:nTrials
     % Session
     data.SessionNum(row,1) = ...
         session.SessionNum(1,1);
+    
+    % Trial number
+    data.TrialNumber(row,1) = row;
     
     % Neural info
     if session.NeuralData
@@ -437,5 +440,6 @@ for f = 1:nTrials
     end
 end
 
-% Save to object
-obj.data = data;
+
+% Remove NaN rows (eg. if first field in saveData was empty)
+data = data(~isnan(data.TrialNumber),:);

@@ -1,0 +1,79 @@
+function sumStats(allData, trialInd, level, dateRange, figInfo) %#ok<INUSL>
+% Summary statistics - trialInd
+
+home
+
+fnd = [figInfo.fns, 'Summary.txt'];
+if exist(fnd, 'file')
+    delete(fnd)
+end
+diary(fnd)
+
+ind=allData.Level==level & trialInd;
+disp(['-------- Level: ', num2str(level), '--------'])
+% Line 2
+if level==8
+    disp('Training')
+elseif level == 9
+    disp('Threshold')
+elseif level==10
+    disp('Testing')
+end
+% Line 3
+if level==9 || level==10
+    % Disp WID
+    disp(['Using WeekID: ', figInfo.WID])
+end
+if level==10
+    % Disp DID
+    disp(['Using DayID: ', figInfo.DID])
+end
+disp(['Total trials: ', num2str(height(allData(ind,:))), ...
+    ' from ', num2str(length(unique(allData.SessionNum(ind,:)))), ...
+    ' sessions'])
+disp(['Non-correction trials: ',  ...
+    num2str(sum(allData.CorrectionTrial==0 & ind))])
+disp(['Accuracy: ', ...
+    num2str(sum(allData.Correct==1 & ind) ...
+    /length(allData.Correct(ind))*100), '%'])
+
+disp(['Non-correction trials: ',  ...
+    num2str(sum(allData.CorrectionTrial==0 & trialInd)), ':'])
+disp(['NC-Auditory: ', ...
+    num2str(sum(allData.CorrectionTrial==0 ...
+    & allData.Type==2 & trialInd))]);
+disp(['NC-Visual: ', ...
+    num2str(sum(allData.CorrectionTrial==0 ...
+    & allData.Type==3 & trialInd))]);
+disp(['NC-AV sync: ', ...
+    num2str(sum(allData.CorrectionTrial==0 ...
+    & allData.Type==4 & trialInd))]);
+disp(['NC-AV async: ', ...
+    num2str(sum(allData.CorrectionTrial==0 ...
+    & allData.Type==5 & trialInd))]);
+disp(['Overall accuracy: ', ...
+    num2str(sum(allData.Correct==1 & trialInd)/sum(trialInd)*100), ...
+    '%:'])
+ind = allData.Type==2 & allData.CorrectionTrial==0 & trialInd;
+disp(['NC-Auditory: ', ...
+    num2str(sum(allData.Correct==1 & ind)/height(allData(ind,:))*100), ...
+    '%:'])
+ind = allData.Type==3 & allData.CorrectionTrial==0 & trialInd;
+disp(['NC-Visual: ', ...
+    num2str(sum(allData.Correct==1 & ind)/height(allData(ind,:))*100), ...
+    '%:'])
+ind = allData.Type==4 & allData.CorrectionTrial==0 & trialInd;
+disp(['NC-AV sync: ', ...
+    num2str(sum(allData.Correct==1 & ind)/height(allData(ind,:))*100), ...
+    '%:'])
+ind = allData.Type==5 & allData.CorrectionTrial==0 & trialInd;
+disp(['NC-AV async: ', ...
+    num2str(sum(allData.Correct==1 & ind)/height(allData(ind,:))*100), ...
+    '%:'])
+
+disp(' ')
+disp(' ')
+
+diary('off')
+
+end

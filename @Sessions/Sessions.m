@@ -1,4 +1,4 @@
-classdef Sessions 
+classdef Sessions
     % Import list of sessions for subject
     % Inherit session methods for reporting and plotting
     
@@ -14,6 +14,13 @@ classdef Sessions
         sessionData = cell(1) % Exp objects containing data for sessions
         nS % Number of sessions
         nT % Total number of trials available
+        
+    end
+    
+    properties (Hidden = true)
+        % Kept for convenience/debugging, Hidden for tidyness:
+        subjectParams % Parameters set for subject
+        subjectPaths % Paths set for subject
     end
     
     methods
@@ -23,6 +30,8 @@ classdef Sessions
             obj.subject = sub.subject;
             obj.levels = sub.levels;
             obj.fID = sub.fID;
+            obj.subjectParams = sub.params;
+            obj.subjectPaths = sub.paths;
             
             % Import sessions for subject
             % Reload or reimport?
@@ -65,7 +74,7 @@ classdef Sessions
             fns = dataSetFns(obj);
             
             % Rename obj to sessions in saved file
-            sessions = obj; %#ok<PROPLC>
+            sessions = obj; %#ok<NASGU,PROPLC>
             
             disp('Saving .mat')
             save(fns{1}, ...
@@ -81,21 +90,25 @@ classdef Sessions
         
         function obj = importData(obj, reImport)
             % Create table for analysis from sess objects
-        
+            
             if ~reImport
-               % Load 
+                % Load
             end
             
             for s = 1:obj.nS
                 % Report and time for debugging
                 a = string('*').pad(30, '*');
-                disp(a) 
+                disp(a)
                 disp(['Importing session: ', num2str(s), ...
                     '/', num2str(obj.nS)])
                 tic
-                obj.sessionData{s} = Sess(obj.sessions(s,:));
+                % Create session object for each session using table row
+                % from Sessions and subject's parameters/paths
+                obj.sessionData{s} = Sess(obj.sessions(s,:), ...
+                    {obj.subjectParams, obj.subjectPaths});
                 b = toc;
-                disp(['Done in ', num2str(b) ', S @ ', num2str(obj.sessionData{s}.nTrials/b), ' t/S']) 
+                disp(['Done in ', num2str(b) ', S @ ', ...
+                    num2str(obj.sessionData{s}.nTrials/b), ' t/S'])
             end
             
         end
@@ -108,7 +121,35 @@ classdef Sessions
                 '_levels', l, '_SessionDataset.txt'];
         end
         
-        
+        function obj = analyseBehav(obj, force)
+            % Analyse all sess objects held in session, if not already
+            % done.
+            % (Using Sess.analyseBehav(sessObj)
+            
+            % Check force parameter - if true force redoing of analysis of
+            % each Sess object, ignoring .analysisDone.
+            if ~exist('force', 'var')
+                % Default to false
+                force = false;
+            end
+            
+            for s = 1:obj.nS
+                % Check analysis flag
+                sess = obj.sessionData{s};
+                if ~(sess.analysisDone == 0 || force)
+                    % Done, don't redo
+                    continue
+                end
+                
+                % Else, run analysis
+                obj.sessionData{s} = obj.sessionData{s}.analyseBehav();
+                
+            end
+            
+            % Do subject level analysis
+            
+        end
+
     end
     
     
@@ -118,6 +159,7 @@ classdef Sessions
             l = ('_' + string(levels'))';
             fn = l.join('').char();
         end
+        
         
         % Template table for sessions (external file)
         emptyTable = sessionsTable(nTrials)

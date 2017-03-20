@@ -13,7 +13,7 @@ fParams.do.verifySoFar = 0; % Verfiy files saved so far are not corrupt
 fParams.do.reImportSessions = 1; % Reimport session data, or load it from disk?
 fParams.do.reImportTrials = 1; % Reimport trial data, or load it from disk?
 
-fParams.do.doExtract = 1; % Run extraction cell 
+fParams.do.doExtract = 1; % Run extraction cell
 fParams.do.redoExtract = 0; % Redo neural extraction?
 
 fParams.do.doPreProcessing = 1; % Run preprocessing cell
@@ -52,7 +52,7 @@ fParams.plot.PSTHPlot = 1;
 
 %% Other parameters
 
-% Include centre trials in trial analysis? 
+% Include centre trials in trial analysis?
 fParams.behav.incCentreRewardTrials = 0;
 % Include corretion trails?
 fParams.behav.incCorrectionTrials = 0;
@@ -79,7 +79,7 @@ fParams.extractEvIDs = { ...
     {'BB_2', 1:16, 24414.0625, 24414.0625}, ...
     {'BB_3', 1:16, 24414.0625, 24414.0625}, ...
     {'dBug', 1:3, 6103.515625, 6103.515625}, ...
-    {'Sens', 1:3, 762.939254, 762.939453}, ... 
+    {'Sens', 1:3, 762.939254, 762.939453}, ...
     {'Sond', 1:3, 762.939254, 762.939453}, ...
     {'Valv', 1:3, 762.939254, 762.939453}, ...
     };
@@ -91,7 +91,7 @@ fParams.PP.EpochPostTime = +2;
 fParams.PP.eventThreshRedo = 0; % Disabled for now
 fParams.PP.evMode = 'K'; % 'G' or 'B', 'K' or 'J' not yet implemented
 % If using basic detect: Event threshold? >x*RMS
-fParams.PP.eventThresh = 3; 
+fParams.PP.eventThresh = 3;
 % If using Kath detect
 fParams.PP.medianThresh = 3;
 fParams.PP.artThresh = 10;
@@ -145,7 +145,7 @@ switch obj.subject
         fParams.fName = 'Beryl';
         fParams.subject2 = 'F1520_Beryl';
         fParams.task = 'Temporal';
-         fParams.L8.DateRanges = {...
+        fParams.L8.DateRanges = {...
             '01-Jan-2016', '31-Jan-2016'; ...
             '01-Feb-2016', '28-Feb-2016'; ...
             '01-Mar-2016', '31-Mar-2016'; ...
@@ -182,18 +182,23 @@ fPaths.graphs.neuralEvents = [fPaths.neural.PP, ...
 % Path for behavioural graphs
 fPaths.behav.analysis = ['T:\Analysis\Behaving\', ...
     fParams.task, '\' fParams.subject2, '\BehavAnalysis\'];
-try
-% Make the directories, if they don't already exist
-fps = fieldnames(fPaths);
-for fp = 1:length(fps)
-    fps2 = fieldnames(fPaths.(fps{fp}));
-    for fp2 = 1:length(fps2)
-        if ~exist(fPaths.(fps{fp}).(fps2{fp2}), 'dir') ...
-                && ~(exist(fPaths.(fps{fp}).(fps2{fp2}), 'file'))
-            mkdir(fPaths.(fps{fp}).(fps2{fp2}));
+fPaths.behav.individualSessAnalysis = ...
+    [fPaths.behav.analysis, 'IndividualSessions\'];
+fPaths.behav.joinedSessAnalysis = ...
+    [fPaths.behav.analysis, 'JoinedSessions\'];
+
+try % Errors if running on laptop, OK.
+    % Make the directories, if they don't already exist
+    fps = fieldnames(fPaths);
+    for fp = 1:length(fps)
+        fps2 = fieldnames(fPaths.(fps{fp}));
+        for fp2 = 1:length(fps2)
+            if ~exist(fPaths.(fps{fp}).(fps2{fp2}), 'dir') ...
+                    && ~(exist(fPaths.(fps{fp}).(fps2{fp2}), 'file'))
+                mkdir(fPaths.(fps{fp}).(fps2{fp2}));
+            end
         end
     end
-end
 end
 
 % Behavioural directory

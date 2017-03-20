@@ -22,7 +22,7 @@ classdef Subject
             [obj.params, obj.paths] = obj.setupSubject();
             
             % Then overwrite any specified parameters
-            % Not added yet 
+            % Not added yet
             pFlds = fieldnames(params);
             for f = 1:numel(pFlds)
                 
@@ -33,7 +33,7 @@ classdef Subject
             obj.subject2 = obj.params.subject2;
             obj.task = obj.params.task;
         end
-    
+        
         function obj = importSessions(obj, reImport)
             % Create sessions object for sub/level
             % Return to sub.sessions

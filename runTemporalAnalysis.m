@@ -25,7 +25,7 @@ sub = Subject(sParams);
 
 %% Sync
 
-sub.syncSubject
+sub.syncSubject();
 
 
 %% Find sessions
@@ -38,5 +38,16 @@ sub.sessions = sub.sessions.summary();
 
 %% Import sessions
 
+% Limit for debugging
+lim = 3;
+if lim 
+    sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
+    sub.sessions.nS = lim;
+end
+% Import
 sub.sessions = sub.sessions.importData(true);
 
+
+%% Analyse sessions
+
+sub.sessions.analyseBehav(false)

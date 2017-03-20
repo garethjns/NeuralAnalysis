@@ -1,11 +1,7 @@
 function emptyTable = sessionsTable(nFiles)
+% Prepare table for sessions
 
-% Prepare table
-% Suppress warnings about default row contents
-warning('off', 'MATLAB:table:RowsAddedExistingVars');
-warning('off','MATLAB:table:RowsAddedNewVars');
-
-% Create table and preallocate first row of dataset
+% Create table and preallocate dataset
 varNames = { ...
     NaN(nFiles,1), 'SessionNum', 'Unique number of session'; ...
     NaN(nFiles,1), 'DateNum', 'Date number from file name'; ...

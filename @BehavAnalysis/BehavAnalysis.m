@@ -89,6 +89,9 @@ classdef BehavAnalysis < ggraph
         % Reaction times
         [RTsCI, RTsV] = plotRTs(allData, trialInd, figInfo)
         
+        % Calculate percent correct
+        PCCor = PCCorrect(allData, trialInd, figInfo);
+        
         % Calculate percent correct: Both offset and asm for asyncs
         [PCCorAsM, PCCorOff] = PCCorrectAs(allData, trialInd, figInfo, fParams)
         
@@ -111,6 +114,7 @@ classdef BehavAnalysis < ggraph
         
         % Summary statistics
         overallSummary(allData, level, fPaths)
+        
     end
     
 end

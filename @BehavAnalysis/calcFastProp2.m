@@ -1,10 +1,9 @@
 function fastProp = calcFastProp2(allData, trialInd, figInfo, bDiv)
 
-close all
-
 fns = figInfo.fns;
 
 % Valid conditions
+% "All (async)" and "Async"
 validConditions = [1, 5];
 
 % Unique rates in set
@@ -21,7 +20,7 @@ if numel(bDiv) == 1
     asBinEdges = 0:bDiv:1;
     
 else
-    % bDiv is requested AsMs
+     % bDiv is requested AsMs
      
      % Expand in to bins
      mDiff = mean(diff(bDiv));
@@ -33,6 +32,8 @@ nAsBins = numel(allAsBins);
 idx5 = allData.Type == 5 & trialInd;
 n5 = sum(idx5);
 
+
+
 figure
 histogram(allData.AsMActualLog(idx5,1), 'BinEdges', asBinEdges)
 hold on
@@ -42,8 +43,8 @@ histogram(allData.AsMActualLog(idx5,1), 'BinEdges', 0:0.05:1)
 histogram(allData.AsMActualLog(idx5,1), 'BinEdges', 0:0.025:1)
 legend({'Selected bin edges', '0.2', '0.1', '0.05', '0.025'})
 
-ng('1024');
-hgx([fns, 'AsyncMetric divisions'])
+Sess.ng('1024');
+Sess.hgx([fns, 'AsyncMetric divisions'])
 
 % Calculate fastProp for each bin
 % rates(1:6) x asBin x stat(1:3)
@@ -57,6 +58,13 @@ fastProp = ...
 fastPropN = ...
     NaN(numel(allRates), nAsBins+1);
 
+% Only continue if there's enough data
+if n5 < 20
+    % Return NaNs
+    disp('Not enough async data to calculate AsM fastProp.')
+    return
+end
+
 fpCol = 0;
 for v = 1:length(validConditions)
     
@@ -67,20 +75,19 @@ for v = 1:length(validConditions)
             nAsBinsT = nAsBins;
     end
             
-    
     for a = 1:nAsBinsT
         fpCol = fpCol + 1;
         for r = 1:numel(allRates)
             switch validConditions(v)
                 case 1 % "All", but just all 5s
-                    index = (allData.nEventsA == allRates(r) | ... % A rate |
-                        allData.nEventsV == allRates(r)) ...
+                    index = (allData.nEventsA == allRates(r) ... % A rate |
+                        | allData.nEventsV == allRates(r)) ...
                         & allData.Type == 5 ...
                         & trialInd;
                 case 5
                     % Pick subset of asyncs
-                    index = (allData.nEventsA == allRates(r) | ... % A rate |
-                        allData.nEventsV == allRates(r)) ... % V rate
+                    index = (allData.nEventsA == allRates(r) ... % A rate |
+                        | allData.nEventsV == allRates(r)) ... % V rate
                         & allData.Type == validConditions(v) ... % 5 only
                         & allData.AsMActualLog >= asBinEdges(a) ... % AsM >
                         & allData.AsMActualLog < asBinEdges(a+1) ... % AsM <
@@ -89,21 +96,24 @@ for v = 1:length(validConditions)
             
             data = allData.Response(index);
             n = numel(data);
+            
             % Calculate proportion of fast respoinses
             prop = sum(data==1) / n;
+            
             % Also record n
             fastPropN (r,fpCol) = n;
+            
             % SD assmuning normal distribution (requires  large n)
             % SD = std(data);
             % SD assuming binomial distribution (low n)
             SD = mean(data)*(1-mean(data)) /n;
+            
             % Save
             fastProp(r,fpCol,1) = prop;
             fastProp(r,fpCol,2) = SD;
             fastProp(r,fpCol,3) = SD./sqrt(n);
             
             clear index data prop
-            
         end
     end
 end
@@ -130,6 +140,6 @@ title(['Prop of right responses in  ', figInfo.titleAppend])
 ylabel('Rates')
 xlabel('Subset')
 
-ng('1024');
-hgx([fns, 'AsyncMetric Subset summary'])
+Sess.ng('1024');
+Sess.hgx([fns, 'AsyncMetric Subset summary'])
 

@@ -1,3 +1,5 @@
+clear
+
 %% 1) Set up subject
 
 % Main analysis directory
@@ -30,7 +32,8 @@ sub.syncSubject();
 
 %% Find sessions
 
-sub = sub.importSessions(true);
+reImport = true;
+sub = sub.importSessions(reImport);
 
 % Plot summary
 sub.sessions = sub.sessions.summary();
@@ -45,9 +48,11 @@ if lim
     sub.sessions.nS = lim;
 end
 % Import
-sub.sessions = sub.sessions.importData(true);
+reImport = true;
+sub.sessions = sub.sessions.importData(reImport);
 
 
 %% Analyse sessions
 
-sub.sessions.analyseBehav(false)
+force = false;
+sub.sessions.analyseBehav(force)

@@ -48,6 +48,7 @@ LM = [0, 0, 0, 0];
 % Preallocate
 fastPropFitted = NaN(numel(fineX), size(fastProp,2), 1);
 
+
 %% Run
 % Order run:
 % All (5), AsMs
@@ -88,6 +89,7 @@ for v = 1:size(fastProp,2)
 end
 clear r v
 
+
 %% Plot figure for AVasync subsets
 
 figure
@@ -101,6 +103,9 @@ for c = 2:numel(plotInd)
         (colours(5,2)/numel(plotInd)-0.005), ...
         (colours(5,1)/numel(plotInd)-0.005)];
 end
+asColours(asColours<0) = 0;
+asColours(asColours>1) = 1;
+
 for v = plotInd
     sp = sp+1;
     hPlot = subplot(1,length(plotInd), sp);
@@ -118,12 +123,12 @@ for v = plotInd
     title(xlabels(v));
 end
 suptitle([tA, 'Proportion of "fast" responses']);
-ng;
+Sess.ng;
 hold off
 
 % Save
 fn = [fns, 'Prop right Async'];
-hgx(fn)
+Sess.hgx(fn)
 
 % Tidy
 clear v
@@ -160,11 +165,12 @@ set(hLegend, 'Location', 'NorthWest');
 set(hLegend, 'Color', [0.95 0.95 0.95]);
 ylabel('Prop. "Fast" responses')
 hold off
-ng;
+Sess.ng;
 
 % Save
 fn = [fns, 'Prop right Async2_AsM'];
-hgx(fn)
+Sess.hgx(fn)
+
 
 %% Plot DT and bias as a function of Async metric
 
@@ -198,13 +204,9 @@ xlabel('Asynchrony, DT | Bias')
 ylabel('nEvents')
 title('DT and bias vs Async metric')
 hold off
-ng;
+Sess.ng;
 
 fn = [fns, 'Fit vs AsOffset_AsM'];
-hgx(fn)
+Sess.hgx(fn)
 
 close all force
-
-
-
-end

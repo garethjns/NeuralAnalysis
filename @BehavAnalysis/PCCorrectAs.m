@@ -31,22 +31,26 @@ nOffs = size(allOffsets,1);
 
 % Async metric
 % Histogram of available data (type 5)
-bDiv = fParams.asParams.bDiv;
+bDiv = fParams.asParams.bDivL11;
 asBinEdges = 0:bDiv:1;
 allAsBins = diff(asBinEdges)/2 + asBinEdges(1:end-1);
 nAsBins = numel(allAsBins);
 idx5 = allData.Type == 5 & trialInd;
 n5 = sum(idx5);
 
+
 %% Loop + figure for offsets
+
 % Preallocate
 PCCorOff = array2table(NaN(1,size(allOffsets,1)+1));
 PCCorOff.Properties.VariableNames{1} = 'AllAs5';
+
 % Can't be arsed to name properly
 for a = 1:nOffs
     PCCorOff.Properties.VariableNames{a+1} = ['o', num2str(a)];
 end
 pdl = NaN(1,length(validConditions));
+
 % Create colour gradient
 asColours = colours(5,:);
 for c = 2:nOffs+1
@@ -55,6 +59,8 @@ for c = 2:nOffs+1
         (colours(5,2)/nOffs-0.005), ...
         (colours(5,1)/nOffs-0.005)];
 end
+asColours(asColours<0) = 0;
+asColours(asColours>1) = 1;
 
 figure('OuterPosition', rect);
 % In this case 1=All async, 5=async, then subdivided by whichever index
@@ -117,18 +123,17 @@ for v = 1:length(validConditions)
     end
 end
 suptitle([tA, 'Proportion of correct responses'])
-ng;
+Sess.ng;
 
 fn = [fns, 'Prop correct As Offs'];
-hgx(fn)
-% hgexport(gcf, fn, hgexport('factorystyle'), ...
-%     'Format', 'png');
+Sess.hgx(fn)
 
 disp('%s correct:')
 disp(PCCorOff);
 
 
 %% Loop + figure for AsM
+
 % Preallocate
 PCCorAsM = array2table(NaN(1,size(allAsBins,2)+1));
 PCCorAsM.Properties.VariableNames{1} = 'AllAs5';
@@ -137,6 +142,7 @@ for a = 1:nAsBins
     PCCorAsM.Properties.VariableNames{a+1} = ['a', num2str(a)];
 end
 pdl = NaN(1,length(validConditions));
+
 % Create colour gradient
 asColours = colours(5,:);
 for c = 2:nAsBins+1
@@ -145,6 +151,8 @@ for c = 2:nAsBins+1
         (colours(5,2)/nAsBins-0.005), ...
         (colours(5,1)/nAsBins-0.005)];
 end
+asColours(asColours<0) = 0;
+asColours(asColours>1) = 1;
 
 figure('OuterPosition', rect);
 % In this case 1=All async, 5=async, then subdivided by whichever index
@@ -206,10 +214,10 @@ for v = 1:length(validConditions)
     end
 end
 suptitle([tA, 'Proportion of correct responses'])
-ng;
+Sess.ng;
 
 fn = [fns, 'Prop correct As Offs'];
-hgx(fn)
+Sess.hgx(fn)
 % hgexport(gcf, fn, hgexport('factorystyle'), ...
 %     'Format', 'png');
 
@@ -219,6 +227,7 @@ disp(PCCorAsM);
 %% Alternative, more sensible plots
 
 close all force
+
 figure
 hBar = bar(1:nOffs+1, PCCorOff{1,:});
 hold on
@@ -228,9 +237,9 @@ a.XTickLabel = ['AllAs'; cellstr(num2str(allOffsets))];
 ylabel('% Correct')
 xlabel('Offset')
 title('% correct, asyncs by offset')
-ng;
+Sess.ng;
 fn = [fns, 'Prop correct As Offs2'];
-hgx(fn)
+Sess.hgx(fn)
 
 figure
 hBar = bar(1:nAsBins+1, PCCorAsM{1,:});
@@ -241,6 +250,7 @@ a.XTickLabel = ['AllAs'; cellstr(num2str(allAsBins'))];
 ylabel('% Correct')
 xlabel('AsM')
 title('% correct, asyncs by AsM')
-ng;
+Sess.ng;
 fn = [fns, 'Prop correct As AsM2'];
-hgx(fn)
+Sess.hgx(fn)
+

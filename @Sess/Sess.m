@@ -1,4 +1,4 @@
-classdef Sess < behavAnalysis
+classdef Sess < BehavAnalysis & fitPsyche
     % Object to hold imported behavioural experimental data
     % Includes import, report and plot methods
     % For creation, requires table row from Sessions. Also needs subjects
@@ -21,6 +21,7 @@ classdef Sess < behavAnalysis
         data % Imported data table
         hs % Figure handles
         analysisDone = 0 % Indicate if Sess. analysis has been run yet
+        stats = [] % Output from analysis
     end
     
     properties (Hidden = true)

@@ -1,15 +1,16 @@
-function sumStats(allData, trialInd, level, dateRange, figInfo) %#ok<INUSL>
+function sumStats(allData, trialInd, level, figInfo) 
 % Summary statistics - trialInd
 
 home
 
+% Save summary using diary
 fnd = [figInfo.fns, 'Summary.txt'];
 if exist(fnd, 'file')
     delete(fnd)
 end
 diary(fnd)
 
-ind=allData.Level==level & trialInd;
+ind = allData.Level==level & trialInd;
 disp(['-------- Level: ', num2str(level), '--------'])
 % Line 2
 if level==8
@@ -28,6 +29,7 @@ if level==10
     % Disp DID
     disp(['Using DayID: ', figInfo.DID])
 end
+
 disp(['Total trials: ', num2str(height(allData(ind,:))), ...
     ' from ', num2str(length(unique(allData.SessionNum(ind,:)))), ...
     ' sessions'])
@@ -75,5 +77,3 @@ disp(' ')
 disp(' ')
 
 diary('off')
-
-end

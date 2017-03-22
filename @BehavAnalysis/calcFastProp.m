@@ -43,27 +43,27 @@ for v = 1:length(validConditions)
     end
     
     % For all offsets
-    for o = 1:numel(offsets) + 1; % 1 for all except AV async
+    for o = 1:numel(offsets) + 1 % 1 for all except AV async
         fpCol = fpCol + 1;
         
         % For all rates
         for r = 1:numel(allRates)
             switch v
                 case 1 % All data
-                    index = (allData.nEventsA == allRates(r) | ... % A rate |
-                        allData.nEventsV == allRates(r)) ...
+                    index = (allData.nEventsA == allRates(r) ... % A rate |
+                        | allData.nEventsV == allRates(r)) ...
                         & trialInd;
                 case 5
                     if o == 1
                         % Do average of all offsets
-                        index = (allData.nEventsA == allRates(r) | ... % A rate |
-                            allData.nEventsV == allRates(r)) ... % V rate
+                        index = (allData.nEventsA == allRates(r) ... % A rate |
+                            | allData.nEventsV == allRates(r)) ... % V rate
                             & allData.Type == validConditions(v) ... % 5 only
                             & trialInd; % Data subset
                     else
                         % Pick subset of offsets
-                        index = (allData.nEventsA == allRates(r) | ... % A rate |
-                            allData.nEventsV == allRates(r)) ... % V rate
+                        index = (allData.nEventsA == allRates(r) ... % A rate |
+                            | allData.nEventsV == allRates(r)) ... % V rate
                             & allData.Type == validConditions(v) ... % 5 only
                             & allData.aSyncOffset == offsets(o-1) ... % Offset
                             & trialInd; % Data subset
@@ -72,22 +72,27 @@ for v = 1:length(validConditions)
                 otherwise % AO, VO, AVsync
                     % ( | ok here because when 2 rates present, they're
                     % the same, so doesn't duplicate data)
-                    index = (allData.nEventsA == allRates(r) | ... % A rate |
-                        allData.nEventsV == allRates(r)) ... % V rate
-                        & allData.Type==validConditions(v) ...
+                    index = (allData.nEventsA == allRates(r) ... % A rate |
+                        | allData.nEventsV == allRates(r)) ... % V rate
+                        & allData.Type == validConditions(v) ...
                         & trialInd;
             end
             
             data = allData.Response(index);
             n = numel(data);
-            % Calculate proportion of fast respoinses
+            
+            % Calculate proportion of fast responses
             prop = sum(data==1) / n;
+            
             % Also record n
             fastPropN (r,fpCol) = n;
-            % SD assmuning normal distribution (requires  large n)
+            
+            % SD assmuning normal distribution (requires large n)
             % SD = std(data);
+            
             % SD assuming binomial distribution (low n)
             SD = mean(data)*(1-mean(data)) /n;
+            
             % Save
             fastProp(r,fpCol,1) = prop;
             fastProp(r,fpCol,2) = SD;
@@ -120,7 +125,7 @@ title(['Prop of right responses in  ', figInfo.titleAppend])
 ylabel('Rates')
 xlabel('Subset')
 
-ng('1024');
+Sess.ng('1024');
 hgx([fns, 'Subset summary'])
 
 % Plot as surface, for fun
@@ -136,7 +141,5 @@ ng;
 hgx([fns, 'N surface']);
 
 % Also save the behavioural subset this stuff has been calculated from
-subset = allData(trialInd,:);
-save([fns, 'behavData.mat'], 'subset')
-
-end
+% subset = allData(trialInd,:);
+% save([fns, 'behavData.mat'], 'subset')

@@ -22,34 +22,34 @@ fns = figInfo.fns;
 % Preallocate
 PCCor = array2table(NaN(size(validCondTitsComp)));
 PCCor.Properties.VariableNames = validCondTitsComp;
-pdl=NaN(1,length(validConditions));
+pdl = NaN(1,length(validConditions));
 
 figure('OuterPosition', rect);
-for v=1:length(validConditions)
+for v = 1:length(validConditions)
     plotData=[];
     switch v
         case 1
-            plotData(:,1)=allData.Correct(trialInd);
+            plotData(:,1) = allData.Correct(trialInd);
             
             pdl(v)=size(plotData,1);
             
             % Graph stuff
-            tit='All trials';
-            limy=[0, 600];
-            col=colours(v,:);
-            ecol='w';
+            tit = 'All trials';
+            limy = [0, 600];
+            col = colours(v,:);
+            ecol = 'w';
             
         otherwise % Data for current, valid condition
             index = allData.Type==validConditions(v) ...
                 & trialInd;
             
-            plotData=allData.Correct(index);
+            plotData = allData.Correct(index);
             
             % Graph stuff
-            tit=validCondTitsComp{v};
-            limy=[0, 600];
-            col=colours(v,:);
-            ecol='k';
+            tit = validCondTitsComp{v};
+            limy = [0, 600];
+            col = colours(v,:);
+            ecol = 'k';
     end
     
     subplot(1,length(validConditions),v),
@@ -69,12 +69,10 @@ for v=1:length(validConditions)
     clear data2Plot index tit h col ecol limy
 end
 suptitle([tA, 'Proportion of correct responses'])
-ng;
+Sess.ng;
 
 fn = [fns, 'Prop correct'];
-hgx(fn)
-% hgexport(gcf, fn, hgexport('factorystyle'), ...
-%     'Format', 'png');
+Sess.hgx(fn)
 
 disp('%s correct:')
 disp(PCCor);

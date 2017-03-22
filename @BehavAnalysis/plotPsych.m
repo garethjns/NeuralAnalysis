@@ -1,6 +1,6 @@
 function [fastPropFitted, bsAvg] = ...
     plotPsych(allData, fastProp, trialInd, figInfo)
-% Plot psychometric curves
+% Fit and plot psychometric curves
 
 %% Setup
 
@@ -42,6 +42,7 @@ LM = [0, 0, 0, 0];
 % Preallocate
 fastPropFitted = NaN(numel(fineX), size(fastProp,2), 1);
 
+
 %% Run
 % Order run:
 % All data, AO, VO, AVs, AVa all, AVa offset 1, AVa offset 2, ...
@@ -61,7 +62,7 @@ for v = 1:size(fastProp,2)
     % Fit
     try % Fit fails on NaN data
         b = ...
-            FitPsycheCurveWH2001b(xaxis, data, SP, LM, UL);
+            Sess.FitPsycheCurveWH2001b(xaxis, data, SP, LM, UL);
         
         % Save coefficients
         bsAvg(:,v).data = b;  %#ok<AGROW>
@@ -82,11 +83,13 @@ for v = 1:size(fastProp,2)
 end
 clear r v
 
+
 %% Plot summary fast prop graph
 % Subplot and on same plot
 
 disp(fastProp)
 disp(allRates')
+
 figure('OuterPosition', rect);
 sp = 0;
 plotInd = 2:5;
@@ -107,12 +110,12 @@ for v = plotInd
     title(validCondTitsAlt(v));
 end
 suptitle([tA, 'Proportion of "fast" responses']);
-ng;
+Sess.ng;
 hold off
 
 % Save
 fn = [fns, 'Prop right'];
-hgx(fn)
+Sess.hgx(fn)
 
 % Tidy
 clear v
@@ -123,7 +126,7 @@ for v = plotInd
     hold on,
     plot(fineX, fastPropFitted(:,v), 'color', colours(v,:), ...
         'LineWidth',2.5);
-    h=errorbar(allRates', fastProp(:,v,1), ...
+    h = errorbar(allRates', fastProp(:,v,1), ...
         fastProp(:,v,3), ['o', '']);
     set(h,'Color',colours(v,:))
     h.MarkerSize = 10;
@@ -136,22 +139,24 @@ for v = plotInd
 end
 suptitle([tA, fName]);
 % Double plot above, so duplicate titles and order correctly...
-hLegend=legend(reshape(repmat(validCondTitsAlt(2:5),2,1), ...
+hLegend = legend(reshape(repmat(validCondTitsAlt(2:5),2,1), ...
     numel(validCondTitsAlt(2:5))*2,1));
 set(hLegend,'Location','NorthWest');
 set(hLegend,'Color',[0.95 0.95 0.95]);
 ylabel('Prop. "Fast" responses')
 hold off
-ng;
+Sess.ng;
 
 % Save
 fn = [fns, 'Prop right2'];
-hgx(fn)
+Sess.hgx(fn)
 
 % Tidy
 clear v
 
+
 %% Plot figure for AVasync subsets
+
 figure
 plotInd = 5:size(fastProp,2);
 sp = 0;
@@ -163,12 +168,15 @@ for c = 2:numel(plotInd)
         (colours(5,2)/numel(plotInd)-0.005), ...
         (colours(5,1)/numel(plotInd)-0.005)];
 end
+asColours(asColours<0) = 0;
+asColours(asColours>1) = 1;
+
 for v = plotInd
     sp = sp+1;
     hPlot = subplot(1,length(plotInd), sp);
     hold on,
     plot(fineX, fastPropFitted(:,v), 'color', asColours(sp,:), ...
-        'LineWidth',2.5);
+        'LineWidth', 2.5);
     h = errorbar(allRates', fastProp(:,v,1), ...
         fastProp(:,v,3), ['o', '']);
     set(h,'Color', asColours(sp,:));
@@ -179,20 +187,21 @@ for v = plotInd
     hXLabel = xlabel('n Events, /s');
     title(xlabels(v));
 end
+
 suptitle([tA, 'Proportion of "fast" responses']);
-ng;
+Sess.ng;
 hold off
 
 % Save
 fn = [fns, 'Prop right Async'];
-hgx(fn)
+Sess.hgx(fn)
 
 % Tidy
 clear v
 
 % Plot again, on one fig
 figure('OuterPosition', [-600 0 500 800]);
-plotInd = 5:size(fastProp,2);
+plotInd = 5:size(fastProp, 2);
 sp = 0;
 hp = plot(fineX, fastPropFitted(:, plotInd), ...
     'LineWidth',2.5);
@@ -222,11 +231,12 @@ set(hLegend, 'Location', 'NorthWest');
 set(hLegend, 'Color', [0.95 0.95 0.95]);
 ylabel('Prop. "Fast" responses')
 hold off
-ng;
+Sess.ng;
 
 % Save
 fn = [fns, 'Prop right Async2'];
-hgx(fn)
+Sess.hgx(fn)
+
 
 %% Plot DT and bias as a function of modality
 
@@ -259,10 +269,10 @@ xlabel('Modality, DT | Bias')
 ylabel('nEvents')
 title('DT and bias vs modality')
 hold off
-ng;
+Sess.ng;
 
 fn = [fns, 'Fit vs Mod'];
-hgx(fn)
+Sess.hgx(fn)
 
 
 %% Plot DT and bias as a function of Async offset
@@ -297,10 +307,9 @@ xlabel('As offset, DT | Bias')
 ylabel('nEvents')
 title('DT and bias vs Async offset')
 hold off
-ng;
+Sess.ng;
 
 fn = [fns, 'Fit vs AsOffset'];
-hgx(fn)
+Sess.hgx(fn)
 
 close all force
-

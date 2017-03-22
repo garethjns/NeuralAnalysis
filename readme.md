@@ -6,9 +6,11 @@ Classes and scripts for analysing temporal (and later spatial) behavioural and n
 ## Requirements
  - MATLAB 2016b
  - Linspecer
- - ggraph
+ - [ggraph](https://github.com/garethjns/MATLABGraphicsFunctions)
  - TDT ActiveX Controls
  - TDT Helper
+ - [fitPsyche](https://github.com/garethjns/PsychometricCurveFitting)
+ 
 
 ## Specific classes
   - Subject

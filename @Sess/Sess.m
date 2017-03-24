@@ -20,6 +20,8 @@ classdef Sess < BehavAnalysis & fitPsyche
         data % Imported data table
         analysisDone = 0 % Indicate if Sess. analysis has been run yet
         stats = [] % Output from analysis
+        neuralData
+        neuralPaths
     end
     
     properties (Hidden = true)
@@ -64,6 +66,9 @@ classdef Sess < BehavAnalysis & fitPsyche
             % expected number (session.nTrials)
             obj.nTrials = height(table(obj.data));
             obj.report();
+            
+            % Add neural data
+            obj = addNeuralData(obj);
         end
         
         function report(obj)
@@ -101,6 +106,35 @@ classdef Sess < BehavAnalysis & fitPsyche
             
         end
         
+        function obj = addNeuralData(obj)
+            % Populate nerual paths
+            % Process if needed
+            % Save nerual object to session
+            
+            % First check if there is any neural data
+            % obj.session will contain relevent info
+            
+            if ~ obj.session.NeuralData
+                return
+            end
+            
+            % Set .neuralPaths
+            obj.neuralPaths.TDT = [obj.session.fNeuralPathTDT{1}, '\', ...
+                obj.session.BlockName{1}, '\'];
+            obj.neuralPaths.Extracted = ...
+                [obj.subjectPaths.neural.extracted, ...
+                obj.session.BlockName{1}, '\'];
+            obj.neuralPaths.PreProFilt = obj.session.PreProFilt{1};
+            obj.neuralPaths.Epoch = obj.session.PreProEpoch{1};
+            obj.neuralPaths.Analysis = obj.session.AnalysisFile{1};
+            
+            % Create neuralData object
+            obj.neuralData = Neural(obj);
+            % Process it as much as possible (depending on available
+            % data)
+            obj.neuralData.process()
+            
+        end
     end
     
     methods (Static)

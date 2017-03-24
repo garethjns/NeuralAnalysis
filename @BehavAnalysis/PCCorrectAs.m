@@ -1,4 +1,5 @@
-function [PCCorAsM, PCCorOff] = PCCorrectAs(allData, trialInd, figInfo, fParams)
+function [PCCorAsM, PCCorOff] = PCCorrectAs(allData, trialInd, ...
+    figInfo, fParams)
 % Calculate percent correct: Both offset and asm for asyncs
 % Correct answer histogram
 % Plots histogram of all answers.
@@ -31,7 +32,7 @@ nOffs = size(allOffsets,1);
 
 % Async metric
 % Histogram of available data (type 5)
-bDiv = fParams.asParams.bDivL11;
+bDiv = fParams.asParams.bDiv;
 asBinEdges = 0:bDiv:1;
 allAsBins = diff(asBinEdges)/2 + asBinEdges(1:end-1);
 nAsBins = numel(allAsBins);

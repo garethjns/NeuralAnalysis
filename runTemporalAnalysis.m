@@ -17,16 +17,13 @@ sParams.subject = 'Snow';
 % sParams.fName = 'Beryl';
 
 % sParams.level = [8, 9, 10];
-% sParams.level = 8;
+sParams.level = 8;
 % sParams.level = 10;
-sParams.level = 11;
 
 % The rest
 sub = Subject(sParams);
 
-
-%% Sync
-
+% Sync
 sub.syncSubject();
 
 
@@ -42,7 +39,7 @@ sub.sessions = sub.sessions.summary();
 %% Import sessions
 
 % Limit for debugging
-lim = 3;
+lim = 50;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;

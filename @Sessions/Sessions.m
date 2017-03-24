@@ -95,6 +95,7 @@ classdef Sessions
                 % Load
             end
             
+            obj.nT = 0;
             for s = 1:obj.nS
                 % Report and time for debugging
                 a = string('*').pad(30, '*');
@@ -109,6 +110,8 @@ classdef Sessions
                 b = toc;
                 disp(['Done in ', num2str(b) ', S @ ', ...
                     num2str(obj.sessionData{s}.nTrials/b), ' t/S'])
+                
+                obj.nT = obj.nT + obj.sessionData{s}.nTrials;
             end
             
         end

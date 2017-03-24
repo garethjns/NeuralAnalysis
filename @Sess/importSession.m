@@ -1,5 +1,8 @@
 function data = importSession(session, subject, fID)
 
+% Empty data in case of early return
+data = [];
+
 % Load behavioural file
 fMat = string(session.BehavPath);
 nTrials = session.nTrials;
@@ -7,12 +10,12 @@ fData = open(fMat.char());
 
 % Check some data was saved...
 if length(fData.saveData)<2
-    disp(['Skipping, empty file: ', fMat])
+    disp(['Skipping, empty file: ', fMat.char()])
     return
 end
 % Check response is available
 if isempty(fData.saveData{1,2}.response)
-    disp(['Skipping, response missing: ', fMat])
+    disp(['Skipping, response missing: ', fMat.char()])
     return
 end
 if ~isfield(fData.saveData{1,2}, 'box')
@@ -23,7 +26,9 @@ end
 
 % If level 11 file, load seed2
 clear seed2
-if fData.saveData{2}.level == 11
+% Use session.Level here rather than fData.saveData{2}.level as early
+% level8s didn't have level in trialData.
+if session.Level  == 11
     fn = fMat.extractBefore(session.BehavFn) ...
         + session.Subject ...
         + '_SEEDID2_' ...

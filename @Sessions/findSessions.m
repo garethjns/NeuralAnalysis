@@ -162,14 +162,16 @@ for s = 1:length(sessions) % For each session
         if blockNum == 10159
             allData.FlipCables(row,1) = 1;
         end
-        % And flip list of file names
-        if allData.FlipCables(row,1) == 1
-            % Cable flipped, so flip BB_2 and BB_3
-            tmp = allData.fNeuralPathMats(row, :);
-            tmp = [tmp(17:32), tmp(1:16), tmp(33:end)];
-            allData.fNeuralPathMats(row, :) = tmp;
-        else
-        end
+       
+        % And flip list of file names - removed, handle later with neural
+        % data
+        % if allData.FlipCables(row,1) == 1
+        %     % Cable flipped, so flip BB_2 and BB_3
+        %     tmp = allData.fNeuralPathMats(row, :);
+        %     tmp = [tmp(17:32), tmp(1:16), tmp(33:end)];
+        %     allData.fNeuralPathMats(row, :) = tmp;
+        % else
+        % end
         
         % Paths for PrePro files (filt and epoch)
         allData.PreProEpoch{row} = [sub.paths.neural.PP, ...

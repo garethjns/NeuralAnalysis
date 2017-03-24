@@ -39,6 +39,7 @@ for nl = 1:numel(nls)
         end
     end
 end
+
 % Remove NaNs from corPCV and corPCA and create x
 xA = nls(~isnan(corPCA));
 corPCAn = corPCAn(corPCAn>0);
@@ -47,10 +48,10 @@ xV = nls(~isnan(corPCV));
 corPCVn = corPCVn(corPCVn>0); % Should match with below
 corPCV = corPCV(~isnan(corPCV));
 
-[coeffsA, stats, curveA, thresholdA] = ...
-    FitPsycheCurveLogit(xA, corPCA/100.*corPCAn, corPCAn); %#ok<ASGLU>
-[coeffsV, stats, curveV, thresholdV] = ...
-    FitPsycheCurveLogit(xV, corPCV/100.*corPCVn, corPCVn); %#ok<ASGLU>
+[coeffsA, curveA, thresholdA] = ...
+    Sess.fitPsycheCurveLogit(xA, corPCA/100.*corPCAn, corPCAn, 0.75); 
+[coeffsV, curveV, thresholdV] = ...
+    Sess.fitPsycheCurveLogit(xV, corPCV/100.*corPCVn, corPCVn, 0.75); 
 
 % [fit, threshold, stat] = FitPsycheCurve(xA, corPCA/100, 0.75)
 
@@ -81,7 +82,7 @@ ng OpenScatter
 fn = [fns, 'Thresholds'];
 % hgexport(gcf, fn, hgexport('factorystyle'), ...
 %     'Format', 'png');
-hgx(fn)
+Sess.hgx(fn)
 
 % Return
 thresh.thresholdA = thresholdA;

@@ -23,10 +23,7 @@ classdef Subject
             
             % Then overwrite any specified parameters
             % Not added yet
-            pFlds = fieldnames(params);
-            for f = 1:numel(pFlds)
-                
-            end
+            obj.levels = params.level;
             
             % Set obj fields
             obj.fID = obj.params.fID;
@@ -39,7 +36,6 @@ classdef Subject
             % Return to sub.sessions
             
             obj.sessions = Sessions(obj, reImport);
-            
         end
         
         function tidy(obj)

@@ -6,20 +6,18 @@ classdef Sess < BehavAnalysis & fitPsyche
     % available here rather than Subject object (?).
     
     properties (SetAccess = immutable)
-        % Inherited from  
+        title
         subject
         fID
         level
         task
         date
         session % Session row
-        
     end
     
     properties
         nTrials % Number of trials available
         data % Imported data table
-        hs % Figure handles
         analysisDone = 0 % Indicate if Sess. analysis has been run yet
         stats = [] % Output from analysis
     end
@@ -40,7 +38,6 @@ classdef Sess < BehavAnalysis & fitPsyche
             obj.fID = session.fID{1};
             obj.task = session.Task{1};
             obj.session = session;
-            obj.nTrials = session.nTrials;
             
             % Copy subjects parameters if available
             % Make required rather than optional?
@@ -48,12 +45,25 @@ classdef Sess < BehavAnalysis & fitPsyche
                 obj.subjectParams = subjectReference{1};
                 obj.subjectPaths = subjectReference{2};
             end
-                
             
             % Import session
-            obj.report();
             obj.data = ...
                 obj.importSession(obj.session, obj.subject, obj.fID);
+            
+            % Set title
+            % Date
+            d = datestr(session.DateNum(1));
+            % Session num
+            s = session.SessionNum(1);
+            obj.title = ['Level', num2str(obj.level), '\', ...
+                d, '_', ...
+                obj.session.Time{1}, '_', ...
+                num2str(s)];
+            
+            % .nTrials should be actual number of trials imported, not
+            % expected number (session.nTrials)
+            obj.nTrials = height(table(obj.data));
+            obj.report();
         end
         
         function report(obj)
@@ -63,7 +73,7 @@ classdef Sess < BehavAnalysis & fitPsyche
             disp(['Subject: ', obj.subject])
             disp(['Task: ', obj.task])
             disp(['nTrials: ', num2str(obj.nTrials)])
-   
+            
         end
         
         function obj = analyseBehav(obj)
@@ -78,18 +88,16 @@ classdef Sess < BehavAnalysis & fitPsyche
             % (These are inhertied from behavAnalysis lib)
             switch obj.level
                 case 8
+                    obj = obj.level8();
                 case 9
+                    obj = obj.level9();
                 case 10
+                    obj = obj.level10();
                 case 11
                     obj = obj.level11();
             end
             
             obj.analysisDone = true;
-            
-        end
-            
-        function hs = plot(obj)
-            % Plots for single sessions
             
         end
         
@@ -99,13 +107,58 @@ classdef Sess < BehavAnalysis & fitPsyche
         function summary
         end
         
-
-        
         % Import session (external file)
         data = importSession(session, subject, fID)
         
         % Template table for session (external file)
         emptyTable = sessionTable(nTrials)
+        
+        function figInfo = prepDir(obj)
+            % Set file/folder string to use when saving graphs
+            % For invidual sessions, use title (date and session number)
+            % for sub folder.
+            figInfo = obj.figInfo;
+            figInfo.fns = ...
+                [obj.subjectPaths.behav.individualSessAnalysis, ...
+                obj.title, '\'];
+            figInfo.titleAppend = obj.title;
+            
+            % Delete any previous analysis
+            if exist(figInfo.fns, 'dir')
+                try
+                    rmdir(figInfo.fns(1:end-1), 's')
+                catch err
+                    disp('Failed to remove dir') % But why??
+                end
+            end
+            mkdir(figInfo.fns)
+        end
+        
+        function trialIdx = setTrialIdx(obj)
+            % Set trial index based on inc centreRewardTrials and
+            % incCorrectionTrials - NOT training, which varies by level
+            
+            % Centre reward trials
+            if obj.subjectParams.behav.incCentreRewardTrials == 1
+                % Use all trials
+                crIdx = ones(height(obj.data),1);
+            else
+                % Don't use trials where centre was rewarded
+                crIdx = obj.data.CentreReward==0;
+            end
+            
+            % Correction trials
+            if obj.subjectParams.behav.incCorrectionTrials == 1
+                % Use all trials
+                corIdx = ones(height(obj.data),1);
+            else
+                % Don't usecorrection trials
+                corIdx = obj.data.CorrectionTrial==0;
+            end
+            
+            trialIdx = crIdx & corIdx;
+            
+        end
         
     end
     

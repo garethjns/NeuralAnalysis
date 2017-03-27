@@ -76,14 +76,14 @@ classdef Neural
                 
                 data = obj.extractionObject.loadEvID(id);
                 fs = obj.extractionObject.evIDs{e}{3};
-
+                
                 % Filter
                 [fData, lfpData] = obj.filter(data, fs);
                 
                 % Here...
             end
         end
-
+        
         function clean
         end
         
@@ -112,21 +112,30 @@ classdef Neural
         function [fData, lfpData] = filter(data, fs)
             disp('Filtering...')
             
+            % Params
+            % Spikes
+            BPs = [300, 5000];
+            % LFP
+            BPl = [3, 150];
+            
             % Apply both filters
             % Do in parallel if not too big
             info = whos('data');
-            par = info.bytes < 3*1024*1024*1024;
+            par = info.bytes < 0.000000000003*1024*1024*1024; % Disabled
+            % parfor slower - fewer cores available to fft and ifft?
+            % ~70s vs 73s.
+            
             if par
                 a = tic;
                 out = cell(1,2);
                 parfor s = 1:2
                     switch s
                         case 1
-                            BP = [300, 5000];
-                            out{s} = Neural.BPFilter(data, fs, BP);
+                            % Spikes
+                            out{s} = Neural.BPFilter(data, fs, BPs);
                         case 2
-                            BP = [3, 150];
-                            out{s} = Neural.LFPFilter(data, fs, BP);
+                            % LFP
+                            out{s} = Neural.LFPFilter(data, fs, BPl);
                     end
                 end
                 fData = out{1};
@@ -135,13 +144,14 @@ classdef Neural
                 toc(a)
             else
                 a = tic;
-                BP = [300, 5000];
-                fData = Neural.BPFilter(data, fs, BP);
-                BP = [3, 150];
-                lfpData = Neural.LFPFilter(data, fs, BP);
+                % Spikes
+                fData = Neural.BPFilter(data, fs, BPs);
+                % LFP
+                lfpData = Neural.LFPFilter(data, fs, BPl);
                 toc(a);
             end
-            
+        end
+        
         function [fData, tt] = BPFilter(data, Fs, BP)
             % Create filter and apply with filtfilthd
             
@@ -162,7 +172,7 @@ classdef Neural
         
         function [fData, tt] = LFPFilter(data, Fs, BP)
             % Filter for LFP using LFPprocessBand and LFPRemove50
-
+            
             % Band pass
             fData = Neural.LFPProcessBAND(data, Fs, BP(2), BP(1));
             % Band stop
@@ -214,30 +224,34 @@ classdef Neural
             end
             
             % Frequency range to process
-            fStop = [49, 50, 51]; 
-
+            fStop = [49, 51];
+            
             % FFT
-            spect = fft(double(data));
+            % Need to convert to float here
+            spect = fft(single(data));
             
             % Find index (rows) of fStop frequencies
             fIdx = round(fStop/sampleRate * (size(data,1)-1))+1;
             fIdx = fIdx(1):1:fIdx(end);
-            nF = length(fIdx);
             
             % Calculate scale factor
             % Is this correct? For each point in range, take point 5 behind
             % and 5 in front (not between), mean, compare to amp of point.
-            scaleFact = NaN(length(fIdx), chans);
-            for ff = 1:nF
-                scaleFact(ff,:) = ...
-                    spect(fIdx(ff),:) ...
-                    ./ mean(spect([fIdx(ff)-5, fIdx(ff)+5],:),1);
-            end
+            % scaleFact = NaN(length(fIdx), chans);
+            % nF = length(fIdx);
+            % for ff = 1:nF
+            %     scaleFact(ff,:) = ...
+            %         spect(fIdx(ff),:) ...
+            %         ./ mean(spect([fIdx(ff)-5, fIdx(ff)+5],:),1);
+            % end
+            % Alt - non-loop - faster
+            scaleFact = spect(fIdx,:) ...
+                ./ mean(cat(3, spect(fIdx-5,:), spect(fIdx+5,:)), 3);
             
             % Apply scale factor
             spect(fIdx,:) = spect(fIdx,:)./scaleFact;
             spect(end-fIdx+2,:) = ...
-                    spect(end-fIdx+2,:)./scaleFact;
+                spect(end-fIdx+2,:)./scaleFact;
             
             % Inverse FFT
             % Also return to int16
@@ -247,5 +261,4 @@ classdef Neural
             disp(['Done in ', num2str(tt), ' S'])
         end
     end
-    
 end

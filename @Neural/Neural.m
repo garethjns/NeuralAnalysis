@@ -22,10 +22,11 @@ classdef Neural
         processingPaths
         epochedPaths
         analysisPaths
+        extractionObject
     end
     
     properties (Hidden = true)
-        extractionObject
+        
     end
     
     methods
@@ -63,33 +64,26 @@ classdef Neural
             % Extract neural data
         end
         
-        function PP(EvIDs)
+        function PP(obj, EvIDs)
             % Run PP on neural data
+            % Assuming, for now, broadband only ie. BB_1 and BB_2.
+            
             nP = numel(EvIDs);
             for e = 1:nP
                 id = EvIDs{e};
-                data = obj.extractionObject.loadEvIDs(id);
                 
+                disp(['Working on ', id])
+                
+                data = obj.extractionObject.loadEvID(id);
+                fs = obj.extractionObject.evIDs{e}{3};
+
+                % Filter
+                [fData, lfpData] = obj.filter(data, fs);
+                
+                % Here...
             end
-            
         end
-        
-        function [fData, lfpData] = filter(obj, data)
-            disp('Filtering...')
-            
-            % Do in parallel if not too big
-            info = whos('data');
-            par = info.bytes < 3*1024*1024*1024;
-            % Not added yet
-            
-            %
-            BP = [300, 5000];
-            fData = Neural.BPFilter(matData, Fs1, BP);
-            BP = [3, 150];
-            lfpData = Neural.BPFilter(matData, Fs1, BP);
-            
-        end
-        
+
         function clean
         end
         
@@ -115,9 +109,44 @@ classdef Neural
     
     methods (Static)
         
+        function [fData, lfpData] = filter(data, fs)
+            disp('Filtering...')
+            
+            % Apply both filters
+            % Do in parallel if not too big
+            info = whos('data');
+            par = info.bytes < 3*1024*1024*1024;
+            if par
+                a = tic;
+                out = cell(1,2);
+                parfor s = 1:2
+                    switch s
+                        case 1
+                            BP = [300, 5000];
+                            out{s} = Neural.BPFilter(data, fs, BP);
+                        case 2
+                            BP = [3, 150];
+                            out{s} = Neural.LFPFilter(data, fs, BP);
+                    end
+                end
+                fData = out{1};
+                lfpData = out{2};
+                clear out
+                toc(a)
+            else
+                a = tic;
+                BP = [300, 5000];
+                fData = Neural.BPFilter(data, fs, BP);
+                BP = [3, 150];
+                lfpData = Neural.LFPFilter(data, fs, BP);
+                toc(a);
+            end
+            
         function [fData, tt] = BPFilter(data, Fs, BP)
             % Create filter and apply with filtfilthd
             
+            disp([num2str(BP(1)), '-> <-' num2str(BP(2)), ' Hz on ', ...
+                num2str(size(data,2)), ' channels'])
             tic
             
             % Create filter
@@ -127,91 +156,96 @@ classdef Neural
             fData = -filtfilthd(b, a, data);
             
             tt = toc;
+            disp(['Done in ', num2str(tt), ' S'])
         end
         
         
         function [fData, tt] = LFPFilter(data, Fs, BP)
             % Filter for LFP using LFPprocessBand and LFPRemove50
+
+            % Band pass
+            fData = Neural.LFPProcessBAND(data, Fs, BP(2), BP(1));
+            % Band stop
+            fData = Neural.LFPRemove50(fData, Fs);
+        end
+        
+        function fData = LFPProcessBAND(data, fs, lowPass, highPass)
+            % Filters at frequency lowpass and baseline corrects data
+            % (mean)
             
             tic
+            disp([num2str(lowPass), '-> <-' num2str(highPass), ' Hz on ', ...
+                num2str(size(data,2)), ' channels'])
             
-            dataf = NaN(size(matData));
-            for i = 1:size(matData,1)
-                disp(['Filtering channel ', num2str(i), ...
-                    ': ->', num2str(BP), '<-, Hz'])
-                % Vector 1 x Pts
-                datafTMP = LFPprocessBAND(matData(i,:), Fs, BP(2), BP(1));
-                disp('Removing 50 Hz')
-                % Structure: .lfp=original lfp, .lpf2=lfp after 50 removal
-                datafTMP2 = LFPremove50(datafTMP, Fs);
-                
-                dataf(i,:) = datafTMP2.lfp2;
-                
-                clear datafTMP datafTMP2
-            end
+            % Create filter
+            Wp = lowPass;
+            [z, p, k] = butter(5,[highPass/(fs/2) Wp/(fs/2)]);
+            [sos, g] = zp2sos(z, p, k);
+            Hd = dfilt.df2tsos(sos, g);
+            
+            % Filter
+            fData = filtfilthd(Hd, data);
+            
+            % Correct baseline
+            % Note change here to maintain integers - baseline shift is
+            % very small here as it's already been filtered.
+            fData = fData - int16(mean(fData, 1));
             
             tt = toc;
-            
+            disp(['Done in ', num2str(tt), ' S'])
         end
         
-        function fData = LFPremove50(data, sampleRate)
+        function fData = LFPRemove50(data, sampleRate)
             % Remove 50 Hz with BS filter.
             %
-            %  Assumes there is an additive, constant artifact at that
-            %  frequency which can be removed by setting
-            %  the maplitude of f equal to the average amplitude on either
-            %  side of f.
+            % Assumes there is an additive, constant artifact at that
+            % frequency which can be removed by setting
+            % the maplitude of f equal to the average amplitude on either
+            % side of f.
+            tic
+            
+            chans = size(data, 2);
+            disp(['Removing 50 Hz on ', ...
+                num2str(chans), ' channels'])
             
             % Use an even number of points
-            if mod(size(data,2), 2)
-                data = data(:,1:end-1);
+            if mod(size(data, 1), 2)
+                data = data(1:end-1,:);
             end
             
+            % Frequency range to process
             fStop = [49, 50, 51]; 
-      
-            for ii=1:size(l.lfp,1)
-                spect=fft(l.lfp(ii,:));
-                % On the absciss of the Discrete Fourrier Transform:
-                % 1 step correspond to 1/TotalRecordingTime Hz= sampleRate/Nb
-                %Data Hz % => number of steps corresponding to
-                %f: f/(sampleRate/NbData) =
-                % f*(NbData/sampleRate)
-                fIdx=round(f/sampleRate*(length(l.lfp(ii,:))-1))+1;
-                fIdx=[fIdx(1):1:fIdx(end)];
-                for ff=1:length(fIdx),
-                    scaleFact(ff)=spect(fIdx(ff))/mean(spect([fIdx(ff)-5,fIdx(ff)+5]));
-                end
-                
-                % now run through the data and scale down frequency f in the fourier domain
-                
-                for ff=1:length(fIdx),
-                    spect(fIdx(ff))=spect(fIdx(ff))/scaleFact(ff);
-                    spect(end-fIdx(ff)+2)=spect(end-fIdx(ff)+2)/scaleFact(ff);
-                end;
-                l.lfp2(ii,:)=real(ifft(spect));
-            end;
-            data=l;
-        end
-        
-        function outSig = LFPprocessBAND(inSig, fs, lowPass, highpass)
-            % insig should be a trials x times matrix sampled at Fs Hz.
-            %filters at frequency lowpass and baseline corrects data
-            %resample with jenny_resample
-            %JKB 08/09
+
+            % FFT
+            spect = fft(double(data));
             
-            % low pass freq
-            Wp = lowPass;
-            [z,p,k] = butter(5,[highpass/(fs/2) Wp/(fs/2)]);
-            [sos,g] = zp2sos(z,p,k);
-            Hd = dfilt.df2tsos(sos,g);
+            % Find index (rows) of fStop frequencies
+            fIdx = round(fStop/sampleRate * (size(data,1)-1))+1;
+            fIdx = fIdx(1):1:fIdx(end);
+            nF = length(fIdx);
             
-            % and filter with it
-            for ii=1:size(inSig,1)
-                outSig(ii,:)=filtfilthd(Hd,inSig(ii,:));
-                outSig(ii,:)=outSig(ii,:)-mean(outSig(ii,:));
+            % Calculate scale factor
+            % Is this correct? For each point in range, take point 5 behind
+            % and 5 in front (not between), mean, compare to amp of point.
+            scaleFact = NaN(length(fIdx), chans);
+            for ff = 1:nF
+                scaleFact(ff,:) = ...
+                    spect(fIdx(ff),:) ...
+                    ./ mean(spect([fIdx(ff)-5, fIdx(ff)+5],:),1);
             end
+            
+            % Apply scale factor
+            spect(fIdx,:) = spect(fIdx,:)./scaleFact;
+            spect(end-fIdx+2,:) = ...
+                    spect(end-fIdx+2,:)./scaleFact;
+            
+            % Inverse FFT
+            % Also return to int16
+            fData = int16(real(ifft(spect)));
+            
+            tt = toc;
+            disp(['Done in ', num2str(tt), ' S'])
         end
-        
     end
     
 end

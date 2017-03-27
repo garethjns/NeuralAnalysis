@@ -131,7 +131,7 @@ classdef Sess < BehavAnalysis & fitPsyche
             % Create neuralData object
             obj.neuralData = Neural(obj);
             % Process it as much as possible (depending on available
-            % data)
+            % local data)
             obj.neuralData.process()
             
         end
@@ -165,6 +165,8 @@ classdef Sess < BehavAnalysis & fitPsyche
                     disp('Failed to remove dir') % But why??
                 end
             end
+            
+            % Create the output folder
             mkdir(figInfo.fns)
         end
         
@@ -190,6 +192,7 @@ classdef Sess < BehavAnalysis & fitPsyche
                 corIdx = obj.data.CorrectionTrial==0;
             end
             
+            % Return index
             trialIdx = crIdx & corIdx;
             
         end

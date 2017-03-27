@@ -29,7 +29,7 @@ sub.syncSubject();
 
 %% Find sessions
 
-reImport = true;
+reImport = false;
 sub = sub.importSessions(reImport);
 
 % Plot summary

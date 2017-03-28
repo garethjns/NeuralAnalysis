@@ -17,8 +17,8 @@ sParams.subject = 'Snow';
 % sParams.fName = 'Beryl';
 
 % sParams.level = [8, 9, 10];
-sParams.level = 8;
-% sParams.level = 10;
+% sParams.level = 8;
+sParams.level = 10;
 
 % The rest
 sub = Subject(sParams);

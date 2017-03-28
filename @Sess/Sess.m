@@ -132,7 +132,7 @@ classdef Sess < BehavAnalysis & fitPsyche
             obj.neuralData = Neural(obj);
             % Process it as much as possible (depending on available
             % local data)
-            obj.neuralData.process()
+            obj.neuralData.process(obj.data)
             
         end
     end

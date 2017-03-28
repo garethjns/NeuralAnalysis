@@ -20,6 +20,8 @@ $RECYCLE.BIN/
 # MATLAB
 *.mat
 *.asv
+/@Neural/CleanData.m
+# Available from http://www.med.upenn.edu/mulab/programs.html
 
 # Data
 *.txt

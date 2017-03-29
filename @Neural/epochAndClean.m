@@ -30,6 +30,7 @@ for e = 1:numel(EvIDs)
             if exist(check(1).char(), 'file') ...
                     && exist(check(2).char(), 'file')
                 disp([id, ' already done, skipping'])
+                continue
             end
             
             % Load fData
@@ -46,7 +47,7 @@ for e = 1:numel(EvIDs)
             fDataEpoch = obj.clean(fDataEpoch);
             
             % Save to epoched file
-            writeEpochedData(obj, fDataEpoch, id, 'fData');
+            writeEpochedData(obj, fDataEpoch, id, 'fData', fs);
             clear fDataEpoch
             
             % Load lfpData
@@ -59,7 +60,7 @@ for e = 1:numel(EvIDs)
             clear lfpData
             
             % Save to epoched file
-            writeEpochedData(obj, lfpDataEpoch, id, 'lfpData');
+            writeEpochedData(obj, lfpDataEpoch, id, 'lfpData', fs);
             clear lfpDataEpoch
             
         case {'Sens', 'Sond'}
@@ -81,6 +82,6 @@ for e = 1:numel(EvIDs)
             clear data
             
             % Save to epoched file
-            writeEpochedData(obj, dataEpoch, id, '');
+            writeEpochedData(obj, dataEpoch, id, '', fs);
     end
 end

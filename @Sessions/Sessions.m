@@ -21,6 +21,7 @@ classdef Sessions
         % Kept for convenience/debugging, Hidden for tidyness:
         subjectParams % Parameters set for subject
         subjectPaths % Paths set for subject
+        forceNeural = 0;
     end
     
     methods
@@ -88,8 +89,12 @@ classdef Sessions
                 '_SessionDataset .mat/.txt'])
         end
         
-        function obj = importData(obj, reImport)
+        function obj = importData(obj, reImport, forceNeural)
             % Create table for analysis from sess objects
+            
+            if ~exist('forceNeural', 'var')
+                forceNeural = 0;
+            end
             
             if ~reImport
                 % Load
@@ -106,7 +111,8 @@ classdef Sessions
                 % Create session object for each session using table row
                 % from Sessions and subject's parameters/paths
                 obj.sessionData{s} = Sess(obj.sessions(s,:), ...
-                    {obj.subjectParams, obj.subjectPaths});
+                    {obj.subjectParams, obj.subjectPaths}, ...
+                    forceNeural);
                 b = toc;
                 disp(['Done in ', num2str(b) ', S @ ', ...
                     num2str(obj.sessionData{s}.nTrials/b), ' t/S'])

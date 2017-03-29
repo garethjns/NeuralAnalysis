@@ -41,5 +41,5 @@ epoched = zeros(epochPts, ...
     nEpochs, ...
     class(data));
 for e = 1:nEpochs
-    epoched(:,:,e) = data(epStartIdx:epEndIdx,:);
+    epoched(:,:,e) = data(epStartIdx(e):epEndIdx(e),:);
 end

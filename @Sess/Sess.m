@@ -22,6 +22,7 @@ classdef Sess < BehavAnalysis & fitPsyche
         stats = [] % Output from analysis
         neuralData
         neuralPaths
+        forceNeural = 0
     end
     
     properties (Hidden = true)
@@ -31,7 +32,7 @@ classdef Sess < BehavAnalysis & fitPsyche
     end
     
     methods
-        function obj = Sess(session, subjectReference)
+        function obj = Sess(session, subjectReference, forceNeural)
             
             % Import session data from input sessions row
             % Copy meta data
@@ -41,6 +42,10 @@ classdef Sess < BehavAnalysis & fitPsyche
             obj.task = session.Task{1};
             obj.session = session;
             
+            if exist('forceNeural', 'var')
+                obj.forceNeural = forceNeural;
+            end
+
             % Copy subjects parameters if available
             % Make required rather than optional?
             if exist('subjectReference', 'var')
@@ -124,8 +129,9 @@ classdef Sess < BehavAnalysis & fitPsyche
             obj.neuralPaths.Extracted = ...
                 [obj.subjectPaths.neural.extracted, ...
                 obj.session.BlockName{1}, '\'];
-            obj.neuralPaths.PreProFilt = obj.session.PreProFilt{1};
-            obj.neuralPaths.Epoch = obj.session.PreProEpoch{1};
+            obj.neuralPaths.Filtered = obj.session.PreProFilt{1};
+            obj.neuralPaths.Epoched = obj.session.PreProEpoch{1};
+            obj.neuralPaths.Spikes = obj.session.Spikes{1};
             obj.neuralPaths.Analysis = obj.session.AnalysisFile{1};
             
             % Create neuralData object

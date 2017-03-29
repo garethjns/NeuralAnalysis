@@ -10,6 +10,8 @@ Classes and scripts for analysing temporal (and later spatial) behavioural and n
  - TDT ActiveX Controls
  - TDT Helper
  - [fitPsyche](https://github.com/garethjns/PsychometricCurveFitting)
+ - [filtfilthd](https://uk.mathworks.com/matlabcentral/fileexchange/17061-filtfilthd)
+ - [CleanData.m](http://www.med.upenn.edu/mulab/programs.html)
  
 
 ## Specific classes

@@ -29,7 +29,7 @@ sub.syncSubject();
 
 %% Find sessions
 
-reImport = false;
+reImport = true;
 sub = sub.importSessions(reImport);
 
 % Plot summary
@@ -46,7 +46,8 @@ if lim
 end
 % Import
 reImport = true;
-sub.sessions = sub.sessions.importData(reImport);
+forceNeural = 3; % Force prcoessing of neural data from this stage.
+sub.sessions = sub.sessions.importData(reImport, forceNeural);
 
 
 %% Analyse sessions

@@ -174,13 +174,15 @@ for s = 1:length(sessions) % For each session
         % end
         
         % Paths for PrePro files (filt and epoch)
-        allData.PreProEpoch{row} = [sub.paths.neural.PP, ...
-            allData.BlockName{row}, '_Epoched.mat'];
-        allData.PreProFilt{row} =  [sub.paths.neural.PP, ...
-            allData.BlockName{row}, '_Filt.mat'];
-        % And analysis file
-        allData.AnalysisFile{row} = [sub.paths.neural.PP, ...
-            allData.BlockName{row}, '_Analysis.mat'];
+        allData.PreProEpoch{row} = [sub.paths.neural.epoched, ...
+            allData.BlockName{row}, '\'];
+        allData.PreProFilt{row} =  [sub.paths.neural.filtered, ...
+            allData.BlockName{row}, '\'];
+        allData.Spikes{row} =  [sub.paths.neural.spikes, ...
+            allData.BlockName{row}, '\'];
+        % And analysis file - Not using yet
+        % allData.AnalysisFile{row} = [sub.paths.neural.PP, ...
+        %     allData.BlockName{row}, '_Analysis.mat'];
         
         % Assume cables were plugged in correct way around, for now
         allData.FlipCables(row,1) = 0;
@@ -331,6 +333,4 @@ allData.SessionNum(1:height(allData),1) = 1:height(allData);
 bs = allData.nTrials<10;
 allData = allData(~bs,:);
 disp(['Dumped ', num2str(sum(bs)), ' sessions'])
-
-    
-    
+ 

@@ -8,7 +8,7 @@ classdef Neural < ggraph
     % to \processing\block\
     % Epoch THEN clean:
     % to \epoched\block\
-    % Extract events -> AnalysisFile
+    % Extract events 
     % to \spikes\block\
     %
     % Add PSTH etc as methods here?
@@ -277,10 +277,11 @@ classdef Neural < ggraph
             % Need to handle data not available from earlier stage (?)
             % Stage 1: Extraction
             % Stage 2: Filtering
-            % Stage 3: Epoching
-            % Stage 4: Cleaning. Cleaning done after epoching to avoid
-            % windowing killing spikes or not-windowing propagating noise
-            % in long sessions.
+            % Stage 3: Epoching and cleaning. Cleaning done after epoching
+            % to avoid windowing killing spikes or not-windowing 
+            % propagating noise in long sessions.
+            % Stage 4: Spike extraction.
+            
             
             % Stage1
             % Always run stage 1 - TDT object handles already done, and

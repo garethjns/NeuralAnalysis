@@ -1,6 +1,12 @@
-# NeuralAnalysis
-
+# NeuralAnalysis 
 Classes and scripts for analysing temporal (and later spatial) behavioural and neural data.
+
+## Work in progress
+- ~~Behavioural analysis~~
+- ~~Neural preprocessing~~ & verification
+- Combining behavioural sessions
+- Nerual analysis
+- Decision modelling
 
 
 ## Requirements
@@ -26,5 +32,7 @@ Classes and scripts for analysing temporal (and later spatial) behavioural and n
   - BehavAnalysis
     - Library of behavioural analysis scripts for different levels
   - Nerual
-    - Import and process neural data
+    - Import and pre-process neural data
+   - NerualAnalysis
+     - Library holding neural analysis scripts
 

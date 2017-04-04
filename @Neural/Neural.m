@@ -1,4 +1,4 @@
-classdef Neural < ggraph
+classdef Neural < NeuralAnalysis
     % Takes Sess as input, which contains paths to neural data and
     % behavioural data
     % Extract neural data (using TDTHelper) to \extracted\block\
@@ -10,16 +10,19 @@ classdef Neural < ggraph
     % to \epoched\block\
     % Extract events 
     % to \spikes\block\
+    % Check recordings and stimuli presentation
+    % to \behavAnlaysis\[session type]\[level]\[id]\ and object?
     %
-    % Add PSTH etc as methods here?
+    % Add PSTH etc as methods here? - Added in NeuralAnalysis and importing
+    % here
+    %
+    % To add: Verification functions for usable channels/find switched
+    % sides/unplugs/correct simuli etc.
     %
     % Plan is for Sess to load data as needed (using methods here) then do
     % analysis (using methods here?).
     % ComboSesh can use then use the same methods to do the combined
     % analysis.
-    %
-    % TO DO
-    % Add event detection, path setting, saving etc.
     
     properties
         neuralPaths % Will get from Sess
@@ -150,7 +153,7 @@ classdef Neural < ggraph
             fns = obj.extractionPaths(...
                 obj.extractionPaths.contains(EvID));
             fn = fns(1);
-            fn = fn.replace('_Chan_1_', [type, '_Chan_All']);
+            fn = fn.replace('_Chan_1.', ['_', type, '_Chan_All.']);
             path = fn.replace('\Extracted\', '\Spikes\');
             
             % Create the save folder if it doesn't exist
@@ -179,7 +182,21 @@ classdef Neural < ggraph
             
         end
         
-        function [data, fs] = loadAndFsVerify(obj, fn, EvID)
+        function [data, fs, ok] = loadAndFsVerify(obj, fn, EvID)
+            % Check file is available
+            % Load data and fs
+            % Verify fs? Removed for now.
+            
+            % Check fn is available
+            if exist(fn, 'file')
+                ok = true;
+            else
+                ok = false;
+                data = [];
+                fs = [];
+                return
+            end
+            
             % Load
             disp(['Loading ', fn])
             data = load(fn);
@@ -192,19 +209,18 @@ classdef Neural < ggraph
             % Verify fs
             if fs ~= fs_
                 % Removed - might be different (eg. downsampled lfp)
-                % keyboard
             end
         end
         
-        function [data, fs] = loadExtractedData(obj, EvID)
+        function [data, fs, ok] = loadExtractedData(obj, EvID)
             % Use method from TDT object
-            data = obj.extractionObject.loadEvID(EvID);
+            [data, ok] = obj.extractionObject.loadEvID(EvID);
             
             % Find fs
             fs = getFs(obj, EvID);
         end
         
-        function [data, fs] = loadFilteredData(obj, EvID, type)
+        function [data, fs, ok] = loadFilteredData(obj, EvID, type)
             % Load filtered data from \Processing\:
             % EvID = BB_2 or BB_3
             % type = fData or lfpData
@@ -216,16 +232,14 @@ classdef Neural < ggraph
             fn = obj.processingPaths(fIdx).char();
             
             % Load
-            [data, fs] = loadAndFsVerify(obj, fn, EvID);
+            [data, fs, ok] = loadAndFsVerify(obj, fn, EvID);
             
         end
         
-        function [data, fs] = loadEpochedData(obj, EvID, type)
-            % Load filtered data from \Processing\:
+        function [data, fs, ok] = loadEpochedData(obj, EvID, type)
+            % Load epoched data from \Epoched\:
             % EvID = BB_2 or BB_3
             % type = fData or lfpData
-            % Other EvIDs are not filtered and should be loaded with
-            % .loadExtractedData
             
             switch EvID
                 case {'BB_2', 'BB_3'}
@@ -238,7 +252,25 @@ classdef Neural < ggraph
             fn = obj.epochedPaths(fIdx).char();
             
             % Load
-            [data, fs] = loadAndFsVerify(obj, fn, EvID);
+            [data, fs, ok] = loadAndFsVerify(obj, fn, EvID);
+            
+        end
+        
+        function [data, fs, ok] = loadSpikeData(obj, EvID, type)
+            % Load spike data from \Spikes\:
+            % EvID = BB_2 or BB_3
+            % type = G or K
+            % .loadExtractedData
+            
+            switch EvID
+                case {'BB_2', 'BB_3'}
+                    fIdx = obj.spikePaths.contains(EvID) ...
+                        & obj.spikePaths.contains(type);
+            end
+            fn = obj.spikePaths(fIdx).char();
+            
+            % Load
+            [data, fs, ok] = loadAndFsVerify(obj, fn, EvID);
             
         end
         
@@ -281,22 +313,27 @@ classdef Neural < ggraph
             % to avoid windowing killing spikes or not-windowing 
             % propagating noise in long sessions.
             % Stage 4: Spike extraction.
+            % Stage 5: Checking recording quality and stimulus
+            % presentation. Save useable index of epochs to analysisFile
+            % (and this object?)
             
-            
-            % Stage1
+
+            % Stage 1
             % Always run stage 1 - TDT object handles already done, and
             % recreates object to use for loading
             % Run extraction: .TDT -> extracted
             TDT = TDTHelper(obj.neuralPaths.TDT, ...
                 obj.neuralPaths.Extracted);
-            runExtraction(TDT);
+            ok = runExtraction(TDT);
             % Save TDTHelper object for reference and for loading
             % methods
             obj.extractionObject = TDT;
             % Move extraction paths to .extraionPaths
             obj.extractionPaths = obj.extractionObject.extractionPaths;
             % Update stage
-            obj.stage = 1;
+            if ok
+                obj.stage = 1;
+            end
             
             % Stage 2
             % Run PP - filter for LFP and spikes. No cleaning yet.
@@ -330,6 +367,15 @@ classdef Neural < ggraph
                 obj.stage = 4;
             end
             
+            % Stage 5 - checking
+            if obj.stage < 5
+                % Check condition of recorded data - unplugs, correct
+                % orientation, etc.
+                obj = obj.checkRecording('K');
+                % Check stimuli channels - correct stimuli presented? ect.
+                obj = obj.checkStimuli();
+            end
+            
         end
         
         function obj = PP(obj, EvIDs)
@@ -357,7 +403,12 @@ classdef Neural < ggraph
                 disp(['Working on ', id])
                 
                 % Load data
-                [data, fs] = obj.loadExtractedData(id);
+                [data, fs, ok] = obj.loadExtractedData(id);
+                % Stop if data is not available
+                if ~ok
+                    disp('Extracted TDT data is not available.')
+                    continue
+                end
                 
                 % Filter
                 [fData, lfpData] = obj.filter(data, fs);
@@ -407,7 +458,12 @@ classdef Neural < ggraph
                 
                 disp([id, ' getting spikes.'])
                 % Load
-                [fData, fs] = loadEpochedData(obj, id, 'fData');
+                [fData, fs, ok] = loadEpochedData(obj, id, 'fData');
+                % Check if required data is available
+                if ~ok
+                    disp('Epoched data is not available.')
+                    continue
+                end
                 
                 % Get events G
                 inputs.plotOn = true;
@@ -427,6 +483,46 @@ classdef Neural < ggraph
             
         end
         
+        function obj = checkRecording(obj, type)
+            % Run checks on recoreded data
+            % - Neural epoch checker on spikes
+            
+            % Load spike data
+            % Run neuralEpochChecker
+            
+            % Pick spikes to use for verification, if not set
+            if ~exist('type', 'var')
+               type = 'K';
+            end
+            
+            % Load the spike data for both sides
+            [BB2, fs, ok] = loadSpikeData(obj, 'BB_2', type);
+            [BB3, fs, ok] = loadSpikeData(obj, 'BB_3', type);
+            
+            % Run neural epoch checker
+             [evPerEp, OK, survivedTest] = ...
+                 obj.epochCheck(BB2, true);
+            
+             [evPerEp, OK, survivedTest] = ...
+                 obj.epochCheck(BB3, true);
+             
+             % HERE
+             % Need to save this data for later......
+             
+        end
+        
+        function obj = checkStimuli()
+           % Run checks on stimuli to make sure cables were connected as
+           % expected
+           
+           % Load Sens data
+           
+           % Check stimuli on correct channels as indicated by behavioural
+           % data
+           
+           
+        end
+        
     end
     
     methods (Static)
@@ -444,7 +540,6 @@ classdef Neural < ggraph
             thrArt = reject.*RMS;
             % Don't use abs(data) to avoid detecting both phases
             spikes = data>thr & data<thrArt;
-            
             
             % Verification plot
             Neural.eventPlot(data, spikes, thr, thrArt, plotOn, [10, 10]);

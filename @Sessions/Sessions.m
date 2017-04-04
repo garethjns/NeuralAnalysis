@@ -145,6 +145,9 @@ classdef Sessions
             for s = 1:obj.nS
                 % Check analysis flag
                 sess = obj.sessionData{s};
+                
+                % First check session obj isn't totally empty (if data
+                
                 if ~(sess.analysisDone == 0 || force)
                     % Done, don't redo
                     continue

@@ -37,20 +37,31 @@ sub.sessions = sub.sessions.summary();
 
 
 %% Import sessions
+% Import behavioural data
+% Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 50;
+lim = 3;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
 end
 % Import
 reImport = true;
-forceNeural = 3; % Force prcoessing of neural data from this stage.
+forceNeural = 0; % Force prcoessing of neural data from this stage.
 sub.sessions = sub.sessions.importData(reImport, forceNeural);
 
 
-%% Analyse sessions
+%% Analyse individual sessions
+% Do behavioural analysis (using BehavAnalysis)
+% Do neural analysis (PSTH etc.) (Using NeuralAnalysis)
 
 force = false;
 sub.sessions.analyseBehav(force)
+
+
+%% Create combined sessions
+
+
+%% Analyse combine sessions
+

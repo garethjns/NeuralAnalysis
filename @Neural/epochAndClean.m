@@ -34,8 +34,14 @@ for e = 1:numel(EvIDs)
             end
             
             % Load fData
-            [fData, fs] = ...
+            [fData, fs, ok] = ...
                 loadFilteredData(obj, id, 'fData');
+            
+            % Stop if data is not available
+            if ~ok
+                disp('Filtered data is not available.')
+                continue
+            end
             
             % Epoch fData
             fDataEpoch = epochData(...
@@ -74,8 +80,12 @@ for e = 1:numel(EvIDs)
             end
             
             % Load
-            [data, fs] = loadExtractedData(obj, id);
-            
+            [data, fs, ok] = loadExtractedData(obj, id);
+            if ~ok
+                disp('Sens/Sond extracted data is not available.')
+                continue
+            end
+
             % Epoch current id
             dataEpoch = epochData(...
                 obj, behav, data, fs);

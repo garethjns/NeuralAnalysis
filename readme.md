@@ -14,7 +14,7 @@ Classes and scripts for analysing temporal (and later spatial) behavioural and n
  - Linspecer
  - [ggraph](https://github.com/garethjns/MATLABGraphicsFunctions)
  - TDT ActiveX Controls
- - TDT Helper
+ - [TDT Helper](https://github.com/garethjns/TDTHelper)
  - [fitPsyche](https://github.com/garethjns/PsychometricCurveFitting)
  - [filtfilthd](https://uk.mathworks.com/matlabcentral/fileexchange/17061-filtfilthd)
  - [CleanData.m](http://www.med.upenn.edu/mulab/programs.html)

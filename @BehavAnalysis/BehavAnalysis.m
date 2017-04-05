@@ -66,7 +66,7 @@ classdef BehavAnalysis < ggraph
             obj.figInfo.validCondTitsAlt = validCondTitsAlt;
             obj.figInfo.fName = ''; % Subject Name
             obj.figInfo.fns = ''; % Graph file name
-            obj.figInfo.titleAppend = ''; % Add this to plot title 
+            obj.figInfo.titleAppend = ''; % Add this to plot title
             
         end
         

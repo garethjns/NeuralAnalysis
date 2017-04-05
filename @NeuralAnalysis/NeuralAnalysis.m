@@ -64,7 +64,7 @@ classdef NeuralAnalysis < ggraph
     
     methods (Static)
         
-        [evPerEp, OK, survivedTest] = epochCheck(spikes, plotOn)
+        [evPerEp, OK, survivedTest, h] = epochCheck(spikes, plotOn)
         
         data = PSTH(epochedData, behavTimes)
         

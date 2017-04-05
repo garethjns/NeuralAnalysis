@@ -146,9 +146,13 @@ classdef Sessions
                 % Check analysis flag
                 sess = obj.sessionData{s};
                 
-                % First check session obj isn't totally empty (if data
+                % First check session obj isn't totally empty
+                if isempty(sess.data)
+                    continue
+                end
                 
-                if ~(sess.analysisDone == 0 || force)
+                % And that analysis hasn't already been done
+                if ~(sess.behavAnalysisDone == 0 || force)
                     % Done, don't redo
                     continue
                 end
@@ -157,8 +161,37 @@ classdef Sessions
                 obj.sessionData{s} = obj.sessionData{s}.analyseBehav();
                 
             end
-            
-            % Do subject level analysis
+        end
+        
+        function obj = analyseNerual(obj, force)
+            % Analyse all sess objects held in session, if not already
+            % done.
+            % (Using sess.analyseNeural)
+           
+            for s = 1:obj.nS
+                % Check analysis flag
+                sess = obj.sessionData{s};
+                
+                % First check session data (behav) obj isn't totally empty
+                if isempty(sess.data)
+                    continue
+                end
+                 
+                % Then check there is a neural object.
+                if isempty(sess.neuralData)
+                    continue
+                end
+                
+                % And that analysis hasn't already been done
+                if ~(sess.neuralAnalysisDone == 0 || force)
+                    % Done, don't redo
+                    continue
+                end
+                
+                % Else, run analysis
+                obj.sessionData{s} = obj.sessionData{s}.analyseNeural();
+                
+            end
             
         end
 

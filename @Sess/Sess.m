@@ -18,11 +18,13 @@ classdef Sess < BehavAnalysis & fitPsyche
     properties
         nTrials % Number of trials available
         data % Imported data table
-        analysisDone = 0 % Indicate if Sess. analysis has been run yet
+        behavAnalysisDone = 0 % Indicate if Sess. analysis has been run yet
+        neuralAnalysisDone = 0
         stats = [] % Output from analysis
         neuralData
         neuralPaths
         forceNeural = 0
+        analysisPath
     end
     
     properties (Hidden = true)
@@ -132,13 +134,24 @@ classdef Sess < BehavAnalysis & fitPsyche
             obj.neuralPaths.Filtered = obj.session.PreProFilt{1};
             obj.neuralPaths.Epoched = obj.session.PreProEpoch{1};
             obj.neuralPaths.Spikes = obj.session.Spikes{1};
-            obj.neuralPaths.Analysis = obj.session.AnalysisFile{1};
+            % Analysis file - in analysis directory
+            % Get from prepDir rather than session.AnalysisFile
+            figInfo = obj.prepDir(obj, false);
+            obj.neuralPaths.Analysis = figInfo.fns;
             
             % Create neuralData object
             obj.neuralData = Neural(obj);
             % Process it as much as possible (depending on available
             % local data)
-            obj.neuralData.process(obj.data)
+            obj.neuralData = obj.neuralData.process(obj.data);
+            
+        end
+        
+        function obj = analyseNeural(obj)
+            % Using the neural object that now exists in sess, run
+            % analyisis
+            % Required paths already added 
+             obj.neuralData.analyseNeural()
             
         end
     end
@@ -153,7 +166,7 @@ classdef Sess < BehavAnalysis & fitPsyche
         % Template table for session (external file)
         emptyTable = sessionTable(nTrials)
         
-        function figInfo = prepDir(obj)
+        function figInfo = prepDir(obj, del)
             % Set file/folder string to use when saving graphs
             % For invidual sessions, use title (date and session number)
             % for sub folder.
@@ -163,17 +176,22 @@ classdef Sess < BehavAnalysis & fitPsyche
                 obj.title, '\'];
             figInfo.titleAppend = obj.title;
             
-            % Delete any previous analysis
-            if exist(figInfo.fns, 'dir')
-                try
-                    rmdir(figInfo.fns(1:end-1), 's')
-                catch err
-                    disp('Failed to remove dir') % But why??
-                end
+            % Default to delete any previous analysis, keep if del==false.
+            if ~exist('del', 'var')
+                del = true;
             end
-            
-            % Create the output folder
-            mkdir(figInfo.fns)
+            if del
+                if exist(figInfo.fns, 'dir')
+                    try
+                        rmdir(figInfo.fns(1:end-1), 's')
+                    catch err
+                        disp('Failed to remove dir') % But why??
+                    end
+                end
+                
+                % Create the output folder
+                mkdir(figInfo.fns)
+            end
         end
         
         function trialIdx = setTrialIdx(obj)

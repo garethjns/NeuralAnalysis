@@ -1,4 +1,4 @@
-function [evPerEp, OK, survivedTest] = epochCheck(events, plotOn)
+function [evPerEp, OK, survivedTest, h] = epochCheck(events, plotOn)
 % Applies various tests to number of events per channel/epoch.
 % Aims to detect bad channels, and bad epochs.
 % Checks:
@@ -31,7 +31,7 @@ survivedTest = zeros(c, e);
 
 %% Plot input
 
-figure
+h(1) = figure;
 plot(permute(evPerEp, [3,2,1]))
 ylabel('n Spikes')
 xlabel('Epoch')
@@ -49,7 +49,7 @@ OK1 = evPerEp<4000;
 % Update index
 OK = OK1;
 survivedTest(OK) = 1;
-pltOK(OK, plotOn, 'Test 1')
+h(2) = pltOK(OK, plotOn, 'Test 1');
 
 
 %% Too few events (absolute)
@@ -61,7 +61,7 @@ OK2 = evPerEp>10;
 % Update index
 OK = OK & OK2;
 survivedTest(OK) = 2;
-pltOK(OK, plotOn, 'Test 2')
+h(3) = pltOK(OK, plotOn, 'Test 2');
 
 
 %% Too many events (relative across chans)
@@ -73,7 +73,7 @@ OK3 = evPerEp < 5*median(evPerEp,2);
 % Update index
 OK = OK & OK3;
 survivedTest(OK) = 3;
-pltOK(OK, plotOn, 'Test 3')
+h(4) = pltOK(OK, plotOn, 'Test 3');
 
 
 %% Too many events (relative across epoch)
@@ -85,7 +85,7 @@ OK4 = evPerEp < 4*median(evPerEp, 3);
 % Update index
 OK = OK & OK4;
 survivedTest(OK) = 4;
-pltOK(OK, plotOn, 'Test 4')
+h(5) = pltOK(OK, plotOn, 'Test 4');
 
 
 %% Intermittent channels - remove channel
@@ -99,7 +99,7 @@ cOK = sum(OK,3)./e > 0.70;
 OK5 = repmat(cOK, 1, 1, e);
 OK = OK & OK5;
 survivedTest(OK) = 5;
-pltOK(OK, plotOn, 'Test 5')
+h(6) = pltOK(OK, plotOn, 'Test 5');
 
 
 %% Intermittent epochs - remove epochs
@@ -120,7 +120,7 @@ mOK = mStd > median(mStd)*3;
 OK6 = permute(~mOK, [3,2,1]);
 OK = OK & OK6;
 survivedTest(OK) = 6;
-pltOK(OK, plotOn, 'Test 6')
+h(7) = pltOK(OK, plotOn, 'Test 6');
 
 
 %% Does this affect too many channels?
@@ -144,14 +144,14 @@ OK7 = repmat(propOK, 1, c);
 OK7 = permute(OK7, [3,2,1]);
 OK = OK & OK7;
 survivedTest(OK) = 7;
-pltOK(OK, plotOn, 'Test 7')
+h(8) = pltOK(OK, plotOn, 'Test 7');
 
 
 %% Plot survival
 % Plot showing test number epoch/channel was dropped at, 7 if still alive.
 
 if plotOn
-    figure
+    h(9) = figure;
     imagesc(survivedTest')
     colorbar
     xlabel('Channel')
@@ -161,9 +161,9 @@ end
 
 end
 
-function pltOK(OK, plotOn, tit)
+function h = pltOK(OK, plotOn, tit)
 if plotOn
-    figure
+    h = figure;
     imagesc(permute(OK, [3,2,1]))
     ylabel('Epoch')
     xlabel('Channel')

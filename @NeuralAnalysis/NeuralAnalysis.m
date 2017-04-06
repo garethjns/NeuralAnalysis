@@ -6,7 +6,7 @@ classdef NeuralAnalysis < ggraph
     end
     
     methods
-        function obj = NerualAnalysis()
+        function obj = NerualAnalysis(obj)
             
             % Add 0.3 colour to colours
             colours = linspecer(6);
@@ -66,7 +66,91 @@ classdef NeuralAnalysis < ggraph
         
         [evPerEp, OK, survivedTest, h] = epochCheck(spikes, plotOn)
         
-        data = PSTH(epochedData, behavTimes)
+        % [raster, psth] = PSTH(epochedData, behavTimes)
+        
+        function [raster, tVec] = raster(eSpikes, fs)
+            % Expects input time x chan x epoch
+            
+            % If fs is specified, generate a time vector in ms
+            nT = size(eSpikes, 1);
+            if exist('fs', 'var')
+                tVec = NeuralAnalysis.toMs(nT, fs);
+            else
+                % Else retrun list of points
+                tVec = 1:nT;
+            end
+            
+            % Generate raster by rearranging to epoch x time
+            raster = permute(eSpikes, [3,1,2]);
+            
+        end
+        
+        function tVec = toMs(nPts, fs)
+            tVec = (1:nPts).* (1/fs) * 1000;
+        end
+        
+        function RC = spaceSubPlots(nPlots)
+            % Find sensible rows/cols for plot
+            [~, RC] = min(abs(nPlots - (1:nPlots).*(1:nPlots)));
+            
+        end
+        
+        function [PSTH, tVec2] = PSTH(raster, fs, binSize)
+            
+            % Generate a time vector in ms
+            tVec = NeuralAnalysis.toMs(size(raster, 2), fs);
+            
+            % Generate PSTH
+            % Reduce raster
+            PSTH1ms = sum(raster);
+            % Remove extra dimension
+            PSTH1ms = squeeze(PSTH1ms);
+            
+            % Round tVec to bin size steps
+            tVec2 = round(tVec./binSize).*binSize;
+            % Convert to integer bins instead of ms
+            [tVec2,~,ac] = unique(tVec2);
+            
+            PSTH = NaN(length(tVec2), size(raster,3));
+            for c = 1:size(raster,3)
+                PSTH(:,c) = accumarray(ac, PSTH1ms(:,c));
+            end
+        end
+        
+        function h = plotPSTH(PSTH, tVec)
+            % Get nEpochs and nChans
+            nC = size(PSTH, 2);
+            
+            % Find sensible rows/cols for plot
+            spRC = NeuralAnalysis.spaceSubPlots(nC);
+            
+            h = figure;
+            for c = 1:nC
+                subplot(spRC, spRC, c)
+                plot(tVec, PSTH(:,c))
+            end
+       end
+        
+        function h = plotRaster(raster, fs)
+            % Get nEpochs and nChans
+            nC = size(raster, 3);
+            
+            % Find sensible rows/cols for plot
+            spRC = NeuralAnalysis.spaceSubPlots(nC);
+            
+            % If fs is supplied, convert xaxis to ms
+            if ~exist('fs', 'var')
+                 fs = 1000;
+            end
+            
+            h = figure;
+            for c = 1:nC
+                hAx = subplot(spRC, spRC, c);
+                imagesc(raster(:,:,c))
+                hAx.XTickLabels = round(hAx.XTick./fs .* 1000, -3);
+            end
+        end
+        
         
     end
     

@@ -263,16 +263,61 @@ classdef Neural < NeuralPP & NeuralAnalysis
             % type = G or K
             % .loadExtractedData
             
-            switch EvID
-                case {'BB_2', 'BB_3'}
-                    fIdx = obj.spikePaths.contains(EvID) ...
-                        & obj.spikePaths.contains(type);
+            % Number of EvIDs requested
+            if isa(EvID, 'char')
+                nE = 1;
+            else % Should be cell array
+                nE = numel(EvID);
             end
-            fn = obj.spikePaths(fIdx).char();
             
-            % Load
-            [data, fs, ok] = loadAndFsVerify(obj, fn, EvID);
+            if nE == 1
+                % Just one requested, load
+                
+                fIdx = obj.spikePaths.contains(EvID) ...
+                    & obj.spikePaths.contains(type);
+                fn = obj.spikePaths(fIdx).char();
+                
+                % Load
+                [data, fs, ok] = loadAndFsVerify(obj, fn, EvID);
+                
+            else
+                % More than one requested, load and concatonat on channel
+                % dimension
+                loaded = cell(1,2);
+                for n = 1:nE
+                    fIdx = obj.spikePaths.contains(EvID(n)) ...
+                        & obj.spikePaths.contains(type);
+                    
+                    fn = obj.spikePaths(fIdx).char();
+                    
+                    % Load
+                    [loaded{n}, fs, ok] = ...
+                        loadAndFsVerify(obj, fn, EvID{n});
+                end
+                % Concat
+                data = [loaded{1,1}, loaded{1,2}];
+                
+            end
             
+        end
+        
+        function [data] = loadFromAnalysis(obj, var)
+            % Load individual variables, or presets.
+            % Return as variable or structre.
+            switch var
+                case 'OK'
+                    % Load OK variables, return in structure
+                    data = load(obj.analysisPath, 'recOK', 'stimOK');
+                case 'OKIdx'
+                    % Return overall ok index from recOK and stimOK
+                    a = loadFromAnalysis(obj, 'OK');
+                    % Set indexes to use
+                    data = a.stimOK.OK & a.recOK.OK;
+                otherwise
+                    % Load requested variable, return as variable
+                    a = load(obj.analysisPath, var);
+                    data = a.(var);
+            end
         end
         
         % Write functions - may turn out to be redundent 
@@ -343,12 +388,6 @@ classdef Neural < NeuralPP & NeuralAnalysis
             % Update stage
             obj.stage = 2;
             
-            % Behavioural times required from this point on. Don't continue
-            % if not available
-            if ~exist('behav', 'var') || isempty(behav)
-                return
-            end
-            
             % Stage 3 - epoch and clean
             if obj.stage < 3
                 % Epoch
@@ -368,8 +407,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 obj.stage = 4;
             end
             
-            % Stage 5 onwards - .analyse()
-            
+            % Stage 5 - prepNeural
+            obj = prepNeural(obj);
         end
         
         function obj = PP(obj, EvIDs)
@@ -477,11 +516,11 @@ classdef Neural < NeuralPP & NeuralAnalysis
             
         end
         
-        function obj = analyseNeural(obj, force)
+        function obj = prepNeural(obj, force)
             % Set analysis path
             obj.analysisPath = [obj.neuralPaths.Analysis, 'Analysis.mat'];
            
-            % If exist delete for now - ignoring force
+            % If exist delete for now - ignoring force - no warning!
             if exist(obj.analysisPath, 'file')
                 delete(obj.analysisPath)
             end
@@ -502,6 +541,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 % Check stimuli channels - correct stimuli presented? ect.
                 % - stimOK
                 obj = obj.checkStimuli();
+                
+                obj.stage = 5;
             end
         end
         

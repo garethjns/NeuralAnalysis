@@ -125,6 +125,12 @@ classdef Sess < BehavAnalysis & fitPsyche
                 return
             end
             
+            % Also check there's behavioural data, otherwise no point
+            % running
+            if isempty(obj.data)
+                return
+            end
+            
             % Set .neuralPaths
             obj.neuralPaths.TDT = [obj.session.fNeuralPathTDT{1}, '\', ...
                 obj.session.BlockName{1}, '\'];
@@ -148,15 +154,75 @@ classdef Sess < BehavAnalysis & fitPsyche
         end
         
         function obj = analyseNeural(obj)
-            % Using the neural object that now exists in sess, run
-            % analyisis
-            % Required paths already added 
-             obj.neuralData.analyseNeural()
+            % This uses behav and neural data, so analyse in this object so
+            % easy access to both
             
+            % Run prep to create analysis file and check stimuli
+            obj = processPSTH(obj);
+            
+        end
+        
+         function obj = processPSTH(obj)
+           % Use the PSTH function from NeuralAnalysis to calc PSTHs for 
+           % requested data in params
+           
+           % Load ok index to use
+           eIdx = obj.neuralData.loadFromAnalysis('OKIdx');
+           
+           % Load spikes
+           [eSpikes, fs] = ...
+               obj.neuralData.loadSpikeData({'BB_2', 'BB_3'}, 'K');
+        
+           % Expand eIdx time dimension to size(eSpikes,1);
+           eIdx = repmat(eIdx, size(eSpikes,1), 1, 1);
+           
+           % Apply index by NaNing out bad data
+           % Can't index in across channels and epochs
+           eSpikes = single(eSpikes);
+           eSpikes(~eIdx) = NaN;
+           
+           % Find unique stims
+           uT = unique(obj.data.Type);
+           nT = numel(uT);
+           [uR, nR] = obj.unqRates(obj.data)
+           
+           %% HERE
+           
+           % Run for types 2, 3, 4
+           for t = [2, 3, 4]
+               
+               ty = uT(t);
+               % Set type idx
+               tyIdx = obj.data.Type == ty;
+               % Set other indexes from params
+               trialIdx = obj.setTrialIdx(obj);
+               
+               
+               
+               
+               % Get PSTH and raster
+               % Using sIdx & eIdx
+               [raster, tVecR] = obj.neuralData.raster(eSpikes, fs);
+               [PSTH, tVecP] = obj.neuralData.PSTH(raster, fs, 10);
+               
+               % Plot PSTH/raster/stim
+               close all
+               h = obj.neuralData.plotRaster(raster, fs);
+               h = obj.neuralData.plotPSTH(PSTH, tVecP);
+               % Save figures
+           end
+           
         end
     end
     
     methods (Static)
+        
+        function [uR, nR] = unqRates(behavData)
+           uR =  unique([behavData.nEventsA; behavData.nEventsV]);
+           uR = uR(~isnan(uR));
+           nR = numel(uR);
+        end
+        
         function summary
         end
         

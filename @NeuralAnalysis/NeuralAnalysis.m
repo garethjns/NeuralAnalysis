@@ -1,6 +1,11 @@
 classdef NeuralAnalysis < ggraph
     % Nerual analysis methods
-    % PSTH
+    % This object is not specific to any analysis. 
+    %
+    % Includes:
+    % epochChecker - find bad channels/trials
+    % raster, PSTH
+    % plot raster, PSTH
     
     properties
     end
@@ -8,56 +13,6 @@ classdef NeuralAnalysis < ggraph
     methods
         function obj = NerualAnalysis(obj)
             
-            % Add 0.3 colour to colours
-            colours = linspecer(6);
-            colours = [0.3, 0.3, 0.3; colours];
-            
-            % Prepare figInfo
-            figWidth = 1024;
-            figHeight = 768;
-            rect = [0 20 figWidth figHeight+20];
-            colours = linspecer(6);
-            validCondTits = {...
-                'All data', ...
-                'Auditory only (single)', ...
-                'Visual only (single)', ...
-                'AV sync (matched)', ...
-                'AV async (matched)', ...
-                'AV async (vis bonus)', ...
-                'AV async (aud bonus)', ...
-                'AV async (conflict)' ...
-                };
-            validCondTitsComp = {...
-                'All', ...
-                'A', ...
-                'V', ...
-                'AVsync', ...
-                'AVasync', ...
-                'VBonus', ...
-                'ABonus', ...
-                'Conflict' ...
-                };
-            validCondTitsAlt = {...
-                'All data', ...
-                'Auditory only', ...
-                'Visual only', ...
-                'AV sync', ...
-                'AV async', ...
-                'V bonus', ...
-                'A bonus', ...
-                'AV async (conflict)' ...
-                };
-            
-            % Package to pass to functions later
-            % File name string - before passing
-            obj.figInfo.rect = rect; % Figure position/size
-            obj.figInfo.colours = colours; % Colours to used in plot
-            obj.figInfo.validCondTits = validCondTits; % Titles
-            obj.figInfo.validCondTitsComp = validCondTitsComp;
-            obj.figInfo.validCondTitsAlt = validCondTitsAlt;
-            obj.figInfo.fName = ''; % Subject Name
-            obj.figInfo.fns = ''; % Graph file name
-            obj.figInfo.titleAppend = ''; % Add this to plot title
         end
         
     end
@@ -68,8 +23,11 @@ classdef NeuralAnalysis < ggraph
         
         % [raster, psth] = PSTH(epochedData, behavTimes)
         
-        function [raster, tVec] = raster(eSpikes, fs)
-            % Expects input time x chan x epoch
+        function [raster, tVec, nEpochs] = raster(eSpikes, fs)
+            % Expects input [time x chan x epoch]
+            % Output raster is [epochs x time x chans]
+            % Calculates and returns non-NaN n included in raster in
+            % nTrials [1x chans]
             
             % If fs is specified, generate a time vector in ms
             nT = size(eSpikes, 1);
@@ -83,6 +41,12 @@ classdef NeuralAnalysis < ggraph
             % Generate raster by rearranging to epoch x time
             raster = permute(eSpikes, [3,1,2]);
             
+            % Count good epochs
+            % Kill time dimension; if any NaNs, return NaN. Should either
+            % be all number or all NaNs...
+            eMean = mean(raster,2);
+            nEpochs = permute(sum(~isnan(eMean)), [1,3,2]);
+
         end
         
         function tVec = toMs(nPts, fs)
@@ -96,20 +60,28 @@ classdef NeuralAnalysis < ggraph
         end
         
         function [PSTH, tVec2] = PSTH(raster, fs, binSize)
+            % Create PSTH from raster using specified binSize.
+            % Input raster should be [epochs x time x chans]
+            
+            nE = size(raster, 1);
+            nC = size(raster, 3);
             
             % Generate a time vector in ms
             tVec = NeuralAnalysis.toMs(size(raster, 2), fs);
             
             % Generate PSTH
-            % Reduce raster
-            PSTH1ms = sum(raster);
-            % Remove extra dimension
-            PSTH1ms = squeeze(PSTH1ms);
+            % nansum returns zeros for all NaNs
+            % >0 for some nans, no nans - refer to nEpochs from raster to
+            % check actual n
+            PSTH1ms = nansum(raster, 1);
             
+            % Remove extra dimension 
+            PSTH1ms = squeeze(PSTH1ms);
+
             % Round tVec to bin size steps
             tVec2 = round(tVec./binSize).*binSize;
             % Convert to integer bins instead of ms
-            [tVec2,~,ac] = unique(tVec2);
+            [tVec2, ~, ac] = unique(tVec2);
             
             PSTH = NaN(length(tVec2), size(raster,3));
             for c = 1:size(raster,3)
@@ -117,9 +89,32 @@ classdef NeuralAnalysis < ggraph
             end
         end
         
-        function h = plotPSTH(PSTH, tVec)
-            % Get nEpochs and nChans
+        function h = plotPSTH(PSTH, tVec, nEpochs, col)
+            % Plot PSTH on specficed timeVec (second output from PSTH).
+            % nEpochs (non-NaN n from raster) and col are optional inputs 
+            % for adding to graph
+            
+            % Get nChans
             nC = size(PSTH, 2);
+           
+            % Set nEpochs if provided - just used to write n on plot
+            if exist('nEpochs', 'var') && ~isempty(nEpochs)
+                if length(nEpochs) == 1
+                    % Assume all the same
+                    nE = repelem(string(nEpochs), nC);
+                else
+                    % Assume non-nan n from raster
+                    nE = string(nEpochs);
+                end
+            else
+                nE = repelem(string('?', nC));
+            end
+            
+            % Set colour
+            if ~exist('col', 'var')
+                % Set plot colour
+                col = 'b';
+            end
             
             % Find sensible rows/cols for plot
             spRC = NeuralAnalysis.spaceSubPlots(nC);
@@ -127,7 +122,11 @@ classdef NeuralAnalysis < ggraph
             h = figure;
             for c = 1:nC
                 subplot(spRC, spRC, c)
-                plot(tVec, PSTH(:,c))
+                plot(tVec, PSTH(:,c), 'color', col)
+                
+                % Check n, write 0 to plot if PSTH is NaNs
+                
+                legend(['c=', num2str(c), ', n=', nE(c).char])
             end
        end
         

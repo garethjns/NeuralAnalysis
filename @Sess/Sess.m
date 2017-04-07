@@ -184,44 +184,52 @@ classdef Sess < BehavAnalysis & fitPsyche
            % Find unique stims
            uT = unique(obj.data.Type);
            nT = numel(uT);
-           [uR, nR] = obj.unqRates(obj.data)
+           [uR, nR] = obj.unqRates(obj.data);
+           
            
            %% HERE
            
            % Run for types 2, 3, 4
            for t = [2, 3, 4]
-               
-               ty = uT(t);
-               % Set type idx
-               tyIdx = obj.data.Type == ty;
-               % Set other indexes from params
-               trialIdx = obj.setTrialIdx(obj);
-               
-               
-               
-               
-               % Get PSTH and raster
-               % Using sIdx & eIdx
-               [raster, tVecR] = obj.neuralData.raster(eSpikes, fs);
-               [PSTH, tVecP] = obj.neuralData.PSTH(raster, fs, 10);
-               
-               % Plot PSTH/raster/stim
-               close all
-               h = obj.neuralData.plotRaster(raster, fs);
-               h = obj.neuralData.plotPSTH(PSTH, tVecP);
-               % Save figures
+               for r = uR'
+                 
+                   % Set type idx
+                   tyIdx = obj.data.Type == t;
+                   % Set rate idx
+                   rIdx = obj.setRateIdx(obj.data, r);
+                   
+                   % Set other indexes from params and combine
+                   trialIdx = obj.setTrialIdx(obj) & tyIdx & rIdx;
+                   
+                   % Get PSTH and raster
+                   % Using sIdx & eIdx
+                   [raster, tVecR, nTrials] = ...
+                       obj.neuralData.raster(eSpikes(:,:,trialIdx), fs);
+                   [PSTH, tVecP] = obj.neuralData.PSTH(raster, fs, 10);
+                   
+                   % Check stim - not acting on this here yet
+                   obj.stimCheck(obj.data(trialIdx,:))
+                   
+                   % Plot PSTH/raster/stim
+                   % close all
+                   % hRas = obj.neuralData.plotRaster(raster, fs);
+                   % suptitle(['Stim: '])
+                   
+                   % hPSTH = obj.neuralData.plotPSTH(PSTH, tVecP, ...
+                   %    nTrials, typeColour(obj, t));
+                   
+                   % Save figures
+                   
+                   
+               end
            end
            
-        end
+         end
     end
     
     methods (Static)
         
-        function [uR, nR] = unqRates(behavData)
-           uR =  unique([behavData.nEventsA; behavData.nEventsV]);
-           uR = uR(~isnan(uR));
-           nR = numel(uR);
-        end
+
         
         function summary
         end

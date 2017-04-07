@@ -1,6 +1,6 @@
 classdef BehavAnalysis < ggraph
     % Container for behav analysis methods.
-    % In prcoess of tidying and updating.
+    % This object is specific to this analysis.
     %
     % Requirements:
     % Inherits ng and hgx from ggraph.
@@ -76,10 +76,141 @@ classdef BehavAnalysis < ggraph
         obj = level10(obj)
         obj = level11(obj)
         
+    function col = typeColour(obj, type)
+         % Get colour for type from obj.figInfo
+         % For [2,3,4] just returns corresponding row. 
+         % For offsets/AsMs in 5, extend to return spread of colours (not
+         % added yet)
+         col = obj.figInfo.colours(type,:);
     end
+    
+    end
+    
     
     methods (Static)
         
+        function [uR, nR] = unqRates(behavData)
+            % From table of behavioural data, return unique rates from A
+            % and V, removing NaNs.
+            uR =  unique([behavData.nEventsA; behavData.nEventsV]);
+            uR = uR(~isnan(uR));
+            nR = numel(uR);
+        end
+        
+        function rateIdx = setRateIdx(behavData, rate)
+            % From table of behavioural data, return index where either A
+            % or V matches specified rate.
+            % Makes sense for [2,3,4,5] as rates always match.
+            % Required because [2,3] have NaNs for off-modality.
+            % Will work if rates don't match, but need to be careful with
+            % overlap
+            rateIdx = any(...
+                [behavData.nEventsA==rate, behavData.nEventsV==rate], ...
+                2);
+        end
+        
+        function str = stimDetailsRow(behavRow)
+           % From a single stim, return string of basic information using
+           % data from row but not struct
+           % Checking type, nEvents, not: seed, noise.
+           
+           % Get number of events
+           switch behavRow.Type
+               case 3
+                   ev = behavRow.nEventsV;
+               case {2, 4, 5}
+                   ev = behavRow.nEventsA;
+               otherwise
+                   % Non-matching rates, not added yet
+           end
+           
+           str = string(...
+               {'T:', num2str(behavRow.Type); ...
+               'R:', num2str(ev)}...
+               );
+        end
+        
+        function str = stimDetailsStruct(stim)
+            % From a stim structure, return basic information as str
+                      
+            if ~isstruct(stim)
+                str = '';
+                return
+            end
+            
+            % Create string for each stim
+            str = string(...
+                {'T:', num2str(stim.type); ...
+                'R:', num2str(stim.nEvents);...
+                'S:', num2str(stim.seed.Seed);...
+                'GI:', string(stim.gap_index).join('')...
+                });
+            
+            % Create combined string - verify on multisensory
+            
+        end
+        
+        function [ok, str] = stimCheck(behavTrials)
+           % From a behavioural table, check stim for rows are all the same
+           % eg for behavTrials(trialIdx,:)
+           
+           nT = height(behavTrials);
+           
+           list = cell(1);
+           
+           for r = 1:nT
+               % Row verifcation
+               str1 = ...
+                   BehavAnalysis.stimDetailsRow(behavTrials(r,:));
+               
+               % Aud verification
+               strA = ...
+                   BehavAnalysis.stimDetailsStruct(behavTrials.aStim{r,:});
+               % Vis verification
+               strV = ...
+                   BehavAnalysis.stimDetailsStruct(behavTrials.vStim{r,:});
+               
+               % Recheck type and update Aud and Vis verification types
+               if ~isempty(strA) && isempty(strV)
+                   % Aud
+                   strAV = strA;
+                   strAV(1,2) = 2;
+               elseif isempty(strA) && ~isempty(strV)
+                   % Vis
+                   strAV = strV;
+                   strAV(1,2) = 3;
+               elseif isempty(strA) && ~isempty(strV)
+                   % AV
+                   if (strA(3,2) == strV(3,2)) ...
+                           && (strA(2,2) == strV(2,2))
+                       % Seeds match, events match sync
+                       strAV = strA;
+                       strAV(1,2) = 4;
+                   elseif (strA(3,2) ~= strV(3,2)) ...
+                           && (strA(2,2) == strV(2,2))
+                       % Seeds don't match, events match async
+                       strAV = strA;
+                       strAV(1,2) = 5;
+                   else
+                       % ??
+                       keyboard
+                   end
+               end
+               
+               % Check row matches stuct
+               if str1(1,2) ~= strAV(1,2) ...
+                       || str1(2,2) ~= strAV(2,2) 
+                   keyboard
+               end
+               
+               % Save to list of stim
+               list{1,r} = strAV;
+           end
+           
+           % Check all match in list
+           
+        end
+               
         % Find psychometric threshold
         thresh = threshold(allData, trialInd, figInfo)
         

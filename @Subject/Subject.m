@@ -11,6 +11,7 @@ classdef Subject
     properties
         levels = 11
         sessions % To hold sessions object
+        comboSessions
         params
         paths
     end
@@ -38,8 +39,15 @@ classdef Subject
             obj.sessions = Sessions(obj, reImport);
         end
         
-        function tidy(obj)
-            % Close associated handles
+        function obj = importCombSessions(obj)
+           % Look through already imported sessions, create combo sessions 
+           % where appropriate.
+           % For level 8, divide by requested dates - has auto date range
+           % been added yet?
+           % For level 10 (and 9), find weekIDs, create session for each.
+           % For level 11, find weekIDs, create session for each. 
+           
+           
         end
         
     end

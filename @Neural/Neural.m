@@ -1,6 +1,15 @@
 classdef Neural < NeuralPP & NeuralAnalysis
-    % Takes Sess as input, which contains paths to neural data and
-    % behavioural data
+    % This object creates structure for analysis. and includes saving and
+    % get methods. It's not necessarily speicifc to temporal tasks and
+    % imports general methods from NeuralPP and NeuralAnalysis. It is held
+    % by session object which is specific to temporal task, and contains
+    % behavioural data (and imported methods) and methods to do analysis
+    % requiring both behavioural and neural data. Behavioural data is
+    % required here for epoching, really only trial times are required
+    % - update in future.
+    % 
+    % Takes parent Sess ohject as input, which contains paths to neural
+    % data and behavioural data.
     % Extract neural data (using TDTHelper) to \extracted\block\
     % Pre-process:
     % Filter (using

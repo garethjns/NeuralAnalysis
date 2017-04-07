@@ -63,6 +63,10 @@ sub.sessions.analyseNerual(force)
 
 %% Create combined sessions
 
+obj = importCombSessions(obj);
+
 
 %% Analyse combine sessions
 
+sub.comboSessions.analyseBehav(force)
+sub.comboSessions.analyseNerual(force)

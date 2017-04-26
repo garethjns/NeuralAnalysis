@@ -526,12 +526,29 @@ classdef Neural < NeuralPP & NeuralAnalysis
         end
         
         function obj = prepNeural(obj, force)
+            
+            % If neural data from previous stage is not available, don't
+            % run
+            
+            % Load
+            [fData, fs, ok] = loadSpikeData(obj, 'BB_2', 'fData');
+            % Check if required data is available
+            if ~ok
+                disp('Spike data not available, skipping.')
+                return
+            end
+            
+            
             % Set analysis path
             obj.analysisPath = [obj.neuralPaths.Analysis, 'Analysis.mat'];
            
             % If exist delete for now - ignoring force - no warning!
             if exist(obj.analysisPath, 'file')
                 delete(obj.analysisPath)
+            end
+            
+            if ~exist(obj.neuralPaths.Analysis, 'file')
+                mkdir(obj.neuralPaths.Analysis)
             end
             
             % Create a file to append to

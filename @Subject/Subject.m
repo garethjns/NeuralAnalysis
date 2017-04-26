@@ -39,7 +39,7 @@ classdef Subject
             obj.sessions = Sessions(obj, reImport);
         end
         
-        function obj = importCombSessions(obj)
+        function obj = importComboSessions(obj, how)
            % Look through already imported sessions, create combo sessions 
            % where appropriate.
            % For level 8, divide by requested dates - has auto date range
@@ -47,7 +47,68 @@ classdef Subject
            % For level 10 (and 9), find weekIDs, create session for each.
            % For level 11, find weekIDs, create session for each. 
            
+           if strcmp(how, 'auto')
+              switch obj.level
+                  case 8
+                      how = 'Dates';
+                  case 9 
+                      how = ''; % WIDs?
+                  case 10
+                      how = 'DIDs';
+                  case 11
+                      how = 'SIDs';
+              end
+               
+               
+           end
            
+           
+           switch how
+               case 'DIDs'
+                   obj = divideByDIDs(obj);
+                   % Divide by DID
+                   
+               case 'SID2s'
+                   obj = divideBySID2s(obj);
+                   % Divide by DID  
+                   
+               case 'Dates'
+                   % Divide by auto date ranges (and any set in params?)
+                   
+               case 'All'
+                   % Mush all sessions available for level together!
+           end
+ 
+        end
+        
+        function obj = divideByDIDs(obj)
+            
+            sessions = obj.sessions.sessions;
+            % Find all DIDs
+            DIDs = findgroups(sessions.DID)
+        end
+        
+        function obj = divideBySID2s(obj)
+            
+            % Find all DIDs
+            SIDs = unique(obj.sessions.sessions.SID2);
+            
+            % Create a ComboSess object for each SID
+            nSIDs = numel(SIDs);
+            for s = 1:nSIDs
+                
+                % Copy sessions object
+                someSessions = obj.sessions;
+                % Remove data - will be reimported
+                someSessions.sessionData = {};
+                % Keep only relevant rows in session table
+                sIdx = strcmp(obj.sessions.sessions.SID2, SIDs{s});
+                % And reset n
+                someSessions.nS = sum(sIdx);
+                someSessions.sessions = obj.sessions.sessions(sIdx,:);
+                
+                combo = ComboSess(someSessions);
+            end
         end
         
     end

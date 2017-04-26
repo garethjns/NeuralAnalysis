@@ -23,13 +23,52 @@ classdef ComboSess < Sess
    % fitPsyche.
    
    properties
+       nSess = []
+       indivData = {}
    end
    
    methods
-       function obj = ComboSess(SessObjs)
-           % Input is cell array of Sess objects.
-           % Append behavioural data together
+       function obj = ComboSess(sessions, subjectReference, forceNeural)
+           % Taking sessions obj as input, then importing as Sess objs
+           % here (rather than taking Sess objects as input).
+           % Downside: Possible extra disk access (in checking if done,
+           % even if just done).
+           % Advantage: Doesn't require individual sessions to have already
+           % been processed
+
+           % as in Sess object, dupliate reference data
+           % Import session data from input sessions row
+           % Copy meta data
+           obj.subject = sessions.subject;
+           obj.level = sessions.levels;
+           obj.fID = sessions.fID;
+           obj.task = ''
+           obj.session = sessions;
+           
+           if exist('forceNeural', 'var')
+               obj.forceNeural = forceNeural;
+           end
+           
+           % Copy subjects parameters if available
+           % Make required rather than optional?
+           if exist('subjectReference', 'var')
+               obj.subjectParams = subjectReference{1};
+               obj.subjectPaths = subjectReference{2};
+           end
+           
+          
+           
+           obj.sessions = sessions.importData(true);
+
+           
+           % Now iterate over these session objects and create title,
+           % nTrails, append data, etc.
+           
        end
+       
+       
+       
+
    end
    
 end

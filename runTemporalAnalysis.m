@@ -18,7 +18,7 @@ sParams.subject = 'Snow';
 
 % sParams.level = [8, 9, 10];
 % sParams.level = 8;
-sParams.level = 10;
+sParams.level = 11;
 
 % The rest
 sub = Subject(sParams);
@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 1;
+lim = 10;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -63,7 +63,7 @@ sub.sessions.analyseNerual(force)
 
 %% Create combined sessions
 
-obj = importCombSessions(obj);
+sub = sub.importComboSessions('SID2s')
 
 
 %% Analyse combine sessions

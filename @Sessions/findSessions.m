@@ -308,8 +308,28 @@ for s = 1:length(sessions) % For each session
             end
         end
         
-        % Level 11 stuff - AsM (sID2, asm ID)
-        % Not added yet
+        % Level 11 stuff = SID2 etc.
+        add = {'level11Seeds', ...
+            'level11Offsets', ...
+            'level11ActualAsMs', ...
+            'seed2FileName', ...
+            };
+        if allData.Level(row)==10 || allData.Level(row)==11
+            % Save "seedID2" in to "SID"
+            if isfield(fData.saveData{1,2},'seedID2')
+                allData.SID2{row} = fData.saveData{1,2}.seedID2;
+            else
+                allData.SID2{row} = 'Missing';
+            end
+            for a = 1:numel(add)
+                allData.(add{a}){row}  = fData.saveData{1,2}.(add{a});
+            end
+        else
+            for a = 1:numel(add)
+                allData.(add{a}){row}  = '';
+            end
+            
+        end
         
         
         % Length of imported trials now known allData.nTrials

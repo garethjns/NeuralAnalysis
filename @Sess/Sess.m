@@ -5,7 +5,7 @@ classdef Sess < BehavAnalysis & fitPsyche
     % paramters and paths - these will be used in analysis so useful if
     % available here rather than Subject object (?).
     
-    properties (SetAccess = immutable)
+    properties % (SetAccess = immutable)
         title
         subject
         fID
@@ -35,6 +35,13 @@ classdef Sess < BehavAnalysis & fitPsyche
     
     methods
         function obj = Sess(session, subjectReference, forceNeural)
+            
+            if ~exist('session', 'var')
+                % If session is more than one row, assume ComboSess is
+                % being created. Return dummy object and let ComboSess
+                % handle rest
+                return
+            end
             
             % Import session data from input sessions row
             % Copy meta data
@@ -156,6 +163,7 @@ classdef Sess < BehavAnalysis & fitPsyche
         function obj = analyseNeural(obj)
             % This uses behav and neural data, so analyse in this object so
             % easy access to both
+            
             
             % Run prep to create analysis file and check stimuli
             obj = processPSTH(obj);

@@ -54,7 +54,6 @@ classdef Sessions
                     loadOK = false;
                 end
                 
-                
                 if ~loadOK
                     reImport = true;
                 end

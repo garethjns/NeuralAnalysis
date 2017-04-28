@@ -23,12 +23,11 @@ classdef ComboSess < Sess
    % fitPsyche.
    
    properties
-       nSess = []
-       indivData = {}
+       sessions = {}
    end
    
    methods
-       function obj = ComboSess(sessions, subjectReference, forceNeural)
+       function obj = ComboSess(sessions, sub, forceNeural)
            % Taking sessions obj as input, then importing as Sess objs
            % here (rather than taking Sess objects as input).
            % Downside: Possible extra disk access (in checking if done,
@@ -39,11 +38,12 @@ classdef ComboSess < Sess
            % as in Sess object, dupliate reference data
            % Import session data from input sessions row
            % Copy meta data
-           obj.subject = sessions.subject;
-           obj.level = sessions.levels;
-           obj.fID = sessions.fID;
-           obj.task = ''
-           obj.session = sessions;
+           
+            obj.subject = sub.subject;
+            obj.level = sub.levels;
+            obj.fID = sub.fID;
+            obj.subjectParams = sub.params;
+            obj.subjectPaths = sub.paths;
            
            if exist('forceNeural', 'var')
                obj.forceNeural = forceNeural;
@@ -59,8 +59,28 @@ classdef ComboSess < Sess
           
            
            obj.sessions = sessions.importData(true);
-
            
+           % Append sessions data to sessionData
+           nS = obj.sessions.nS;
+           % Preallocate
+           
+           sessionData = obj.sessionTable(obj.sessions.nT);
+           row = 1;
+           for s = 1:nS
+               
+               n = height(obj.sessions.sessionData{s}.data);
+               
+               sessionData(row:row+n-1,:) = ...
+                   obj.sessions.sessionData{s}.data;
+               row = row+n;
+           end
+           
+           % Reset TrialNumbers
+           sessionData.TrialNumber(:,1) = 1:obj.sessions.nT;
+           
+           
+           obj.data = sessionData;
+           obj.nTrials = height(sessionData);
            % Now iterate over these session objects and create title,
            % nTrails, append data, etc.
            

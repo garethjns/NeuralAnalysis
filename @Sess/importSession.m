@@ -79,9 +79,9 @@ for f = 1:nTrials
         data.fNeuralPathTDT{row,1} = session.fNeuralPathTDT;
         % data.fNeuralPathMat(row,1) = session.fNeuralPathMat;
         % data.EpochFile{row,1} = epochFile;
-        data.analysisFile{row,1} = session.AnalysisFile;
+        data.AnalysisFile{row,1} = session.AnalysisFile;
     else
-       data.NeuralData(row,1) = session.NeuralData;
+        data.NeuralData(row,1) = session.NeuralData;
     end
     
     % Add box
@@ -437,6 +437,11 @@ for f = 1:nTrials
             % Loaded before row loop
             data.AsyncParams{row,1} = ...
                 seed2.finalReport;
+        end
+        if isfield(fData.saveData{1,2},'seedID2')
+            allData.SID2{row} = fData.saveData{1,2}.seedID2;
+        else
+            allData.SID2{row} = 'Missing';
         end
     end
     

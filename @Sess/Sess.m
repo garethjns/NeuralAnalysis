@@ -116,7 +116,7 @@ classdef Sess < BehavAnalysis & fitPsyche
                     obj = obj.level11();
             end
             
-            obj.analysisDone = true;
+            obj.behavAnalysisDone = true;
             
         end
         

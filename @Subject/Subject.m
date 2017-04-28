@@ -47,6 +47,14 @@ classdef Subject
            % For level 10 (and 9), find weekIDs, create session for each.
            % For level 11, find weekIDs, create session for each. 
            
+           % Copy the sessions object to .comboSessions. This will hold all
+           % the combine sessions in one object
+           obj.comboSessions = obj.sessions;
+           % Clear out the existing Sess objects and data
+           obj.comboSessions.sessionStats = struct
+           obj.comboSessions.sessionData = {};
+           obj.comboSessions.sessions = table;
+           
            if strcmp(how, 'auto')
               switch obj.level
                   case 8
@@ -78,7 +86,11 @@ classdef Subject
                case 'All'
                    % Mush all sessions available for level together!
            end
- 
+            
+            % Set nSess to number of combined sessions. Leave nT as total
+            % number of trials in all sessions - this should still be the
+            % same
+            obj.comboSessions.nS = numel(obj.comboSessions.sessionData);
         end
         
         function obj = divideByDIDs(obj)
@@ -95,6 +107,7 @@ classdef Subject
             
             % Create a ComboSess object for each SID
             nSIDs = numel(SIDs);
+            combo = cell(1,nSIDs);
             for s = 1:nSIDs
                 
                 % Copy sessions object
@@ -107,8 +120,12 @@ classdef Subject
                 someSessions.nS = sum(sIdx);
                 someSessions.sessions = obj.sessions.sessions(sIdx,:);
                 
-                combo = ComboSess(someSessions);
+                % Import the data for this sub group and save it back in to
+                % the new sessions ibject holding the combo sessions
+                obj.comboSessions.sessionData{s} = ComboSess(someSessions, obj);
             end
+            
+            
         end
         
     end

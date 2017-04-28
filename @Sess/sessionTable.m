@@ -48,7 +48,7 @@ varNames = { ...
     cell(nTrials,1), 'fID', ''; ... Added
     cell(nTrials,1), 'fMatPath', ''; ... Added
     cell(nTrials,1), 'fTxtPath', ''; ... Added
-    NaN(nTrials,1), 'Neural', ''; ...  Neural data available?
+    NaN(nTrials,1), 'Neural', 'Old and unused???'; ...  Neural data available?
     NaN(nTrials,1), 'LocalAvailTDT', ''; ... And locally in tank?
     NaN(nTrials,1), 'LocalAvailMat', ''; ... And/or in .mat?
     NaN(nTrials,1), 'BlockNum', ''; ... Block 7-3 = 73
@@ -61,9 +61,12 @@ varNames = { ...
     cell(nTrials,1), 'ThreshPath', ''; ... Level 9 and 10
     cell(nTrials,1), 'DayID', ''; ... Level 10 and 11
     NaN(nTrials,1), 'SeedID' ''; ... Level 10 and 11
+    NaN(nTrials,1), 'SeedID2' ''; ... Level 10 and 11
     cell(nTrials,1), 'ReqAsMs', 'The AsMs that were requested'; ... Level 11
     NaN(nTrials,1), 'AsM', 'gf.AsM'; ... Level 11... Offset
     NaN(nTrials,1), 'AsMActualLog', 'gf.AsMActualLog, from experiment'; ... Level 11
+    cell(nTrials,1), 'AsyncParams', '';
+    NaN(nTrials,1), 'NeuralData', 'Another neural data flag!';
     };
 
 emptyTable = table(varNames{:,1});

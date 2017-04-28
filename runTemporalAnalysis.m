@@ -63,10 +63,9 @@ sub.sessions.analyseNerual(force)
 
 %% Create combined sessions
 
-sub = sub.importComboSessions('SID2s')
+sub = sub.importComboSessions('SID2s');
 
 
 %% Analyse combine sessions
 
 sub.comboSessions.analyseBehav(force)
-sub.comboSessions.analyseNerual(force)

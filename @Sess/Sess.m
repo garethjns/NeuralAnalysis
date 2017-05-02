@@ -1,4 +1,4 @@
-classdef Sess < BehavAnalysis & fitPsyche
+classdef Sess < BehavAnalysis
     % Object to hold imported behavioural experimental data
     % Includes import, report and plot methods
     % For creation, requires table row from Sessions. Also needs subjects
@@ -16,6 +16,7 @@ classdef Sess < BehavAnalysis & fitPsyche
     end
     
     properties
+        single = 1 % 1 = single, 0 = combo
         nTrials % Number of trials available
         data % Imported data table
         behavAnalysisDone = 0 % Indicate if Sess. analysis has been run yet
@@ -40,6 +41,7 @@ classdef Sess < BehavAnalysis & fitPsyche
                 % If session is more than one row, assume ComboSess is
                 % being created. Return dummy object and let ComboSess
                 % handle rest
+                obj.type = 0;
                 return
             end
             
@@ -236,9 +238,7 @@ classdef Sess < BehavAnalysis & fitPsyche
     end
     
     methods (Static)
-        
 
-        
         function summary
         end
         
@@ -253,8 +253,17 @@ classdef Sess < BehavAnalysis & fitPsyche
             % For invidual sessions, use title (date and session number)
             % for sub folder.
             figInfo = obj.figInfo;
+            
+            % Set parent folder to save to - individual or joined 
+            if obj.single == 0
+                pType = obj.subjectPaths.behav.individualSessAnalysis;
+            else
+                pType = obj.subjectPaths.behav.joinedSessAnalysis;
+            end
+            
+            % Set file name and level path - already set in .title
             figInfo.fns = ...
-                [obj.subjectPaths.behav.individualSessAnalysis, ...
+                [pType, ...
                 obj.title, '\'];
             figInfo.titleAppend = obj.title;
             
@@ -267,6 +276,7 @@ classdef Sess < BehavAnalysis & fitPsyche
                     try
                         rmdir(figInfo.fns(1:end-1), 's')
                     catch err
+                        disp(err)
                         disp('Failed to remove dir') % But why??
                     end
                 end

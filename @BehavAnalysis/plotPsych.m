@@ -62,7 +62,7 @@ for v = 1:size(fastProp,2)
     % Fit
     try % Fit fails on NaN data
         b = ...
-            Sess.FitPsycheCurveWH2001b(xaxis, data, SP, LM, UL);
+            BehavAnalysis.fitPsycheCurveWH(xaxis, data, [UL; SP; LM]);
         
         % Save coefficients
         bsAvg(:,v).data = b;  %#ok<AGROW>

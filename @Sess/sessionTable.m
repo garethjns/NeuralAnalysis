@@ -65,6 +65,7 @@ varNames = { ...
     cell(nTrials,1), 'ReqAsMs', 'The AsMs that were requested'; ... Level 11
     NaN(nTrials,1), 'AsM', 'gf.AsM'; ... Level 11... Offset
     NaN(nTrials,1), 'AsMActualLog', 'gf.AsMActualLog, from experiment'; ... Level 11
+    NaN(nTrials,1), 'AsMRecalc', 'Recaled asm based on analysis params'; ... Level 11
     cell(nTrials,1), 'AsyncParams', '';
     NaN(nTrials,1), 'NeuralData', 'Another neural data flag!';
     };

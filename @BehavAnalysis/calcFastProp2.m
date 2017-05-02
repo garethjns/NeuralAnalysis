@@ -1,4 +1,38 @@
-function fastProp = calcFastProp2(allData, trialInd, figInfo, bDiv)
+function [fastProp, newAsMs] = calcFastProp2(allData, trialInd, figInfo, ...
+    bDiv, AsMParams)
+% Calculate fast prop for AsM using bins
+% Bins to use (eg, specified or those origainally requested) can be input
+% as single division, or actual bins. Out bins extended to 0-1 if needed.
+% If AsMParams is supplied AsM will be recalculated for each trail, else
+% originally calculated value will be used. This is in .AsMLog and varies
+% depending on the parameters used during generation.
+% Recalculated AsMs return in newAsMs
+
+newAsMs = [];
+if exist('AsMParams', 'var')
+    % RECALC ASM to newAsMs and overwrite allData.AsMLog for processing
+    % here
+    % TODO
+    recalc = 1;
+    tIdx = allData.Type==5;
+   
+    for r = 1:height(allData)
+        if tIdx(r)
+            [met, det] = BehavAnalysis.asyncMetric(AsMParams, ...
+                allData.aStim{r}, allData.vStim{r}, ...
+                @BehavAnalysis.Church2Nellie);
+            
+            allData.AsMRecalc(r) = met;
+        end
+    end
+    
+    % allData isn't returned at the moment, not sure how to handle yet.
+    % Overwrite here to save renaming variables below
+    newAsMs = allData.AsMRecalc;
+    allData.AsMActualLog = newAsMs;
+else
+    recalc = 0;
+end
 
 fns = figInfo.fns;
 
@@ -18,21 +52,27 @@ allOffsets = unique(allData.aSyncOffset(idx));
 if numel(bDiv) == 1
     % bDiv is division size
     asBinEdges = 0:bDiv:1;
-    
 else
-     % bDiv is requested AsMs
-     
-     % Expand in to bins
-     mDiff = mean(diff(bDiv));
-     asBinEdges = [0, bDiv(1), bDiv(2), bDiv(3), 1];
+    % bDiv is actual bins
+    if bDiv(1) ~= 0 && bDiv(end) ~=1
+        % Expand in to bins
+        asBinEdges = [0, bDiv, 1];
+    else
+        asBinEdges = bDiv;
+    end
 end
+
+% Get bin midpoints
 allAsBins = diff(asBinEdges)/2 + asBinEdges(1:end-1);
 
+% Count bins, trails
 nAsBins = numel(allAsBins);
 idx5 = allData.Type == 5 & trialInd;
 n5 = sum(idx5);
 
 
+%% Histogram of AsM distributions
+% Show how available data covers space using different bin widths
 
 figure
 histogram(allData.AsMActualLog(idx5,1), 'BinEdges', asBinEdges)
@@ -43,10 +83,14 @@ histogram(allData.AsMActualLog(idx5,1), 'BinEdges', 0:0.05:1)
 histogram(allData.AsMActualLog(idx5,1), 'BinEdges', 0:0.025:1)
 legend({'Selected bin edges', '0.2', '0.1', '0.05', '0.025'})
 
-Sess.ng('1024');
-Sess.hgx([fns, 'AsyncMetric divisions'])
+ylabel('Available trials, n')
+xlabel('AsM')
 
-% Calculate fastProp for each bin
+Sess.ng('1024');
+Sess.hgx([fns, 'AsyncMetric divisions_recalc', num2str(recalc)])
+
+
+%% Calculate fastProp for each bin
 % rates(1:6) x asBin x stat(1:3)
 % (:,:,1) = mean
 % (:,:,2) = STD
@@ -66,7 +110,8 @@ if n5 < 20
 end
 
 fpCol = 0;
-for v = 1:length(validConditions)
+for v = 1:numel(validConditions)
+    % [1,5] 1= all data in one bin
     
     switch validConditions(v)
         case 1
@@ -118,7 +163,9 @@ for v = 1:length(validConditions)
     end
 end
 
-% Plot a summary image of what's in this data subset
+
+%% Plot a summary image of what's in this data subset
+
 close all
 figure
 clabel = arrayfun(@(x){sprintf('%0.0f',x)}, fastPropN);
@@ -140,6 +187,10 @@ title(['Prop of right responses in  ', figInfo.titleAppend])
 ylabel('Rates')
 xlabel('Subset')
 
+% Create string including bin edges
+bes = BehavAnalysis.BES(asBinEdges);
+
 Sess.ng('1024');
-Sess.hgx([fns, 'AsyncMetric Subset summary'])
+Sess.hgx([fns, 'AsyncMetric Subset summary_', bes.char(), ...
+    'recalc', num2str(recalc)])
 

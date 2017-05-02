@@ -1,4 +1,4 @@
-classdef BehavAnalysis < ggraph
+classdef BehavAnalysis < ggraph & fitPsyche
     % Container for behav analysis methods.
     % This object is specific to this analysis.
     %
@@ -67,6 +67,7 @@ classdef BehavAnalysis < ggraph
             obj.figInfo.fName = ''; % Subject Name
             obj.figInfo.fns = ''; % Graph file name
             obj.figInfo.titleAppend = ''; % Add this to plot title
+            obj.figInfo.fnsAppend = ''; % Add this to filename
             
         end
         
@@ -210,6 +211,12 @@ classdef BehavAnalysis < ggraph
            % Check all match in list
            
         end
+        
+        function bes = BES(binEdges)
+            % Return string of bin edges to append to file name
+            bes = join(['BE_', (string(binEdges)'+'_')'], '');
+            
+        end
                
         % Find psychometric threshold
         thresh = threshold(allData, trialInd, figInfo)
@@ -224,7 +231,8 @@ classdef BehavAnalysis < ggraph
         PCCor = PCCorrect(allData, trialInd, figInfo);
         
         % Calculate percent correct: Both offset and asm for asyncs
-        [PCCorAsM, PCCorOff] = PCCorrectAs(allData, trialInd, figInfo, fParams)
+        [PCCorAsM, PCCorOff] = ...
+            PCCorrectAs(allData, trialInd, figInfo, fParams)
         
         % Plot psychometric curves
         [fastPropFitted, bsAvg] = ...
@@ -238,13 +246,19 @@ classdef BehavAnalysis < ggraph
         fastProp = calcFastProp(allData, trialInd, figInfo)
         
         % Calculate fastProp2
-        fastProp = calcFastProp2(allData, trialInd, figInfo, bDiv)
+        [fastProp, newAsMs] = ...
+            calcFastProp2(allData, trialInd, figInfo, bDiv, AsMParams)
 
         % Summary statistics - trialInd
         sumStats(allData, trialInd, level, dateRange, figInfo)
         
         % Summary statistics
         overallSummary(allData, level, fPaths)
+        
+        % Async metric
+        [met, det] = asyncMetric(params, stimA, stimV, varargin)
+        
+        stim = Church2Nellie(cfg)
         
     end
     

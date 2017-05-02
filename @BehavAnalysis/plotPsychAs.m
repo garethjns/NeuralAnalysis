@@ -14,6 +14,7 @@ validCondTitsComp = figInfo.validCondTitsComp;
 validCondTitsAlt = figInfo.validCondTitsAlt;
 fName = figInfo.fName;
 fns = figInfo.fns;
+fnsAppend = figInfo.fnsAppend;
 
 % Valid conditions
 validConditions = [1, 5];
@@ -21,18 +22,33 @@ validConditions = [1, 5];
 % Unique rates in set
 allRates = unique(allData.nEventsA(~isnan(allData.nEventsA)));
 
-
 % Async metric
-asBinEdges = 0:bDiv:1;
+% Histogram of available data (type 5)
+if numel(bDiv) == 1
+    % bDiv is division size
+    asBinEdges = 0:bDiv:1;
+else
+    % bDiv is actual bins
+    if bDiv(1) ~= 0 && bDiv(end) ~=1
+        % Expand in to bins
+        asBinEdges = [0, bDiv, 1];
+    else
+        asBinEdges = bDiv;
+    end
+end
+
+% Get bin midpoints
 allAsBins = diff(asBinEdges)/2 + asBinEdges(1:end-1);
+
+% Count bins, trails
 nAsBins = numel(allAsBins);
 idx5 = allData.Type == 5 & trialInd;
 n5 = sum(idx5);
 
 % Unique offsets for async
-xlabels = {'All(5)'};
+xLabels = {'All(5)'};
 for a = 1:numel(allAsBins)
-    xlabels = [xlabels, ['AsM_', num2str(allAsBins(a))]]; %#ok<AGROW>
+    xLabels = [xLabels, ['AsM_', num2str(allAsBins(a))]]; %#ok<AGROW>
 end
 
 % Params for fitting psychcurve
@@ -41,7 +57,7 @@ xaxis = (min(allRates):max(allRates))';
 
 % Limits and start points:
 %     g   l   u   v
-UL = [0.02, 0.02, Inf, Inf];
+UL = [0.02, 0.02, inf, inf];
 SP = [0.01, 0.01, 10.5, 1];
 LM = [0, 0, 0, 0];
 
@@ -68,7 +84,7 @@ for v = 1:size(fastProp,2)
     % Fit
     try % Fit fails on NaN data
         b = ...
-            FitPsycheCurveWH2001b(xaxis, data, SP, LM, UL);
+            BehavAnalysis.fitPsycheCurveWH(xaxis, data, [UL; SP; LM]);
         
         % Save coefficients
         bsAvg(:,v).data = b;  %#ok<AGROW>
@@ -120,14 +136,15 @@ for v = plotInd
         ylabel('Prop. "fast" response');
     end
     hXLabel = xlabel('n Events, /s');
-    title(xlabels(v));
+    title(xLabels(v));
 end
 suptitle([tA, 'Proportion of "fast" responses']);
 Sess.ng;
 hold off
 
+
 % Save
-fn = [fns, 'Prop right Async'];
+fn = [fns, 'Prop right Async', fnsAppend];
 Sess.hgx(fn)
 
 % Tidy
@@ -160,7 +177,7 @@ for v = plotInd
 end
 suptitle([tA, fName]);
 % Double plot above, so duplicate titles and order correctly...
-hLegend = legend(hp, xlabels(2:size(fastProp,2)));
+hLegend = legend(hp, xLabels(2:size(fastProp,2)));
 set(hLegend, 'Location', 'NorthWest');
 set(hLegend, 'Color', [0.95 0.95 0.95]);
 ylabel('Prop. "Fast" responses')
@@ -168,7 +185,7 @@ hold off
 Sess.ng;
 
 % Save
-fn = [fns, 'Prop right Async2_AsM'];
+fn = [fns, 'Prop right Async2_AsM', fnsAppend];
 Sess.hgx(fn)
 
 
@@ -206,7 +223,7 @@ title('DT and bias vs Async metric')
 hold off
 Sess.ng;
 
-fn = [fns, 'Fit vs AsOffset_AsM'];
+fn = [fns, 'Fit vs AsOffset_AsM', fnsAppend];
 Sess.hgx(fn)
 
 close all force

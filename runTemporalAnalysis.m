@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 10;
+lim = 0
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -58,7 +58,7 @@ sub.sessions = sub.sessions.importData(reImport, forceNeural);
 
 force = false;
 % sub.sessions.analyseBehav(force)
-sub.sessions.analyseNerual(force)
+% sub.sessions.analyseNerual(force)
 
 
 %% Create combined sessions
@@ -69,3 +69,9 @@ sub = sub.importComboSessions('SID2s');
 %% Analyse combine sessions
 
 sub.comboSessions.analyseBehav(force)
+
+% TODO:
+% Fix psychometric curves
+% Fix image saving paths - double \\ and not saving to joined analysis
+% folder
+

@@ -76,15 +76,24 @@ classdef Subject
                    obj = divideByDIDs(obj);
                    % Divide by DID
                    
+                   disp('NOT YET IMPLEMENTED')
+                   return
+                   
                case 'SID2s'
                    obj = divideBySID2s(obj);
                    % Divide by DID  
                    
                case 'Dates'
                    % Divide by auto date ranges (and any set in params?)
+                   disp('NOT YET IMPLEMENTED')
+                   return
                    
                case 'All'
                    % Mush all sessions available for level together!
+                   disp('NOT YET IMPLEMENTED')
+                   return
+               otherwise
+                   disp('Unknown combo param')
            end
             
             % Set nSess to number of combined sessions. Leave nT as total
@@ -97,7 +106,7 @@ classdef Subject
             
             sessions = obj.sessions.sessions;
             % Find all DIDs
-            DIDs = findgroups(sessions.DID)
+            DIDs = findgroups(sessions.DID);
         end
         
         function obj = divideBySID2s(obj)
@@ -107,7 +116,6 @@ classdef Subject
             
             % Create a ComboSess object for each SID
             nSIDs = numel(SIDs);
-            combo = cell(1,nSIDs);
             for s = 1:nSIDs
                 
                 % Copy sessions object
@@ -122,7 +130,8 @@ classdef Subject
                 
                 % Import the data for this sub group and save it back in to
                 % the new sessions ibject holding the combo sessions
-                obj.comboSessions.sessionData{s} = ComboSess(someSessions, obj);
+                obj.comboSessions.sessionData{s} = ...
+                    ComboSess(someSessions, obj, 'SID2s');
             end
             
             

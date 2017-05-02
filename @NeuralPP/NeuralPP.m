@@ -88,9 +88,11 @@ classdef NeuralPP
                 'color', 'k', 'LineStyle', '--')
             
             title([num2str(sum(spikes(:,c,e))), ' events'])
-            axis([0, length(data(:,c,e))*1.3, ...
-                -abs(max(data(:,c,e))*1.1), ...
-                abs(max(data(:,c,e))*1.1)])
+            try
+                axis([0, length(data(:,c,e))*1.3, ...
+                    -abs(max(data(:,c,e))*1.1), ...
+                    abs(max(data(:,c,e))*1.1)])
+            end
             xlabel('Time, pts')
             ylabel('Mag')
             % Create legend

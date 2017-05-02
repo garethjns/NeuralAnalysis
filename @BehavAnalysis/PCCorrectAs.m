@@ -1,5 +1,5 @@
 function [PCCorAsM, PCCorOff] = PCCorrectAs(allData, trialInd, ...
-    figInfo, fParams)
+    figInfo, bDiv)
 % Calculate percent correct: Both offset and asm for asyncs
 % Correct answer histogram
 % Plots histogram of all answers.
@@ -21,6 +21,7 @@ validCondTitsComp = figInfo.validCondTitsComp;
 validCondTitsAlt = figInfo.validCondTitsAlt;
 fName = figInfo.fName;
 fns = figInfo.fns;
+fnsAppend = figInfo.fnsAppend;
 
 % Unique rates in set
 allRates = unique(allData.nEventsA(~isnan(allData.nEventsA)));
@@ -32,9 +33,23 @@ nOffs = size(allOffsets,1);
 
 % Async metric
 % Histogram of available data (type 5)
-bDiv = fParams.asParams.bDiv;
-asBinEdges = 0:bDiv:1;
+if numel(bDiv) == 1
+    % bDiv is division size
+    asBinEdges = 0:bDiv:1;
+else
+    % bDiv is actual bins
+    if bDiv(1) ~= 0 && bDiv(end) ~=1
+        % Expand in to bins
+        asBinEdges = [0, bDiv, 1];
+    else
+        asBinEdges = bDiv;
+    end
+end
+
+% Get bin midpoints
 allAsBins = diff(asBinEdges)/2 + asBinEdges(1:end-1);
+
+% Count bins, trails
 nAsBins = numel(allAsBins);
 idx5 = allData.Type == 5 & trialInd;
 n5 = sum(idx5);
@@ -126,7 +141,7 @@ end
 suptitle([tA, 'Proportion of correct responses'])
 Sess.ng;
 
-fn = [fns, 'Prop correct As Offs'];
+fn = [fns, 'Prop correct As Offs', fnsAppend];
 Sess.hgx(fn)
 
 disp('%s correct:')
@@ -217,7 +232,7 @@ end
 suptitle([tA, 'Proportion of correct responses'])
 Sess.ng;
 
-fn = [fns, 'Prop correct As Offs'];
+fn = [fns, 'Prop correct As Offs', fnsAppend];
 Sess.hgx(fn)
 % hgexport(gcf, fn, hgexport('factorystyle'), ...
 %     'Format', 'png');
@@ -239,7 +254,7 @@ ylabel('% Correct')
 xlabel('Offset')
 title('% correct, asyncs by offset')
 Sess.ng;
-fn = [fns, 'Prop correct As Offs2'];
+fn = [fns, 'Prop correct As Offs2', fnsAppend];
 Sess.hgx(fn)
 
 figure
@@ -252,6 +267,6 @@ ylabel('% Correct')
 xlabel('AsM')
 title('% correct, asyncs by AsM')
 Sess.ng;
-fn = [fns, 'Prop correct As AsM2'];
+fn = [fns, 'Prop correct As AsM2', fnsAppend];
 Sess.hgx(fn)
 

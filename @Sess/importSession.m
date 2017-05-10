@@ -69,6 +69,9 @@ for f = 1:nTrials
     % Trial number
     data.TrialNumber(row,1) = row;
     
+    % Target side
+    data.targetSide(row,1) = session.TargetSide;
+    
     % Neural info
     if session.NeuralData
         data.NeuralData(row,1) = session.NeuralData;
@@ -168,13 +171,13 @@ for f = 1:nTrials
     end
     
     % CorrectionTrial
-    data.CorrectionTrial(row)=...
+    data.CorrectionTrial(row) = ...
         trialData.correctionTrial;
     
     % Type
     if isfield(trialData, 'TT')
         % Trial type is recorded
-        data.Type(row)=trialData.TT;
+        data.Type(row) = trialData.TT;
     else
         % Try and figure it out
         ty=[NaN, NaN];
@@ -187,14 +190,14 @@ for f = 1:nTrials
         
         switch num2str(ty)
             case num2str([1 0]) % AO
-                data.Type(row)=2;
+                data.Type(row) = 2;
             case num2str([0 1]) % VO
-                data.Type(row)=3;
+                data.Type(row) = 3;
             case num2str([1 1]) % AV, must be sync in this case
-                data.Type(row)=4;
+                data.Type(row) = 4;
             otherwise
                 % Can't figure out type
-                data.Type(row)=NaN;
+                data.Type(row) = NaN;
         end
     end
     
@@ -203,13 +206,13 @@ for f = 1:nTrials
         data.nEventsA(row) = ...
             data.aStim{row}.nEvents;
     else
-        data.nEventsA(row)=NaN;
+        data.nEventsA(row) = NaN;
     end
     if isstruct(data.vStim{row})
         data.nEventsV(row) = ...
             data.vStim{row}.nEvents;
     else
-        data.nEventsV(row)=NaN;
+        data.nEventsV(row) = NaN;
     end
     
     % Check nEvents is the same for both modalities in
@@ -232,20 +235,21 @@ for f = 1:nTrials
     end
     
     % Side
-    data.Side(row)=trialData.side;
+    data.Side(row) = trialData.side;
     
-    % Response
+    % Response (==fast)
     if ~isempty(trialData.response)
-        data.Response(row)=trialData.response;
+        % Reverse response if left==fast
+        data.Response(row) = trialData.response==data.targetSide(row);
     else
-        data.Response(row)=NaN;
+        data.Response(row) = NaN;
     end
     
     % Correct?
-    if data.Response(row)==data.Side(row)
-        data.Correct(row)=1;
+    if data.Response(row) == data.Side(row)
+        data.Correct(row) = 1;
     else
-        data.Correct(row)=0;
+        data.Correct(row) = 0;
     end
     
     % RT (relative)

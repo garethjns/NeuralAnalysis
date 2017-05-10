@@ -26,6 +26,7 @@ classdef Sess < BehavAnalysis
         neuralPaths
         forceNeural = 0
         analysisPath
+        targetSide
     end
     
     properties (Hidden = true)
@@ -52,6 +53,7 @@ classdef Sess < BehavAnalysis
             obj.fID = session.fID{1};
             obj.task = session.Task{1};
             obj.session = session;
+            obj.targetSide = 1;
             
             if exist('forceNeural', 'var')
                 obj.forceNeural = forceNeural;
@@ -172,7 +174,7 @@ classdef Sess < BehavAnalysis
             
         end
         
-         function obj = processPSTH(obj)
+        function obj = processPSTH(obj)
            % Use the PSTH function from NeuralAnalysis to calc PSTHs for 
            % requested data in params
            

@@ -16,6 +16,7 @@ varNames = { ...
     cell(nFiles,1), 'DID', 'DayID if level 10';
     cell(nFiles,1), 'SID', 'SeedID if level 10';
     cell(nFiles,1), 'SID2', 'SeedID2 if level 11';
+    NaN(nFiles, 1), 'targetSide', 'Fast side, -1 = left';
     NaN(nFiles,1), 'Training', 'Was this a training session? Eg. with repeating stim?'; ...
     cell(nFiles,1), 'AttenRange', 'Atten range in session';
     cell(nFiles,1), 'HoldRange', 'Range of hold times in session';

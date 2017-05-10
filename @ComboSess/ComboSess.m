@@ -60,9 +60,10 @@ classdef ComboSess < Sess
             
             % Append sessions data to sessionData
             nS = obj.sessions.nS;
-            % Preallocate
             
+            % Preallocate
             sessionData = obj.sessionTable(obj.sessions.nT);
+            
             row = 1;
             for s = 1:nS
                 
@@ -87,12 +88,26 @@ classdef ComboSess < Sess
             switch split
                 case 'SID2s'
                     s = ['SID2s_', sessions.sessions.SID2{1}];
+                case 'All'
+                    s = 'All';
             end
             obj.title = ['Level', num2str(obj.level), '\', ...
-                ds, '_', de, '_' ...
-                s];
+                s, '_', ds, '_', de ...
+                ];
             
         end
+        
+        function obj = compareSessions(obj, comps)
+            % Compare this session to a group of other sessions
+            % For example, of this session is 'All' combo and comps = SID2s combo,
+            % compare the DT, bias, perf for each session in comps to this session
+            % Assumes all sessions already analysed - not checking flag for
+            % now
+            
+            
+        end
+        
     end
     
 end
+

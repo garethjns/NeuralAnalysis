@@ -15,7 +15,8 @@ if exist('AsMParams', 'var')
     % TODO
     recalc = 1;
     tIdx = allData.Type==5;
-   
+    disp('Recalculating AsM using: ')
+    disp(AsMParams)
     for r = 1:height(allData)
         if tIdx(r)
             [met, det] = BehavAnalysis.asyncMetric(AsMParams, ...

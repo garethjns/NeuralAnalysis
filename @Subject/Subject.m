@@ -11,7 +11,7 @@ classdef Subject
     properties
         levels = 11
         sessions % To hold sessions object
-        comboSessions
+        comboSessions = struct
         params
         paths
     end
@@ -47,14 +47,6 @@ classdef Subject
            % For level 10 (and 9), find weekIDs, create session for each.
            % For level 11, find weekIDs, create session for each. 
            
-           % Copy the sessions object to .comboSessions. This will hold all
-           % the combine sessions in one object
-           obj.comboSessions = obj.sessions;
-           % Clear out the existing Sess objects and data
-           obj.comboSessions.sessionStats = struct
-           obj.comboSessions.sessionData = {};
-           obj.comboSessions.sessions = table;
-           
            if strcmp(how, 'auto')
               switch obj.level
                   case 8
@@ -66,21 +58,26 @@ classdef Subject
                   case 11
                       how = 'SIDs';
               end
-               
-               
            end
            
+           % Use the how tag to create a
+           
+           % Copy the sessions object to comboSessions. This will hold all
+           % the combine sessions in one object. Not saving to obj yet.
+           cS = obj.sessions;
+           % Clear out the existing Sess objects and data
+           cS.sessionStats = struct;
+           cS.sessionData = {};
+           cS.sessions = table;
            
            switch how
                case 'DIDs'
-                   obj = divideByDIDs(obj);
                    % Divide by DID
-                   
                    disp('NOT YET IMPLEMENTED')
                    return
-                   
+
                case 'SID2s'
-                   obj = divideBySID2s(obj);
+                   [obj, cS] = divideBySID2s(obj, cS);
                    % Divide by DID  
                    
                case 'Dates'
@@ -90,8 +87,8 @@ classdef Subject
                    
                case 'All'
                    % Mush all sessions available for level together!
-                   disp('NOT YET IMPLEMENTED')
-                   return
+                   [obj, cS] = comboAll(obj, cS);
+               
                otherwise
                    disp('Unknown combo param')
            end
@@ -99,17 +96,41 @@ classdef Subject
             % Set nSess to number of combined sessions. Leave nT as total
             % number of trials in all sessions - this should still be the
             % same
-            obj.comboSessions.nS = numel(obj.comboSessions.sessionData);
+            cS.nS = numel(cS.sessionData);
+            
+            % Save to object in comboSessions structure using how as the
+            % sub field
+            obj.comboSessions.(how) = cS;
         end
         
         function obj = divideByDIDs(obj)
-            
+            % WIP
             sessions = obj.sessions.sessions;
             % Find all DIDs
             DIDs = findgroups(sessions.DID);
+            
         end
         
-        function obj = divideBySID2s(obj)
+        function [obj, cS] = comboAll(obj, cS)
+            % Copy sessions object
+            someSessions = obj.sessions;
+            % Remove data - will be reimported
+            someSessions.sessionData = {};
+            
+            % Keep only relevant rows in session table - tin this case, all
+            sIdx = true(height(someSessions.sessions),1);
+            % And reset n
+            someSessions.nS = sum(sIdx);
+            someSessions.sessions = obj.sessions.sessions(sIdx,:);
+            
+            % Import the data for this sub group and save it back in to
+            % the new sessions object holding the combo sessions
+            cS.sessionData{1} = ...
+                ComboSess(someSessions, obj, 'All');
+            
+        end
+        
+        function [obj, cS] = divideBySID2s(obj, cS)
             
             % Find all DIDs
             SIDs = unique(obj.sessions.sessions.SID2);
@@ -129,8 +150,8 @@ classdef Subject
                 someSessions.sessions = obj.sessions.sessions(sIdx,:);
                 
                 % Import the data for this sub group and save it back in to
-                % the new sessions ibject holding the combo sessions
-                obj.comboSessions.sessionData{s} = ...
+                % the new sessions object holding the combo sessions
+                cS.sessionData{s} = ...
                     ComboSess(someSessions, obj, 'SID2s');
             end
             

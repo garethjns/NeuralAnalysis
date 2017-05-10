@@ -12,9 +12,9 @@ sParams.box = 'Nellie';
 
 % Subject
 % sParams.fName = 'Twister';
-% sParams.fName = 'Suarez';
+% sParams.subject = 'Suarez';
 sParams.subject = 'Snow';
-% sParams.fName = 'Beryl';
+% sParams.subject = 'Beryl';
 
 % sParams.level = [8, 9, 10];
 % sParams.level = 8;
@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 0
+lim = 10;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -56,7 +56,7 @@ sub.sessions = sub.sessions.importData(reImport, forceNeural);
 % Do behavioural analysis (using BehavAnalysis)
 % Do neural analysis (PSTH etc.) (Using NeuralAnalysis)
 
-force = false;
+% force = false;
 % sub.sessions.analyseBehav(force)
 % sub.sessions.analyseNerual(force)
 
@@ -64,14 +64,18 @@ force = false;
 %% Create combined sessions
 
 sub = sub.importComboSessions('SID2s');
+% Analyse combine sessions
+force = true;
+sub.comboSessions.SID2s = sub.comboSessions.SID2s.analyseBehav(force);
 
 
-%% Analyse combine sessions
+%% Create combo sessions using all
 
-sub.comboSessions.analyseBehav(force)
+sub = sub.importComboSessions('All');
+sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 
-% TODO:
-% Fix psychometric curves
-% Fix image saving paths - double \\ and not saving to joined analysis
-% folder
+
+%% Run comparision berween combo sessions
+% All vs SIDs2
+
 

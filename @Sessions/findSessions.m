@@ -70,6 +70,9 @@ for s = 1:length(sessions) % For each session
     allData.BehavPath{row,1} = [behavPath, fMat];
     allData.BehavFn{row,1} = fMat;
     
+    % Target side
+    allData.TargetSide(row,1) = obj.targetSide;
+    
     % Level
     try
         fData = open([behavPath, fMat]);

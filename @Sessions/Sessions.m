@@ -14,7 +14,7 @@ classdef Sessions
         sessionData = cell(1) % Exp objects containing data for sessions
         nS % Number of sessions
         nT % Total number of trials available
-        
+        targetSide % "Fast" side, constant per subject
     end
     
     properties (Hidden = true)
@@ -33,6 +33,7 @@ classdef Sessions
             obj.fID = sub.fID;
             obj.subjectParams = sub.params;
             obj.subjectPaths = sub.paths;
+            obj.targetSide = sub.params.targetSide;
             
             % Import sessions for subject
             % Reload or reimport?

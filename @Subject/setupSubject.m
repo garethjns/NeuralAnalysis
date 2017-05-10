@@ -110,6 +110,7 @@ fParams.PP.LFPResampleFs = 1000;
 
 switch obj.subject
     case 'Twister'
+        fParams.targetSide = 1;
         fParams.subject2 = 'F1312_Twister';
         fParams.task = 'Temporal';
         fParams.fName = 'Twister';
@@ -123,6 +124,7 @@ switch obj.subject
         % fParams.level=[8, 9, 10];
         
     case 'Snow'
+        fParams.targetSide = 1;
         fParams.subject2 = 'F1403_Snow';
         fParams.fName = 'Snow';
         fParams.fID = 'F1403';
@@ -134,6 +136,7 @@ switch obj.subject
             };
         
     case 'Suarez'
+        fParams.targetSide = 1;
         fParams.fID = 'F1408';
         fParams.fName = 'Suarez';
         fParams.subject2 = 'F1408_Suarez';
@@ -145,6 +148,7 @@ switch obj.subject
         % fParams.level = [8, 9, 10];
         
     case 'Beryl'
+        fParams.targetSide = 0;
         fParams.fID = 'F1520';
         fParams.fName = 'Beryl';
         fParams.subject2 = 'F1520_Beryl';

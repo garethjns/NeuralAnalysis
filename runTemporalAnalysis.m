@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 10;
+lim = 0;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -78,4 +78,7 @@ sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 %% Run comparision berween combo sessions
 % All vs SIDs2
 
+sub.comboSessions.All = ...
+    sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s);
 
+sub.comboSessions.All.plotComps

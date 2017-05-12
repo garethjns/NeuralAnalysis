@@ -11,8 +11,6 @@ function [fastProp, newAsMs] = calcFastProp2(allData, trialInd, figInfo, ...
 newAsMs = [];
 if exist('AsMParams', 'var')
     % RECALC ASM to newAsMs and overwrite allData.AsMLog for processing
-    % here
-    % TODO
     recalc = 1;
     tIdx = allData.Type==5;
     disp('Recalculating AsM using: ')

@@ -81,4 +81,5 @@ sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 sub.comboSessions.All = ...
     sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s);
 
+%%
 sub.comboSessions.All.plotComps

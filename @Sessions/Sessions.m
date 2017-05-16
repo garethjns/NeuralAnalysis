@@ -251,6 +251,7 @@ classdef Sessions
             
             % Create plots for each row (session from this object)
             % Data from comp object (columns) goes on each plot.
+            % Column loop in plot functions
             
             n1 = size(obj.compStats, 1);
             
@@ -282,7 +283,7 @@ classdef Sessions
             
             m = size(row,2);
             o = size(row{1}.(field), 1);
-            % n x AsMs x nCoeffs
+            % n x AsMs x nCoeffs ([g, l, u, v])
             data = NaN(m, o, 4);
             for r = 1:m
                 % Permute coeffs to 3rd dim
@@ -297,11 +298,15 @@ classdef Sessions
             figure
             subplot(1,2,1)
             boxplot(data(:,:,3))
+            title('Bias')
             
             subplot(1,2,2)
             boxplot(data(:,:,4))
-            suptitle(field)
+            title('DT')
             xlim([0, o+1])
+            
+            
+            suptitle([field, ' group[AVs] - mean(groups[AVa])'])
         end
     end
     

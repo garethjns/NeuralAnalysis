@@ -81,7 +81,7 @@ if sum(trialInd)>20
     
     % ASM3
     % Calculate fastProp based on recalculated AsM using paramters defined
-    % in analysis set up (TODO) 
+    % in analysis set up 
     % And using bins defined in analysis params (fParams.asParams.bDiv3) 
     bDiv3 = obj.subjectParams.asParams.bDiv3;
     figInfo.fnsAppend = [char(BehavAnalysis.BES(bDiv3)), 'Recalc1'];

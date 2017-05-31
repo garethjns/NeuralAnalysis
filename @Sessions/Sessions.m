@@ -1,6 +1,21 @@
 classdef Sessions
     % Import list of sessions for subject
     % Inherit session methods for reporting and plotting
+    %
+    % Data structure on disk:
+    % For individual sessions:
+    % \BehavAnalysis\IndividualSessions\:
+    % \Level xx\division ID (session)\
+    % For combosessions:
+    % \BehavAnalysis\JoinedSessions\:
+    % \Level\ID and date
+    % ID can be ID used to divide data eg. SID2 or DID or All
+    % Inside is same analysis run on combined data
+    % Subfolders then contain comparisions from Sessions.CompareData
+    % Eg. sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s):
+    % All_Dates\...
+    % SID2s_1s\ % 1s compared to all
+    % SID2s_2s\ % 2s compared to all
     
     properties (SetAccess = immutable)
         subject
@@ -12,6 +27,7 @@ classdef Sessions
         sessions % Tabulated list of sessions
         sessionData = cell(1) % Exp objects containing data for sessions
         sessionStats % Stats for session
+        compStatsMeta % List of comparisons\paths
         compStats % States compared to another session
         compStatsSessionData;
         nS % Number of sessions
@@ -224,25 +240,74 @@ classdef Sessions
             for n = 1:n1
                 % Stats1 (left input) from object
                 stats1 = obj.sessionData{n}.stats;
+                s1Title = obj.sessionData{n}.title;
                 % Compare with each session in comp object
                 for m = 1:n2
                     % Stats2 (right input) from input
                     stats2 = comps.sessionData{m}.stats;
+                    s2Title = comps.sessionData{m}.title;
+                    
+                    % Prepare meta data and sub directory for this
+                    % comparison
+                    obj.compStatsMeta{n, m}.m = m;
+                    obj.compStatsMeta{n, m}.n = n;
+                    obj.compStatsMeta{n, m}.mName = s2Title;
+                    obj.compStatsMeta{n, m}.nName = s1Title;
+                   
+                    % Make sub path 
+                    % Parent:
+                    s1 = string(s1Title);
+                    % Child, remove top dir levels
+                    s2 = string(s2Title).split('\');
+                    % Join to create sub directory
+                    s3 = [s1, '\', s2(end)];
+                    s3 = s3.join('').char();
+                    
+                    % Set file name and level path
+                    figInfo.titleAppend = s3;
+                    figInfo.fns = ...
+                        [obj.subjectPaths.behav.joinedSessAnalysis, ...
+                        figInfo.titleAppend, '\'];
+                    
+                    try
+                        if exist(figInfo.fns, 'dir')
+                            rmdir(figInfo.fns)
+                        end
+                        mkdir(figInfo.fns)
+                    catch err
+                        disp(err)
+                    end
+                    % Save to meta table
+                    obj.compStatsMeta{n, m}.figInfo = figInfo;
+                    
                     
                     % Run direct comparisons
                     % None of these are active yet
                     % Sessions.directStatComp(stats1, stats2)
                     
                     % Run indirect comparisons
-                    obj.compStats{n,m} ...
-                        = Sessions.indirectStatComp(stats1, stats2);
+                    obj.compStats{n, m} ...
+                        = Sessions.indirectStatComp(stats1, stats2, ...
+                        figInfo);
+                    
+                    close all
                 end
             end
-            
-            
         end
         
-        function obj = plotComps(obj)
+        
+        
+        function obj = plotSummaryComps(obj)
+            % Plot summary plots of differences.
+            % For example, for each row in the stats matrix, boxplot the
+            % stats in the columns.
+            % Ie. this function works for each reference, and plots the
+            % deltas calculated from the sub directiories inside the
+            % reference
+            % Paths are already available in obj.compStatsMeta.figInfo
+            % Actual plot functions are called stat by stat, which is a bit
+            % weird.
+            
             % Check what to do
             if isempty(obj.compStats)
                 disp('No comparisons to plot')
@@ -259,6 +324,7 @@ classdef Sessions
                 
                 % Extract data
                 row = obj.compStats(n,:);
+                metaRow = obj.compStatsMeta(n,:);
                 
                 % Find available fields
                 fns = string(fieldnames(row{1}));
@@ -267,11 +333,14 @@ classdef Sessions
                     
                     if fns(f).contains('bs')
                         % Plot curve comparisons
-                       obj.plotCurveComps(row, fns(f).char())
+                       obj.plotCurveComps(row, metaRow, ...
+                           fns(f).char());
                     end
                     
                     if fns(f).contains('PC')
                         % Plot PCCor comarsions
+                        obj.plotPCComps(row, metaRow, ...
+                            fns(f).char());
                     end
                 end
             end
@@ -279,7 +348,41 @@ classdef Sessions
             
         end
         
-        function plotCurveComps(obj, row, field)
+        function plotPCComps(~, row, metaRow, field)
+            m = size(row, 2);
+            o = size(row{1}.(field), 2);
+            % n x AsMs x nCoeffs ([g, l, u, v])
+            data = NaN(m, o);
+            for r = 1:m
+                data(r,:) = row{r}.(field);
+            end
+            
+            % Remove "all"
+            data = data(:,2:end);
+            o = size(data, 2);
+            
+            figure
+            boxplot(data)
+            title('PC Correct')
+            ylabel('Delta, %')
+            xlabel('AsM rating ->')
+            
+            suptitle([field, ' group[AVs] - mean(groups[AVa])'])
+            % Save figure, using any obj.compStatsMeta{xx}.figInfo 
+            % corresponding to this row 
+            
+            % Get full path (could just use obj.paths...)
+            fp = string(metaRow{1}.figInfo.fns)...
+                .extractBefore(metaRow{1}.nName);
+            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
+            fp = fp.join('');
+            
+            BehavAnalysis.ng;
+            BehavAnalysis.hgx(fp)
+            
+        end
+        
+        function plotCurveComps(~, row, metaRow, field)
             
             m = size(row,2);
             o = size(row{1}.(field), 1);
@@ -305,8 +408,19 @@ classdef Sessions
             title('DT')
             xlim([0, o+1])
             
-            
             suptitle([field, ' group[AVs] - mean(groups[AVa])'])
+            
+                        % Save figure, using any obj.compStatsMeta{xx}.figInfo 
+            % corresponding to this row 
+            
+            % Get full path (could just use obj.paths...)
+            fp = string(metaRow{1}.figInfo.fns)...
+                .extractBefore(metaRow{1}.nName);
+            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
+            fp = fp.join('');
+            
+            BehavAnalysis.ng;
+            BehavAnalysis.hgx(fp)
         end
     end
     
@@ -359,9 +473,14 @@ classdef Sessions
             end
         end
         
-        function stats = indirectStatComp(stats1, stats2)
+        function stats = indirectStatComp(stats1, stats2, figInfo)
             % Do indirect comparisons of stats. Eg. stats1.bsAvg to
-            % stats2.bsAvg.AsM1
+            % stats2.bsAvg.AsM1:
+            % AVs coeffs extracted from stats1.bsAvg (blCoeffs, 1x4)
+            % Coeffs at each AsM extracted from stats2.bsAvg.AsM1
+            % (coeffs, nx4)
+            % Save in stats as coeffs-blCoeffs (n x 4)
+            % Plot comparisons
             
             pairs = {'bsAvg', 'bsAvgAsM1'; ...
                 'bsAvg', 'bsAvgAsM2'; ...
@@ -377,7 +496,7 @@ classdef Sessions
                     case 'bsAvg'
                         % Dealing with cfit objects
                         
-                        % Get the AV sync baseline
+                        % Get the AV sync baseline - (3) is AVs
                         if isa(stats1.bsAvg(3), 'double')
                             % If fit missing, NaN
                             blCoeffs = NaN(1,4);
@@ -408,6 +527,45 @@ classdef Sessions
                         stats.(['blComp_', (pairs{p,2})]) = ...
                             coeffs-blCoeffs;
                         
+                        % Plot this comparison bargraph for each coeff
+                        figure
+                        for c = 1:4
+                            subplot(2,2,c)
+                            hold on
+                            bar(0, blCoeffs(1,c))
+                            % Exclude "all" 
+                            bar(coeffs(2:end,c), 'FaceColor', 'y')
+                            
+                            % bar([repmat(blCoeffs(1,c),nComps,1), ...
+                            %    coeffs(:,c)])
+                            
+                            switch c
+                                case 1
+                                    ylabel('g, mag')
+                                    title('Guess rate')
+                                case 2
+                                    ylabel('l, mag')
+                                    title('Lapse rate')
+                                case 3
+                                    ylabel('u, mag')
+                                    title('Bias')
+                                case 4
+                                    ylabel('v, mag')
+                                    title('DT')
+                            end
+                            xlabel('AsM rating ->')
+                            legend({'Reference (AVs)', 'Async'})
+                        end
+                        suptitle(['Curve comp: ', pairs{p,1}, ' to ', ...
+                            pairs{p,2}, ' [' figInfo.titleAppend, ']'])
+                        
+                        BehavAnalysis.ng('Big')
+                        fn = [figInfo.fns, 'Curve comp_', ...
+                            pairs{p,1}, '_', ...
+                            pairs{p,2}, ...
+                            '.png';];
+                        BehavAnalysis.hgx(fn)
+                        
                     case 'PCCor'
                         % Dealing with table objects
                         
@@ -416,12 +574,30 @@ classdef Sessions
                         
                         % Extract the coeffs from other cfit models
                         % All, a1, a2, a3, a4....
-                        PCCor =  stats2.(pairs{p,2}){1,:};
+                        PCCor = stats2.(pairs{p,2}){1,:};
                         
                         % Compare all to AVs
                         stats.(['blComp_', (pairs{p,2})]) = ...
                             PCCor - blPCCor.AVsync;
                         
+                        % Plot comparison bargraph
+                        figure
+                        hold on
+                        bar(0, blPCCor.AVsync)
+                        % Exclude "all"
+                        bar(PCCor(2:end), 'FaceColor', 'y')
+                        xlabel('AsM rating ->')
+                        ylabel('% Correct')
+                        legend({'Reference (AVs)', 'Async'})
+                        suptitle(['PC comp: ', pairs{p,1}, ' to ', ...
+                            pairs{p,2}, ' [' figInfo.titleAppend, ']'])
+                        
+                        BehavAnalysis.ng('Big')
+                        fn = [figInfo.fns, 'Curve comp_', ...
+                            pairs{p,1}, '_', ...
+                            pairs{p,2}, ...
+                            '.png';];
+                        BehavAnalysis.hgx(fn)
                 end
             end
             

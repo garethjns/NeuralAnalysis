@@ -70,7 +70,7 @@ fParams.asParams.plotOn = 0;
 fParams.asParams.dispOn = 0;
 fParams.asParams.compType = 'AbsDiff';
 fParams.asParams.PreProType = 'TWI';
-fParams.asParams.TWIWidth = 200; % ms
+fParams.asParams.TWIWidth = 150; % ms
 fParams.asParams.TWIFun = @normpdf; % Guassian
 fParams.asParams.Fs = 12000;
 

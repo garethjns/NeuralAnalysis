@@ -78,8 +78,12 @@ sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 %% Run comparision berween combo sessions
 % All vs SIDs2
 
+% Do comps
 sub.comboSessions.All = ...
     sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s);
+% Plot these
+
 
 %%
-sub.comboSessions.All.plotComps
+sub.comboSessions.All.plotSummaryComps
+

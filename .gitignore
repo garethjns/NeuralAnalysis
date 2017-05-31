@@ -26,6 +26,9 @@ $RECYCLE.BIN/
 # Data
 *.txt
 
+# Folders
+/html/
+
 # =========================
 # Operating System Files
 # =========================

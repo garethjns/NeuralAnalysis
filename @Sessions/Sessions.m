@@ -210,10 +210,9 @@ classdef Sessions
                 obj.sessionData{s} = obj.sessionData{s}.analyseNeural();
                 
             end
-            
         end
         
-        function obj = compareSessions(obj, comps)
+        function obj = compareSessions(obj, comps, plotOn, verbosity)
             % obj is Sessions containing single or multiple (?) comboSess
             % comps is Sessions containg multiple comboSess Stats are in
             % sessionData{x}.stats
@@ -228,10 +227,23 @@ classdef Sessions
             % eg comps..bsAvgAsMs will be compared to
             % obj..bsgAvgs
             
+            % Set defaults
+            if ~exist('plotOn', 'var')
+                figInfo.plotOn = true;
+            else
+                figInfo.plotOn = plotOn;
+            end
+            if ~exist('verbosity', 'var')
+                figInfo.verbosity = 1;
+            else
+               figInfo.verbosity = verbosity;
+            end
+            
+            % Count comparisons
             n1 = numel(obj.sessionData);
             n2 = numel(comps.sessionData);
             
-            % Output these x those
+            % Output these (reference) x those (targets)
             obj.compStats = cell(n1, n2);
             % Keep the comps in this object for reference
             obj.compStatsSessionData = comps.sessionData;
@@ -241,20 +253,32 @@ classdef Sessions
                 % Stats1 (left input) from object
                 stats1 = obj.sessionData{n}.stats;
                 s1Title = obj.sessionData{n}.title;
+                
+                % To command window if verbosity>0
+                if figInfo.verbosity
+                    disp(' ')
+                    disp(['Comparing', s1Title, ' (reference) to ...'])
+                end
+                
                 % Compare with each session in comp object
                 for m = 1:n2
                     % Stats2 (right input) from input
                     stats2 = comps.sessionData{m}.stats;
                     s2Title = comps.sessionData{m}.title;
                     
+                    % To command window if verbosity>0
+                    if figInfo.verbosity
+                        disp(['...', s2Title, ' (target)'])
+                    end
+                    
                     % Prepare meta data and sub directory for this
                     % comparison
-                    obj.compStatsMeta{n, m}.m = m;
-                    obj.compStatsMeta{n, m}.n = n;
-                    obj.compStatsMeta{n, m}.mName = s2Title;
-                    obj.compStatsMeta{n, m}.nName = s1Title;
-                   
-                    % Make sub path 
+                    obj.compStatsMeta{n,m}.m = m;
+                    obj.compStatsMeta{n,m}.n = n;
+                    obj.compStatsMeta{n,m}.mName = s2Title;
+                    obj.compStatsMeta{n,m}.nName = s1Title;
+                    
+                    % Make sub path
                     % Parent:
                     s1 = string(s1Title);
                     % Child, remove top dir levels
@@ -269,20 +293,26 @@ classdef Sessions
                         [obj.subjectPaths.behav.joinedSessAnalysis, ...
                         figInfo.titleAppend, '\'];
                     
-                    try
-                        if exist(figInfo.fns, 'dir')
-                            rmdir(figInfo.fns)
+                    % If saving graphs, clear and create directory
+                    % If not saving graphs, don't make one and/or
+                    % leave existing directory
+                    if figInfo.plotOn
+                        try
+                            if exist(figInfo.fns, 'dir')
+                                rmdir(figInfo.fns, 's')
+                            end
+                            mkdir(figInfo.fns)
+                        catch err
+                            disp(err)
                         end
-                        mkdir(figInfo.fns)
-                    catch err
-                        disp(err)
                     end
+                    
                     % Save to meta table
                     obj.compStatsMeta{n, m}.figInfo = figInfo;
                     
-                    
                     % Run direct comparisons
-                    % None of these are active yet
+                    % None of these are active yet and will need updating
+                    % (see indirectStatsComp)
                     % Sessions.directStatComp(stats1, stats2)
                     
                     % Run indirect comparisons
@@ -290,23 +320,181 @@ classdef Sessions
                         = Sessions.indirectStatComp(stats1, stats2, ...
                         figInfo);
                     
-                    close all
+                    % Close any created figures
+                    if figInfo.plotOn
+                        close all
+                    end
                 end
             end
         end
         
         
+        function [obj, hP] = plotSummaryComps(obj)
+            % This plot is comparison on AVASync performance (at whatever
+            % AsM settings and for whatever metrics) vs AVSync performance
+            % from the same session group.
+            %
+            % compStats is nRef x nTar, representing each session compared
+            % to every other session.
+            % So Data for references is consistent across columns and data
+            % for targets is consistent across rows
+            %
+            % If the comparision data is from a symmetrical generator [ie.
+            % reference sessions == target sessions, such as SID2s (not an
+            % "all" generator (which would have just one reference, mean
+            % for all sessions)] then the diagonal is AVa compared to AVs
+            % from the same session
+            % 
+            % Inside each cell is the stats object. This contains the
+            % bl_comp (delta) fields that are used in
+            % plotSummaryCompsDeltas and the .data field which contains the
+            % data used to calculate the delta
+            % This will include n performance metrics (eg. PCCorr and bs) *
+            % n AsM setting combinations (currently 3) * [ref, tar] = 12
+            % fields.
+            %
+            % bsAvgAsM1_ref: [0.0200 0.0200 6.8601 4.2763]
+            % vs
+            % bsAvgAsM1_tar: [5×4 double]
+            %
+            % bsAvgAsM2_ref: [0.0200 0.0200 6.8601 4.2763]
+            % vs
+            % bsAvgAsM2_tar: [3×4 double]
+            %
+            % bsAvgAsM3_ref: [0.0200 0.0200 6.8601 4.2763]
+            % vs
+            % bsAvgAsM3_tar: [3×4 double]
+            %
+            % PCCorAsM1_ref: 75.4386
+            % vs
+            % PCCorAsM1_tar: [72.2222 78.9474 81.8182 68.5714 57.1429]
+            %
+            % PCCorAsM2_ref: 75.4386
+            % vs
+            % PCCorAsM2_tar: [72.2222 80.4878 65.3061]
+            %
+            % PCCorAsM3_ref: 75.4386
+            % vs
+            % PCCorAsM3_tar: [72.2222 71.8750 73.0769]
+            %
+            % These data are extracted in to a matrix form useful for
+            % scatter plots. The reference matrix (X data) for a metric
+            % will be nRef x nTar x 1 (again, with the diagonal being a
+            % self comparison).
+            % The target (Y Data) will be nRef x nTar x the number of AsM 
+            % bins. Colors/symbols are used to differeniate this dimesion
+            % on the scatter plots.
+            % Where a performance metrix has multiple feature - like bs; g,
+            % l, u, v, these are stored in the 4th dimension and need to go
+            % on seperate plots/subplots.
+            %
+            % TODO:
+            % 1) It might be worth saving these matrixes for convenience
+            % later
+            % 2) Add regression lines
+            
+            nRef = size(obj.compStats, 1);
+            nTar = size(obj.compStats, 2);
+            
+            asMode = 'AsM1';
+            nAsMBins = ...
+                size(obj.compStats{1}.data.(['PCCor', asMode, '_tar']),2);
+            
+            % PC Plots
+            nFea = 1;
+            PCDataRef = NaN(nRef, nTar, 1, nFea);
+            PCDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+                
+            % Extract data from cells
+            for r = 1:nRef
+                for t = 1:nTar
+                    PCDataRef(r,t,1,1) = ...
+                        obj.compStats{r,t}...
+                        .data.(['PCCor', asMode, '_ref']);
+                    
+                    PCDataTar(r,t,:,1) = ...
+                        obj.compStats{r,t}...
+                        .data.(['PCCor', asMode, '_tar']);
+                end
+            end
+            
+            % Plot scatter for PCCor, and each AsMBin
+            figure
+            hold on
+            for a = 1:nAsMBins
+                scatter(diag(PCDataRef), diag(PCDataTar(:,:,a)))
+            end
+            axis([0,100,0,100])
+            
+            % bs Plots
+            nFea = 4;
+            bsDataRef = NaN(nRef, nTar, 1, nFea);
+            bsDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+                
+            % Extract data from cells
+            for r = 1:nRef
+                for t = 1:nTar
+                    bsDataRef(r,t,1,:) = ...
+                        obj.compStats{r,t}...
+                        .data.(['bsAvg', asMode, '_ref']);
+                    
+                    
+                    data = obj.compStats{r,t}...
+                        .data.(['bsAvg', asMode, '_tar']);
+                    % Permute coeffs (2) to 4 and AsM bins (1) to 3
+                    data = permute(data, [3,4,1,2]);
+                    
+                    % HERE
+                    % Need to handle NaNs (saved as row of 1x4)
+                    bsDataTar(r,t,:,:) = data;
+                end
+            end
+
+            
+        end
         
-        function obj = plotSummaryComps(obj)
+        function [obj, hP] = plotSummaryCompsDeltas(obj)
             % Plot summary plots of differences.
-            % For example, for each row in the stats matrix, boxplot the
-            % stats in the columns.
-            % Ie. this function works for each reference, and plots the
+            % Two kinds of plots:
+            % 1) Row by row (hT, transient - saved to disk, closed)
+            % ie. Reference compared targets
+            % eg.,
+            % For each row in the stats matrix, boxplot the
+            % stats in the columns. In this case, plots the
             % deltas calculated from the sub directiories inside the
             % reference
+            % 2) All (hP, persistent - saved to disk, kept)
+            % ie. ReferenceS compared to targets
+            % eg.,
+            % For each row, add to scatter plot
+            %
             % Paths are already available in obj.compStatsMeta.figInfo
-            % Actual plot functions are called stat by stat, which is a bit
-            % weird.
+            % There's a plot for each metric ie.
+            % "blComp_bsAvgAsM1"
+            % "blComp_bsAvgAsM2"
+            % "blComp_bsAvgAsM3"
+            % "blComp_PCCorAsM1"
+            % "blComp_PCCorAsM2"
+            % "blComp_PCCorAsM3"
+            % This isn't flexible, has to be this order. Need to 
+            % ignore.data field too.
+            
+            % These are the comparisons to be plotted
+            
+            
+            % Create figure handles
+            % plots (bl, PC) x metric
+            % Assuming there are 3 AsM levels to plot
+            % Transient
+            hT = gobjects(2,3);
+            for p = 1:numel(hT(:))
+                hT(p) = figure;
+            end
+            % Persistent
+            hP = gobjects(2,3);
+            for p = 1:numel(hP(:))
+                hP(p) = figure;
+            end
             
             % Check what to do
             if isempty(obj.compStats)
@@ -314,41 +502,114 @@ classdef Sessions
                 return
             end
             
-            % Create plots for each row (session from this object)
-            % Data from comp object (columns) goes on each plot.
+            % Create plots for each row (reference, session from this 
+            % object).
+            % Data from comp object (targets, columns) goes on each plot.
             % Column loop in plot functions
             
             n1 = size(obj.compStats, 1);
-            
             for n = 1:n1
-                
                 % Extract data
                 row = obj.compStats(n,:);
                 metaRow = obj.compStatsMeta(n,:);
                 
                 % Find available fields
-                fns = string(fieldnames(row{1}));
+                % fns = string(fieldnames(row{1}));
+                fns = ex; % Currently defined at top of function
                 nC = numel(fns);
+
                 for f = 1:nC
                     
                     if fns(f).contains('bs')
                         % Plot curve comparisons
-                       obj.plotCurveComps(row, metaRow, ...
-                           fns(f).char());
+                        obj.plotCurveComps(row, metaRow, ...
+                            fns(f).char(), hT(1,f), hP(1,f));
                     end
                     
                     if fns(f).contains('PC')
                         % Plot PCCor comarsions
                         obj.plotPCComps(row, metaRow, ...
-                            fns(f).char());
+                            fns(f).char(), hT(2,f-3), hP(2,f-3));
                     end
                 end
             end
             
+            % Finish persistent figures
             
         end
-        
-        function plotPCComps(~, row, metaRow, field)
+
+        function plotCurveComps(~, row, metaRow, field, hT, hP)
+            
+            % Ready data
+            m = size(row,2);
+            o = size(row{1}.(field), 1); % Assume first session is ok!
+            % n x AsMs x nCoeffs ([g, l, u, v])
+            data = NaN(m, o, 4);
+            for r = 1:m
+                % Permute coeffs to 3rd dim
+                
+                % If somethings gone wrong - missing data perhaps? Or
+                % missing type from short session? And size of this
+                % sessions data aren't consistent, skip over
+                if size(row{r}.(field), 1) ~= o
+                    continue
+                end
+                
+                data(r,:,:) = permute(row{r}.(field), [3,1,2]);
+            end
+            
+            % Remove "all"
+            data = data(:,2:end,:);
+            o = size(data, 2);
+            
+            % Plot u, v
+            figure(hT)
+            clf
+            subplot(1,2,1)
+            boxplot(data(:,:,3))
+            title('Bias')
+            
+            subplot(1,2,2)
+            boxplot(data(:,:,4))
+            title('DT')
+            xlim([0, o+1])
+            
+            suptitle([field, ' group[AVs] - mean(groups[AVa])'])
+            
+            % Save figure, using any obj.compStatsMeta{xx}.figInfo
+            % corresponding to this row
+            
+            % Get full path (could just use obj.paths...)
+            fp = string(metaRow{1}.figInfo.fns)...
+                .extractBefore(metaRow{1}.nName);
+            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
+            fp = fp.join('');
+            
+            % Save
+            BehavAnalysis.ng;
+            BehavAnalysis.hgx(fp)
+            
+            % Add to persistent figures
+            figure(hP)
+            subplot(1,2,1)
+            hold on
+            for xi = 1:o
+                x = repmat(xi, size(data, 1), 1);
+                scatter(x, data(:,xi,3))
+            end
+            
+            subplot(1,2,2)
+            hold on
+            for xi = 1:o
+                x = repmat(xi, size(data, 1), 1);
+                scatter(x, data(:,xi,4))
+            end
+            
+        end
+       
+        function plotPCComps(~, row, metaRow, field, hT, hP)
+            
+            % Ready data
             m = size(row, 2);
             o = size(row{1}.(field), 2);
             % n x AsMs x nCoeffs ([g, l, u, v])
@@ -361,15 +622,16 @@ classdef Sessions
             data = data(:,2:end);
             o = size(data, 2);
             
-            figure
+            figure(hT)
+            clf
             boxplot(data)
             title('PC Correct')
             ylabel('Delta, %')
             xlabel('AsM rating ->')
             
             suptitle([field, ' group[AVs] - mean(groups[AVa])'])
-            % Save figure, using any obj.compStatsMeta{xx}.figInfo 
-            % corresponding to this row 
+            % Save figure, using any obj.compStatsMeta{xx}.figInfo
+            % corresponding to this row
             
             % Get full path (could just use obj.paths...)
             fp = string(metaRow{1}.figInfo.fns)...
@@ -377,51 +639,19 @@ classdef Sessions
             fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
             fp = fp.join('');
             
+            % Save
             BehavAnalysis.ng;
             BehavAnalysis.hgx(fp)
             
+            % Add to persistent figures
+            figure(hP)
+            hold on
+            for xi = 1:o
+                x = repmat(xi, size(data, 1), 1);
+                scatter(x, data(:,xi))
+            end
         end
         
-        function plotCurveComps(~, row, metaRow, field)
-            
-            m = size(row,2);
-            o = size(row{1}.(field), 1);
-            % n x AsMs x nCoeffs ([g, l, u, v])
-            data = NaN(m, o, 4);
-            for r = 1:m
-                % Permute coeffs to 3rd dim
-                data(r,:,:) = permute(row{r}.(field), [3,1,2]);
-            end
-            
-            % Remove "all"
-            data = data(:,2:end,:);
-            o = size(data, 2);
-            
-            % Plot u, v
-            figure
-            subplot(1,2,1)
-            boxplot(data(:,:,3))
-            title('Bias')
-            
-            subplot(1,2,2)
-            boxplot(data(:,:,4))
-            title('DT')
-            xlim([0, o+1])
-            
-            suptitle([field, ' group[AVs] - mean(groups[AVa])'])
-            
-                        % Save figure, using any obj.compStatsMeta{xx}.figInfo 
-            % corresponding to this row 
-            
-            % Get full path (could just use obj.paths...)
-            fp = string(metaRow{1}.figInfo.fns)...
-                .extractBefore(metaRow{1}.nName);
-            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
-            fp = fp.join('');
-            
-            BehavAnalysis.ng;
-            BehavAnalysis.hgx(fp)
-        end
     end
     
     methods (Static)
@@ -473,142 +703,14 @@ classdef Sessions
             end
         end
         
-        function stats = indirectStatComp(stats1, stats2, figInfo)
-            % Do indirect comparisons of stats. Eg. stats1.bsAvg to
-            % stats2.bsAvg.AsM1:
-            % AVs coeffs extracted from stats1.bsAvg (blCoeffs, 1x4)
-            % Coeffs at each AsM extracted from stats2.bsAvg.AsM1
-            % (coeffs, nx4)
-            % Save in stats as coeffs-blCoeffs (n x 4)
-            % Plot comparisons
-            
-            pairs = {'bsAvg', 'bsAvgAsM1'; ...
-                'bsAvg', 'bsAvgAsM2'; ...
-                'bsAvg', 'bsAvgAsM3'; ...
-                'PCCor', 'PCCorAsM1'; ...
-                'PCCor', 'PCCorAsM2'; ...
-                'PCCor', 'PCCorAsM3'};
-            
-            nP = size(pairs,1);
-            
-            for p = 1:nP
-                switch pairs{p,1}
-                    case 'bsAvg'
-                        % Dealing with cfit objects
-                        
-                        % Get the AV sync baseline - (3) is AVs
-                        if isa(stats1.bsAvg(3), 'double')
-                            % If fit missing, NaN
-                            blCoeffs = NaN(1,4);
-                        else
-                            blCoeffs = coeffvalues(stats1.bsAvg(3).data);
-                        end
-                        
-                        % Extract the coeffs from other cfit models
-                        nComps = numel(stats2.(pairs{p,2}));
-                        coeffs = NaN(nComps, 4);
-                        for n = 1:nComps
-                            if isa(stats2.(pairs{p,2})(n).data, 'double')
-                                % If fit missing, NaN
-                                coeffs(n,:) = NaN(1,4);
-                            else
-                                coeffs(n,:) = ...
-                                    coeffvalues(...
-                                    stats2.(pairs{p,2})(n).data);
-                            end
-                        end
-                        
-                        % blCoeffs is 1x [g, l, u, v]
-                        % coeffs is now nFits x [g, l, u, v]
-                        % First row is "all"
-                        % Compare coeffs-blCoeffs on each coeff row
-                        % (implicit expansion)
-                        % And save to stats structure
-                        stats.(['blComp_', (pairs{p,2})]) = ...
-                            coeffs-blCoeffs;
-                        
-                        % Plot this comparison bargraph for each coeff
-                        figure
-                        for c = 1:4
-                            subplot(2,2,c)
-                            hold on
-                            bar(0, blCoeffs(1,c))
-                            % Exclude "all" 
-                            bar(coeffs(2:end,c), 'FaceColor', 'y')
-                            
-                            % bar([repmat(blCoeffs(1,c),nComps,1), ...
-                            %    coeffs(:,c)])
-                            
-                            switch c
-                                case 1
-                                    ylabel('g, mag')
-                                    title('Guess rate')
-                                case 2
-                                    ylabel('l, mag')
-                                    title('Lapse rate')
-                                case 3
-                                    ylabel('u, mag')
-                                    title('Bias')
-                                case 4
-                                    ylabel('v, mag')
-                                    title('DT')
-                            end
-                            xlabel('AsM rating ->')
-                            legend({'Reference (AVs)', 'Async'})
-                        end
-                        suptitle(['Curve comp: ', pairs{p,1}, ' to ', ...
-                            pairs{p,2}, ' [' figInfo.titleAppend, ']'])
-                        
-                        BehavAnalysis.ng('Big')
-                        fn = [figInfo.fns, 'Curve comp_', ...
-                            pairs{p,1}, '_', ...
-                            pairs{p,2}, ...
-                            '.png';];
-                        BehavAnalysis.hgx(fn)
-                        
-                    case 'PCCor'
-                        % Dealing with table objects
-                        
-                        % Get numbers - All, A, V, AVs, AVa
-                        blPCCor = stats1.PCCor;
-                        
-                        % Extract the coeffs from other cfit models
-                        % All, a1, a2, a3, a4....
-                        PCCor = stats2.(pairs{p,2}){1,:};
-                        
-                        % Compare all to AVs
-                        stats.(['blComp_', (pairs{p,2})]) = ...
-                            PCCor - blPCCor.AVsync;
-                        
-                        % Plot comparison bargraph
-                        figure
-                        hold on
-                        bar(0, blPCCor.AVsync)
-                        % Exclude "all"
-                        bar(PCCor(2:end), 'FaceColor', 'y')
-                        xlabel('AsM rating ->')
-                        ylabel('% Correct')
-                        legend({'Reference (AVs)', 'Async'})
-                        suptitle(['PC comp: ', pairs{p,1}, ' to ', ...
-                            pairs{p,2}, ' [' figInfo.titleAppend, ']'])
-                        
-                        BehavAnalysis.ng('Big')
-                        fn = [figInfo.fns, 'Curve comp_', ...
-                            pairs{p,1}, '_', ...
-                            pairs{p,2}, ...
-                            '.png';];
-                        BehavAnalysis.hgx(fn)
-                end
-            end
-            
-            
-        end
-        
         function fn = l2fn(levels)
             % Add levels to file name
             l = ('_' + string(levels'))';
             fn = l.join('').char();
         end
+        
+        % Indirect stats comparisons
+        stats = indirectStatComp(stats1, stats2, figInfo)
         
         % Template table for sessions (external file)
         emptyTable = sessionsTable(nTrials)

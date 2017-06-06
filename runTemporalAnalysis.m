@@ -12,8 +12,8 @@ sParams.box = 'Nellie';
 
 % Subject
 % sParams.fName = 'Twister';
-% sParams.subject = 'Suarez';
-sParams.subject = 'Snow';
+sParams.subject = 'Suarez';
+% sParams.subject = 'Snow';
 % sParams.subject = 'Beryl';
 
 % sParams.level = [8, 9, 10];
@@ -75,15 +75,26 @@ sub = sub.importComboSessions('All');
 sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 
 
-%% Run comparision berween combo sessions
+%% Run comparision between combo sessions
 % All vs SIDs2
 
 % Do comps
 sub.comboSessions.All = ...
     sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s);
-% Plot these
 
-
-%%
+% Plot summary
 sub.comboSessions.All.plotSummaryComps
 
+
+%% Run comparision between combo sessions
+% SIDs2 vs SIDs2
+
+close all
+
+sub.comboSessions.SID2s = ...
+    sub.comboSessions.SID2s.compareSessions(...
+    sub.comboSessions.SID2s, false);
+
+% Plot summary
+sub.comboSessions.SID2s.plotSummaryCompsDeltas
+sub.comboSessions.SID2s.plotSummaryComps

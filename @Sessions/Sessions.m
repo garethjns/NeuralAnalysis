@@ -29,6 +29,7 @@ classdef Sessions
         sessionStats % Stats for session
         compStatsMeta % List of comparisons\paths
         compStats % States compared to another session
+        compMats % Mat versions of stats
         compStatsSessionData;
         nS % Number of sessions
         nT % Total number of trials available
@@ -236,7 +237,7 @@ classdef Sessions
             if ~exist('verbosity', 'var')
                 figInfo.verbosity = 1;
             else
-               figInfo.verbosity = verbosity;
+                figInfo.verbosity = verbosity;
             end
             
             % Count comparisons
@@ -344,7 +345,7 @@ classdef Sessions
             % "all" generator (which would have just one reference, mean
             % for all sessions)] then the diagonal is AVa compared to AVs
             % from the same session
-            % 
+            %
             % Inside each cell is the stats object. This contains the
             % bl_comp (delta) fields that are used in
             % plotSummaryCompsDeltas and the .data field which contains the
@@ -381,76 +382,53 @@ classdef Sessions
             % scatter plots. The reference matrix (X data) for a metric
             % will be nRef x nTar x 1 (again, with the diagonal being a
             % self comparison).
-            % The target (Y Data) will be nRef x nTar x the number of AsM 
+            % The target (Y Data) will be nRef x nTar x the number of AsM
             % bins. Colors/symbols are used to differeniate this dimesion
             % on the scatter plots.
             % Where a performance metrix has multiple feature - like bs; g,
             % l, u, v, these are stored in the 4th dimension and need to go
             % on seperate plots/subplots.
             %
+            % Shape of data matrix will depend on type of comparison. If
+            % symmetrical, nRef==nTar and diag is required for plotting.
+            % If not symmetrical, assume ref=All, tars=weeks. Data is
+            % 1xnTar. Don't want to use diag to plot
+            % If >1 ref, but not nRef==nTar, not sure what will happen -
+            % but not required at the moment.
+            %
             % TODO:
             % 1) It might be worth saving these matrixes for convenience
             % later
             % 2) Add regression lines
             
-            nRef = size(obj.compStats, 1);
-            nTar = size(obj.compStats, 2);
+            asModes = {'AsM1', 'AsM2', 'AsM3'};
+            nAs = numel(asModes);
             
-            asMode = 'AsM1';
-            nAsMBins = ...
-                size(obj.compStats{1}.data.(['PCCor', asMode, '_tar']),2);
-            
-            % PC Plots
-            nFea = 1;
-            PCDataRef = NaN(nRef, nTar, 1, nFea);
-            PCDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+            hP = gobjects(nAs, 2);
+            for a = 1:nAs
+                asMode = asModes{a};
                 
-            % Extract data from cells
-            for r = 1:nRef
-                for t = 1:nTar
-                    PCDataRef(r,t,1,1) = ...
-                        obj.compStats{r,t}...
-                        .data.(['PCCor', asMode, '_ref']);
-                    
-                    PCDataTar(r,t,:,1) = ...
-                        obj.compStats{r,t}...
-                        .data.(['PCCor', asMode, '_tar']);
-                end
-            end
-            
-            % Plot scatter for PCCor, and each AsMBin
-            figure
-            hold on
-            for a = 1:nAsMBins
-                scatter(diag(PCDataRef), diag(PCDataTar(:,:,a)))
-            end
-            axis([0,100,0,100])
-            
-            % bs Plots
-            nFea = 4;
-            bsDataRef = NaN(nRef, nTar, 1, nFea);
-            bsDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+                % PC data and plot
+                [PCDataRef, PCDataTar] = Sessions.stats2MatsPC(...
+                    obj.compStats, asMode);
+                hP(a,1) = Sessions.plotCompMatPC(PCDataRef, PCDataTar);
+                title(asMode)
                 
-            % Extract data from cells
-            for r = 1:nRef
-                for t = 1:nTar
-                    bsDataRef(r,t,1,:) = ...
-                        obj.compStats{r,t}...
-                        .data.(['bsAvg', asMode, '_ref']);
-                    
-                    
-                    data = obj.compStats{r,t}...
-                        .data.(['bsAvg', asMode, '_tar']);
-                    % Permute coeffs (2) to 4 and AsM bins (1) to 3
-                    data = permute(data, [3,4,1,2]);
-                    
-                    % HERE
-                    % Need to handle NaNs (saved as row of 1x4)
-                    bsDataTar(r,t,:,:) = data;
-                end
+                % Save to object
+                obj.compMats.PC.(asMode).ref = PCDataRef;
+                obj.compMats.PC.(asMode).tar = PCDataTar;
+                
+                % bs data and plot
+                [bsDataRef, bsDataTar] = Sessions.stats2Matsbs(...
+                    obj.compStats, asMode);
+                hP(a,2) = Sessions.plotCompMatbs(bsDataRef, bsDataTar);
+                suptitle(asMode)
+                
+                % Save to object
+                obj.compMats.bs.(asMode).ref = bsDataRef;
+                obj.compMats.bs.(asMode).tar = bsDataTar;
             end
 
-            
         end
         
         function [obj, hP] = plotSummaryCompsDeltas(obj)
@@ -476,11 +454,16 @@ classdef Sessions
             % "blComp_PCCorAsM1"
             % "blComp_PCCorAsM2"
             % "blComp_PCCorAsM3"
-            % This isn't flexible, has to be this order. Need to 
+            % This isn't flexible, has to be this order. Need to
             % ignore.data field too.
             
             % These are the comparisons to be plotted
-            
+            ex = {'blComp_bsAvgAsM1', ...
+                'blComp_bsAvgAsM2', ...
+                'blComp_bsAvgAsM3', ...
+                'blComp_PCCorAsM1', ...
+                'blComp_PCCorAsM2', ...
+                'blComp_PCCorAsM3'};
             
             % Create figure handles
             % plots (bl, PC) x metric
@@ -502,7 +485,7 @@ classdef Sessions
                 return
             end
             
-            % Create plots for each row (reference, session from this 
+            % Create plots for each row (reference, session from this
             % object).
             % Data from comp object (targets, columns) goes on each plot.
             % Column loop in plot functions
@@ -515,9 +498,9 @@ classdef Sessions
                 
                 % Find available fields
                 % fns = string(fieldnames(row{1}));
-                fns = ex; % Currently defined at top of function
+                fns = string(ex); % Currently defined at top of function
                 nC = numel(fns);
-
+                
                 for f = 1:nC
                     
                     if fns(f).contains('bs')
@@ -537,7 +520,7 @@ classdef Sessions
             % Finish persistent figures
             
         end
-
+        
         function plotCurveComps(~, row, metaRow, field, hT, hP)
             
             % Ready data
@@ -606,7 +589,7 @@ classdef Sessions
             end
             
         end
-       
+        
         function plotPCComps(~, row, metaRow, field, hT, hP)
             
             % Ready data
@@ -655,6 +638,182 @@ classdef Sessions
     end
     
     methods (Static)
+        
+        function [PCDataRef, PCDataTar] = stats2MatsPC(stats, asMode)
+            nAsMBins = ...
+               size(stats{1}.data.(...
+                ['PCCor', asMode, '_tar']), 2);
+            
+            nRef = size(stats, 1);
+            nTar = size(stats, 2);
+            
+            nFea = 1;
+            PCDataRef = NaN(nRef, nTar, 1, nFea);
+            PCDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+            
+            % Extract data from cells
+            for r = 1:nRef
+                for t = 1:nTar
+                    PCDataRef(r,t,1,1) = ...
+                        stats{r,t}...
+                        .data.(['PCCor', asMode, '_ref']);
+                    
+                    PCDataTar(r,t,:,1) = ...
+                        stats{r,t}...
+                        .data.(['PCCor', asMode, '_tar']);
+                end
+            end
+        end
+        
+        function  [bsDataRef, bsDataTar] = stats2Matsbs(stats, asMode)
+            nAsMBins = ...
+                size(stats{1}.data.(...
+                ['PCCor', asMode, '_tar']), 2);
+            nRef = size(stats, 1);
+            nTar = size(stats, 2);
+            
+            nFea = 4;
+            bsDataRef = NaN(nRef, nTar, 1, nFea);
+            bsDataTar = NaN(nRef, nTar, nAsMBins, nFea);
+            
+            % Extract data from cells
+            for r = 1:nRef
+                for t = 1:nTar
+                    bsDataRef(r,t,1,:) = ...
+                        stats{r,t}...
+                        .data.(['bsAvg', asMode, '_ref']);
+                    
+                    data = stats{r,t}...
+                        .data.(['bsAvg', asMode, '_tar']);
+                    % Permute coeffs (2) to 4 and AsM bins (1) to 3
+                    data = permute(data, [3,4,1,2]);
+                    
+                    % Need to handle NaNs (saved as row of 1x4)
+                    if all(isnan(data))
+                        % For some reason the NaNs are the wrong shape,
+                        % would be better to refer back to setting to
+                        % shapre correctly
+                    else
+                        bsDataTar(r,t,:,:) = data;
+                    end
+                end
+            end
+        end
+        
+        function h = plotCompMatPC(PCDataRef, PCDataTar)
+            % Plot scatter for PCCor, and each AsMBin
+            
+            nAsMBins = size(PCDataTar, 3);
+            
+            if size(PCDataRef, 1) == size(PCDataTar, 2)
+                symm = true;
+            else
+                symm = false;
+            end
+            
+            h = figure;
+            hold on
+            sh = gobjects(1, nAsMBins);
+            for a = 1:nAsMBins
+                if symm
+                    x = diag(PCDataRef);
+                    y = diag(PCDataTar(:,:,a));
+                else
+                    x = PCDataRef;
+                    y = PCDataTar(:,:,a);
+                end
+                sh(a) = scatter(x, y);
+                % Plot average point with errorbars in same colour using
+                % errorbarxy
+                % https://uk.mathworks.com/matlabcentral/fileexchange/
+                % 40221-plot-data-with-error-bars-on-both-x-and-y-axes
+                xErr = nanstd(x)/sqrt(sum(~isnan(x)));
+                yErr = nanstd(y)/sqrt(sum(~isnan(y)));
+                h2 = errorbarxy(nanmean(x), ...
+                    nanmean(y), ...
+                    xErr, xErr, yErr, yErr, ...
+                    {sh(a).Marker sh(a).CData, sh(a).CData});
+                h2.hMain.MarkerEdgeColor = sh(a).CData;
+            end
+
+            ylabel('AVa % Correct')
+            xlabel('AVs % Correct')
+            axis([0,100,0,100])
+            hLeg = legend(sh, num2str((1:nAsMBins)'));
+            hLeg.Title.String = 'AsM bin';
+        end
+        
+        function [h, sh] = plotCompMatbs(bsDataRef, bsDataTar)
+            % Plot scatter for bias, var, and each AsMBin
+            
+            nAsMBins = size(bsDataTar, 3);
+            
+            if size(bsDataRef, 1) == size(bsDataTar, 2)
+                symm = true;
+            else
+                symm = false;
+            end
+            
+            h = figure;
+            sh = gobjects(2, nAsMBins);
+            for a = 1:nAsMBins
+                if symm
+                    x1 = diag(bsDataRef(:,:,1,3));
+                    y1 = diag(bsDataTar(:,:,a,3));
+                    x2 = diag(bsDataRef(:,:,1,4));
+                    y2 = diag(bsDataTar(:,:,a,4));
+                else
+                    x1 = bsDataRef(:,:,3);
+                    y1 = bsDataTar(:,:,3);
+                    x2 = bsDataRef(:,:,4);
+                    y2 = bsDataTar(:,:,4);
+                end
+                
+                % Bias
+                subplot(1,2,1)
+                hold on
+                % Plot all data points
+                sh(1,a) = scatter(x1, y1);
+                % Plot average point with errorbars in same colour using
+                % errorbarxy
+                % https://uk.mathworks.com/matlabcentral/fileexchange/
+                % 40221-plot-data-with-error-bars-on-both-x-and-y-axes
+                xErr = nanstd(x1)/sqrt(sum(~isnan(x1)));
+                yErr = nanstd(y1)/sqrt(sum(~isnan(y1)));
+                h2 = errorbarxy(nanmean(x1), ...
+                    nanmean(y1), ...
+                    xErr, xErr, yErr, yErr, ...
+                    {sh(1,a).Marker sh(1,a).CData, sh(1,a).CData});
+                h2.hMain.MarkerEdgeColor = sh(1,a).CData;
+                
+                % DT
+                subplot(1,2,2)
+                hold on
+                sh(2,a) = scatter(x2, y2);
+                xErr = nanstd(x2)/sqrt(sum(~isnan(x2)));
+                yErr = nanstd(y2)/sqrt(sum(~isnan(y2)));
+                h2 = errorbarxy(nanmean(x2), ...
+                    nanmean(y2), ...
+                    xErr, xErr, yErr, yErr, ...
+                    {sh(2,a).Marker sh(2,a).CData, sh(2,a).CData});
+                h2.hMain.MarkerEdgeColor = sh(2,a).CData;
+            end
+            
+            subplot(1,2,1)
+            ylabel('AVa Bias, ev')
+            xlabel('AVs Bias, ev')
+            axis([0, 20, 0, 20])
+            title('Bias')
+            
+            subplot(1,2,2)
+            ylabel('AVa DT, ev')
+            xlabel('AVs DT, ev')
+            axis([0, 20, 0, 20])
+            title('DT')
+            
+            hLeg = legend(sh(1,:), num2str((1:nAsMBins)'));
+            hLeg.Title.String = 'AsM bin';
+        end
         
         function delta = directStatComp(stats1, stats2)
             % Compare matching fields in each stats structure

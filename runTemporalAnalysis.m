@@ -12,8 +12,8 @@ sParams.box = 'Nellie';
 
 % Subject
 % sParams.fName = 'Twister';
-sParams.subject = 'Suarez';
-% sParams.subject = 'Snow';
+% sParams.subject = 'Suarez';
+sParams.subject = 'Snow';
 % sParams.subject = 'Beryl';
 
 % sParams.level = [8, 9, 10];
@@ -95,6 +95,15 @@ sub.comboSessions.SID2s = ...
     sub.comboSessions.SID2s.compareSessions(...
     sub.comboSessions.SID2s, false);
 
-% Plot summary
+
+%% Plot summary deltas
+
+close all
 sub.comboSessions.SID2s.plotSummaryCompsDeltas
-sub.comboSessions.SID2s.plotSummaryComps
+
+
+%% Plot summary
+
+close all
+sub.comboSessions.SID2s = sub.comboSessions.SID2s.plotSummaryComps;
+

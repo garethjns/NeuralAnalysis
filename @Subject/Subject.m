@@ -69,6 +69,7 @@ classdef Subject
            cS.sessionStats = struct;
            cS.sessionData = {};
            cS.sessions = table;
+           cS.type = how;
            
            switch how
                case 'DIDs'

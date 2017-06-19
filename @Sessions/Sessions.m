@@ -34,6 +34,7 @@ classdef Sessions
         nS % Number of sessions
         nT % Total number of trials available
         targetSide % "Fast" side, constant per subject
+        type
     end
     
     properties (Hidden = true)
@@ -274,11 +275,24 @@ classdef Sessions
                     
                     % Prepare meta data and sub directory for this
                     % comparison
-                    obj.compStatsMeta{n,m}.m = m;
-                    obj.compStatsMeta{n,m}.n = n;
-                    obj.compStatsMeta{n,m}.mName = s2Title;
-                    obj.compStatsMeta{n,m}.nName = s1Title;
-                    
+                    obj.compStatsMeta{n,m}.Tar = m;
+                    obj.compStatsMeta{n,m}.Ref = n;
+                    obj.compStatsMeta{n,m}.TarName = s2Title;
+                    obj.compStatsMeta{n,m}.RefName = s1Title;
+                    % Get n, if available
+                    if isfield(stats2, 'recalcedAsM3')
+                        obj.compStatsMeta{n,m}.TarTotalTrials = ...
+                            length(stats2.recalcedAsM3);
+                    else
+                        obj.compStatsMeta{n,m}.TarTotalTrials = 0;
+                    end
+                    if isfield(stats1, 'recalcedAsM3')
+                        obj.compStatsMeta{n,m}.RefTotalTrials = ...
+                            length(stats1.recalcedAsM3);
+                    else
+                        obj.compStatsMeta{n,m}.RefTotalTrials = 0;
+                    end
+                        
                     % Make sub path
                     % Parent:
                     s1 = string(s1Title);
@@ -309,7 +323,7 @@ classdef Sessions
                     end
                     
                     % Save to meta table
-                    obj.compStatsMeta{n, m}.figInfo = figInfo;
+                    obj.compStatsMeta{n,m}.figInfo = figInfo;
                     
                     % Run direct comparisons
                     % None of these are active yet and will need updating
@@ -317,7 +331,7 @@ classdef Sessions
                     % Sessions.directStatComp(stats1, stats2)
                     
                     % Run indirect comparisons
-                    obj.compStats{n, m} ...
+                    obj.compStats{n,m} ...
                         = Sessions.indirectStatComp(stats1, stats2, ...
                         figInfo);
                     
@@ -328,7 +342,6 @@ classdef Sessions
                 end
             end
         end
-        
         
         function [obj, hP] = plotSummaryComps(obj)
             % This plot is comparison on AVASync performance (at whatever
@@ -409,26 +422,47 @@ classdef Sessions
                 asMode = asModes{a};
                 
                 % PC data and plot
-                [PCDataRef, PCDataTar] = Sessions.stats2MatsPC(...
-                    obj.compStats, asMode);
-                hP(a,1) = Sessions.plotCompMatPC(PCDataRef, PCDataTar);
+                [PCDataRef, PCDataTar, nData] = ...
+                    Sessions.stats2MatsPC(...
+                    obj.compStats, obj.compStatsMeta, asMode);
+                hP(a,1) = ...
+                    Sessions.plotCompMatPC(PCDataRef, PCDataTar, nData);
                 title(asMode)
                 
                 % Save to object
                 obj.compMats.PC.(asMode).ref = PCDataRef;
                 obj.compMats.PC.(asMode).tar = PCDataTar;
                 
+                % Save figure joined dir
+                % obj.compMatsMeta
+                fn = [obj.subjectPaths.behav.joinedSessAnalysis, ...
+                    'Level',  num2str(obj.levels), '\', ...
+                    obj.type, '_PC_', ...
+                    asModes{a}, '.png'];
+                BehavAnalysis.ng('ScatterCC');
+                BehavAnalysis.hgx(fn)
+                
                 % bs data and plot
-                [bsDataRef, bsDataTar] = Sessions.stats2Matsbs(...
-                    obj.compStats, asMode);
-                hP(a,2) = Sessions.plotCompMatbs(bsDataRef, bsDataTar);
+                [bsDataRef, bsDataTar, nData] = ...
+                    Sessions.stats2Matsbs(...
+                    obj.compStats, obj.compStatsMeta, asMode);
+                hP(a,2) = Sessions.plotCompMatbs(bsDataRef, bsDataTar, ...
+                    nData);
                 suptitle(asMode)
                 
                 % Save to object
                 obj.compMats.bs.(asMode).ref = bsDataRef;
                 obj.compMats.bs.(asMode).tar = bsDataTar;
+                
+                % Save figure joined dir
+                fn = [obj.subjectPaths.behav.joinedSessAnalysis, ...
+                    'Level',  num2str(obj.levels), '\', ...
+                    obj.type, '_bs_', ...
+                    asModes{a}, '.png'];
+                BehavAnalysis.ng('ScatterCC')
+                BehavAnalysis.hgx(fn)
             end
-
+            
         end
         
         function [obj, hP] = plotSummaryCompsDeltas(obj)
@@ -564,8 +598,8 @@ classdef Sessions
             
             % Get full path (could just use obj.paths...)
             fp = string(metaRow{1}.figInfo.fns)...
-                .extractBefore(metaRow{1}.nName);
-            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
+                .extractBefore(metaRow{1}.RefName);
+            fp = [fp, metaRow{1}.RefName, '\', field, '_summary.png'];
             fp = fp.join('');
             
             % Save
@@ -618,8 +652,8 @@ classdef Sessions
             
             % Get full path (could just use obj.paths...)
             fp = string(metaRow{1}.figInfo.fns)...
-                .extractBefore(metaRow{1}.nName);
-            fp = [fp, metaRow{1}.nName, '\', field, '_summary.png'];
+                .extractBefore(metaRow{1}.RefName);
+            fp = [fp, metaRow{1}.RefName, '\', field, '_summary.png'];
             fp = fp.join('');
             
             % Save
@@ -639,9 +673,11 @@ classdef Sessions
     
     methods (Static)
         
-        function [PCDataRef, PCDataTar] = stats2MatsPC(stats, asMode)
+        function [PCDataRef, PCDataTar, nData] = ...
+                stats2MatsPC(stats, statsMeta, asMode)
+            
             nAsMBins = ...
-               size(stats{1}.data.(...
+                size(stats{1}.data.(...
                 ['PCCor', asMode, '_tar']), 2);
             
             nRef = size(stats, 1);
@@ -651,9 +687,18 @@ classdef Sessions
             PCDataRef = NaN(nRef, nTar, 1, nFea);
             PCDataTar = NaN(nRef, nTar, nAsMBins, nFea);
             
+            % Also get total n to use for weighting
+            % In shape xRef x nTar and 3rd dim, 1=nRef, 2=nTar
+            % It's the total n, so asm bins irrelevant
+            nData = NaN(nRef, nTar, 2);
+            
             % Extract data from cells
             for r = 1:nRef
                 for t = 1:nTar
+                    % Get total n from statsMeta
+                    nData(r,t,1) = statsMeta{r,t}.RefTotalTrials;
+                    nData(r,t,2) = statsMeta{r,t}.TarTotalTrials;
+                    
                     PCDataRef(r,t,1,1) = ...
                         stats{r,t}...
                         .data.(['PCCor', asMode, '_ref']);
@@ -665,7 +710,9 @@ classdef Sessions
             end
         end
         
-        function  [bsDataRef, bsDataTar] = stats2Matsbs(stats, asMode)
+        function [bsDataRef, bsDataTar, nData] = ...
+                stats2Matsbs(stats, statsMeta, asMode)
+            
             nAsMBins = ...
                 size(stats{1}.data.(...
                 ['PCCor', asMode, '_tar']), 2);
@@ -676,9 +723,19 @@ classdef Sessions
             bsDataRef = NaN(nRef, nTar, 1, nFea);
             bsDataTar = NaN(nRef, nTar, nAsMBins, nFea);
             
+            % Also get total n to use for weighting
+            % In shape xRef x nTar and 3rd dim, 1=nRef, 2=nTar
+            % It's the total n, so asm bins irrelevant
+            nData = NaN(nRef, nTar, 2);
+            
             % Extract data from cells
             for r = 1:nRef
                 for t = 1:nTar
+                    
+                    % Get total n from statsMeta
+                    nData(r,t,1) = statsMeta{r,t}.RefTotalTrials;
+                    nData(r,t,2) = statsMeta{r,t}.TarTotalTrials;
+                    
                     bsDataRef(r,t,1,:) = ...
                         stats{r,t}...
                         .data.(['bsAvg', asMode, '_ref']);
@@ -700,8 +757,11 @@ classdef Sessions
             end
         end
         
-        function h = plotCompMatPC(PCDataRef, PCDataTar)
+        function h = plotCompMatPC(PCDataRef, PCDataTar, nData)
             % Plot scatter for PCCor, and each AsMBin
+            % Remeber to remove "all" column!
+            % Collected data is [all, bin1, bin2...]
+            % Handles output (and plot) is [bin1, bin2, ...]
             
             nAsMBins = size(PCDataTar, 3);
             
@@ -713,38 +773,78 @@ classdef Sessions
             
             h = figure;
             hold on
-            sh = gobjects(1, nAsMBins);
-            for a = 1:nAsMBins
+            sh = gobjects(1, nAsMBins-1);
+            for a = 2:nAsMBins % First bin is "all", ignore
+                ao = a-1; % Handles output col (starting from 1)
                 if symm
                     x = diag(PCDataRef);
                     y = diag(PCDataTar(:,:,a));
+                    wR = diag(nData(:,:,1));
+                    wT = diag(nData(:,:,2));
                 else
                     x = PCDataRef;
                     y = PCDataTar(:,:,a);
+                    wR = nData(1,:,1);
+                    wT = nData(1,:,2);
                 end
-                sh(a) = scatter(x, y);
+                
+                % Apply sensible limits
+                % Set?
+                pcLims = [40, 100]; % <= and >= lims, and not NaN
+                
+                % Or dist based?
+                pcLims = [nanmean([x;y])-2*nanstd([x;y]), ...
+                    nanmean([x;y])+2*nanstd([x;y])];
+                
+                % Combo?
+                pcLims = [1, ...
+                    nanmean([x;y])+2*nanstd([x;y])];
+                
+                % Get indexes to keep
+                xKeep = ~(x <= pcLims(1) | x >= pcLims(2)) ...
+                    & ~isnan(x);
+                yKeep = ~(y <= pcLims(1) | y >= pcLims(2)) ...
+                    & ~isnan(y);
+                pcKeep = xKeep & yKeep;
+                
+                % Plot
+                sh(ao) = scatter(x(pcKeep), y(pcKeep), wT(pcKeep)/8);
                 % Plot average point with errorbars in same colour using
                 % errorbarxy
                 % https://uk.mathworks.com/matlabcentral/fileexchange/
                 % 40221-plot-data-with-error-bars-on-both-x-and-y-axes
-                xErr = nanstd(x)/sqrt(sum(~isnan(x)));
-                yErr = nanstd(y)/sqrt(sum(~isnan(y)));
-                h2 = errorbarxy(nanmean(x), ...
-                    nanmean(y), ...
-                    xErr, xErr, yErr, yErr, ...
-                    {sh(a).Marker sh(a).CData, sh(a).CData});
-                h2.hMain.MarkerEdgeColor = sh(a).CData;
+                
+                % Unweighted error
+                % xMean = nanmean(x(pcKeep))
+                % yMean = nanmean(y(pcKeep))
+                % xErr = nanstd(x(pcKeep))/sqrt(sum(~isnan(x(pcKeep))));
+                % yErr = nanstd(y(pcKeep))/sqrt(sum(~isnan(y(pcKeep))));
+                
+                % Weighted error
+                xWMean = sum(x(xKeep) .* wR(xKeep) / sum(wR(xKeep)));
+                xWErr = std(x(xKeep), wR(xKeep)) / sqrt(sum(xKeep));
+                
+                yWMean = sum(y(yKeep) .* wT(yKeep) / sum(wT(yKeep)));
+                yWErr = std(y(yKeep), wT(yKeep)) / sqrt(sum(yKeep));
+                
+                h2 = errorbarxy(xWMean, ...
+                    yWMean, ...
+                    xWErr, xWErr, yWErr, yWErr, ...
+                    {sh(ao).Marker sh(ao).CData, sh(ao).CData});
+                h2.hMain.MarkerEdgeColor = sh(ao).CData;
             end
-
+            
+            plot([0,100], [0,100], 'LineStyle', '--', 'Color', 'k')
             ylabel('AVa % Correct')
             xlabel('AVs % Correct')
-            axis([0,100,0,100])
-            hLeg = legend(sh, num2str((1:nAsMBins)'));
+            axis([0, 100, 0, 100])
+            hLeg = legend(sh, num2str((1:nAsMBins-1)'));
             hLeg.Title.String = 'AsM bin';
         end
         
-        function [h, sh] = plotCompMatbs(bsDataRef, bsDataTar)
+        function [h, sh] = plotCompMatbs(bsDataRef, bsDataTar, nData)
             % Plot scatter for bias, var, and each AsMBin
+            % Remeber to remove "all" column!
             
             nAsMBins = size(bsDataTar, 3);
             
@@ -755,63 +855,135 @@ classdef Sessions
             end
             
             h = figure;
-            sh = gobjects(2, nAsMBins);
-            for a = 1:nAsMBins
+            sh = gobjects(2, nAsMBins-1);
+            for a = 2:nAsMBins % First bin is "all", ignore
+                ao = a-1; % Handles output col (starting from 1)
                 if symm
                     x1 = diag(bsDataRef(:,:,1,3));
                     y1 = diag(bsDataTar(:,:,a,3));
                     x2 = diag(bsDataRef(:,:,1,4));
                     y2 = diag(bsDataTar(:,:,a,4));
+                    wR = diag(nData(:,:,1));
+                    wT = diag(nData(:,:,2));
                 else
                     x1 = bsDataRef(:,:,3);
                     y1 = bsDataTar(:,:,3);
                     x2 = bsDataRef(:,:,4);
                     y2 = bsDataTar(:,:,4);
+                    wR = nData(1,:,1);
+                    wT = nData(1,:,2);
                 end
                 
+                % Apply sensible limits
+                % For limits, assume parameters can be treated
+                % independtely: eg., use bias value when corresponding DT
+                % judged bad.
+                
+                % Set?
+                uLims = [2, 16]; % <= and >= lims, and not NaN
+                vLims = [2, 16];
+                
+                % Or dist based?
+                % uLims = [nanmean([x1;y1])-2*nanstd([x1;y1]), ...
+                %     nanmean([x1;y1])+2*nanstd([x1;y1])];
+                % vLims = [nanmean([x2;y2])-2*nanstd([x2;y2]), ...
+                %     nanmean([x2;y2])+2*nanstd([x2;y2])];
+                
+                % Combo?
+                % uLims = [1, ...
+                %     nanmean([x1;y1])+2*nanstd([x1;y1])];
+                % vLims = [1, ...
+                %    nanmean([x2;y2])+2*nanstd([x2;y2])];
+                
+                % Get indexes to keep
+                % uKeep =  ~any([x1, y1] <= uLims(1), 2) ...
+                %     & ~any([x1, y1] >= uLims(2), 2) ...
+                %     & ~any(isnan([x1, y1]), 2);
+                % 
+                % vKeep =  ~any([x2, y2] <= vLims(1), 2) ...
+                %     & ~any([x2, y2] >= vLims(2), 2) ...
+                %    & ~any(isnan([x2, y2]), 2);
+                
+                x1Keep = ~(x1 <= uLims(1) | x1 >= uLims(2)) ...
+                    & ~isnan(x1);
+                y1Keep = ~(y1 <= uLims(1) | y1 >= uLims(2)) ...
+                    & ~isnan(y1);
+                x2Keep = ~(x2 <= vLims(1) | x2 >= vLims(2)) ...
+                    & ~isnan(x2);
+                y2Keep = ~(y2 <= vLims(1) | y2 >= vLims(2)) ...
+                    & ~isnan(y2);
+                % Plotting
                 % Bias
                 subplot(1,2,1)
                 hold on
                 % Plot all data points
-                sh(1,a) = scatter(x1, y1);
+                sh(1,ao) = scatter(x1(x1Keep & y1Keep), ...
+                    y1(x1Keep & y1Keep), ...
+                    wT(x1Keep & y1Keep)/8);
                 % Plot average point with errorbars in same colour using
                 % errorbarxy
                 % https://uk.mathworks.com/matlabcentral/fileexchange/
                 % 40221-plot-data-with-error-bars-on-both-x-and-y-axes
-                xErr = nanstd(x1)/sqrt(sum(~isnan(x1)));
-                yErr = nanstd(y1)/sqrt(sum(~isnan(y1)));
-                h2 = errorbarxy(nanmean(x1), ...
-                    nanmean(y1), ...
-                    xErr, xErr, yErr, yErr, ...
-                    {sh(1,a).Marker sh(1,a).CData, sh(1,a).CData});
-                h2.hMain.MarkerEdgeColor = sh(1,a).CData;
+                
+                % Unweighted mean/error
+                % x1Mean = nanmean(x1(x1Keep));
+                % y1Mean = nanmean(y1(y1Keep));
+                % xErr = nanstd(x1(x1Keep))/sqrt(sum(~isnan(x1(x1Keep))));
+                % yErr = nanstd(y1(y1Keep))/sqrt(sum(~isnan(y1(y1Keep))));
+                
+                % Weighted mean/error
+                x1WMean = sum(x1(x1Keep) .* wR(x1Keep) / sum(wR(x1Keep)));
+                x1WErr = std(x1(x1Keep), wR(x1Keep)) / sqrt(sum(x1Keep));
+                
+                y1WMean = sum(y1(y1Keep) .* wT(y1Keep) / sum(wT(y1Keep)));
+                y1WErr = std(y1(y1Keep), wT(y1Keep)) / sqrt(sum(y1Keep));
+                
+                h2 = errorbarxy(x1WMean, ...
+                   y1WMean, ...
+                    x1WErr, x1WErr, y1WErr, y1WErr, ...
+                    {sh(1,ao).Marker sh(1,ao).CData, sh(1,ao).CData});
+                h2.hMain.MarkerEdgeColor = sh(1,ao).CData;
                 
                 % DT
                 subplot(1,2,2)
                 hold on
-                sh(2,a) = scatter(x2, y2);
-                xErr = nanstd(x2)/sqrt(sum(~isnan(x2)));
-                yErr = nanstd(y2)/sqrt(sum(~isnan(y2)));
-                h2 = errorbarxy(nanmean(x2), ...
-                    nanmean(y2), ...
-                    xErr, xErr, yErr, yErr, ...
-                    {sh(2,a).Marker sh(2,a).CData, sh(2,a).CData});
-                h2.hMain.MarkerEdgeColor = sh(2,a).CData;
+                sh(2,ao) = scatter(x2(x2Keep & y2Keep), ...
+                    y2(x2Keep & y2Keep), ...
+                    wT(x2Keep & y2Keep)/8);
+                
+                % x2Mean = nanmean(x2(x2Keep));
+                % y2Mean = nanmean(y2(y2Keep));
+                % xErr = nanstd(x2(x2Keep))/sqrt(sum(~isnan(x2(x2Keep))));
+                % yErr = nanstd(y2(y2Keep))/sqrt(sum(~isnan(y2(y2Keep))));
+                
+                x2WMean = sum(x2(x2Keep) .* wR(x2Keep) / sum(wR(x2Keep)));
+                x2WErr = std(x2(x2Keep), wR(x2Keep)) / sqrt(sum(x2Keep));
+                
+                y2WMean = sum(y2(y2Keep) .* wT(y2Keep) / sum(wT(y2Keep)));
+                y2WErr = std(y2(y2Keep), wT(y2Keep)) / sqrt(sum(y2Keep));
+                
+                h2 = errorbarxy(x2WMean, ...
+                    y2WMean, ...
+                    x2WErr, x2WErr, y2WErr, y2WErr, ...
+                    {sh(2,ao).Marker sh(2,ao).CData, sh(2,ao).CData});
+                h2.hMain.MarkerEdgeColor = sh(2,ao).CData;
             end
             
             subplot(1,2,1)
+            plot([-1,50], [-1,50], 'LineStyle', '--', 'Color', 'k')
             ylabel('AVa Bias, ev')
             xlabel('AVs Bias, ev')
             axis([0, 20, 0, 20])
             title('Bias')
             
             subplot(1,2,2)
+            plot([-1,50], [-1,50], 'LineStyle', '--', 'Color', 'k')
             ylabel('AVa DT, ev')
             xlabel('AVs DT, ev')
-            axis([0, 20, 0, 20])
+            axis([0, 16, 0, 16])
             title('DT')
             
-            hLeg = legend(sh(1,:), num2str((1:nAsMBins)'));
+            hLeg = legend(sh(1,:), num2str((1:nAsMBins-1)'));
             hLeg.Title.String = 'AsM bin';
         end
         

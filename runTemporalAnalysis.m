@@ -13,8 +13,8 @@ sParams.box = 'Nellie';
 % Subject
 % sParams.fName = 'Twister';
 % sParams.subject = 'Suarez';
-sParams.subject = 'Snow';
-% sParams.subject = 'Beryl';
+% sParams.subject = 'Snow';
+sParams.subject = 'Beryl';
 
 % sParams.level = [8, 9, 10];
 % sParams.level = 8;

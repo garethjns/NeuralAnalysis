@@ -61,11 +61,11 @@ fParams.behav.incCorrectionTrials = 0;
 % Set size when dividing trials into bins based on asyncMetric
 % Requested AsM available in:
 % fParams.asParams.bDiv = obj.data(trialInd,:).ReqAsMs{1};
-fParams.asParams.bDiv2 = [0,0.25,1];
-fParams.asParams.bDiv3 = [0,0.35,1];
+fParams.asParams.bDiv2 = [0, 0.25, 1];
+fParams.asParams.bDiv3 = [0, 0.35, 1];
 fParams.asParams.C2Fun = @Church2Nellie;
 fParams.asParams.mu = 0;
-fParams.asParams.sig = 0.3;
+fParams.asParams.sig = 0.2;
 fParams.asParams.plotOn = 0;
 fParams.asParams.dispOn = 0;
 fParams.asParams.compType = 'AbsDiff';

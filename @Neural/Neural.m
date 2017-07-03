@@ -58,6 +58,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
     
     methods
         function obj = Neural(sess)
+            
             % Paths contain .TDT, .Extracted, PreProFilt, .Epoch, .Analysis
             obj.neuralPaths = sess.neuralPaths;
             obj.neuralParams = sess.subjectParams.PP;
@@ -401,6 +402,22 @@ classdef Neural < NeuralPP & NeuralAnalysis
             if obj.stage < 3
                 % Epoch
                 EvIDs = {'BB_2', 'BB_3', 'Sond', 'Sens'};
+                
+                % ****
+                % WILL ERROR HERE-MOVED epochData function from Neural to
+                % NeuralPP.
+                % Was Neural.epochAndClean -> Neural.epochData(obj...)
+                % Now Neural.epochAndClean -> Neural.epochData(data, times,
+                % params). epochData now static andd inherited from 
+                % NeuralPP.
+                % Need to update the inputs as specified inside
+                % epochAndClean handler.
+                % obj -> params: Not directly interchangable
+                % behav -> times was taking all data and getting
+                % behav.StartTrialTimes. Now input should just be 
+                % behav.StartTrialTimes rather than behav)
+                % ****
+                
                 obj = epochAndClean(obj, EvIDs, behav);
                 
                 % Update stage

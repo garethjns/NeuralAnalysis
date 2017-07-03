@@ -44,6 +44,8 @@ for e = 1:numel(EvIDs)
             end
             
             % Epoch fData
+            % epochData moved to static in Neural PP. Will error here - see
+            % Comments in Neural.process (caller)
             fDataEpoch = epochData(...
                 obj, behav, fData, fs);
             clear fData

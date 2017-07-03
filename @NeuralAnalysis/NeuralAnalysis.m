@@ -73,11 +73,16 @@ classdef NeuralAnalysis < ggraph
             % nansum returns zeros for all NaNs
             % >0 for some nans, no nans - refer to nEpochs from raster to
             % check actual n
+            
             PSTH1ms = nansum(raster, 1);
             
-            % Remove extra dimension 
+            % Remove extra dimension
             PSTH1ms = squeeze(PSTH1ms);
-
+            
+            if nC==1
+                PSTH1ms = PSTH1ms';
+            end
+            
             % Round tVec to bin size steps
             tVec2 = round(tVec./binSize).*binSize;
             % Convert to integer bins instead of ms

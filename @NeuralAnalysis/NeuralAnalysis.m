@@ -1,6 +1,6 @@
 classdef NeuralAnalysis < ggraph
     % Nerual analysis methods
-    % This object is not specific to any analysis. 
+    % This object is not specific to any analysis.
     %
     % Includes:
     % epochChecker - find bad channels/trials
@@ -46,7 +46,7 @@ classdef NeuralAnalysis < ggraph
             % be all number or all NaNs...
             eMean = mean(raster,2);
             nEpochs = permute(sum(~isnan(eMean)), [1,3,2]);
-
+            
         end
         
         function tVec = toMs(nPts, fs)
@@ -96,12 +96,12 @@ classdef NeuralAnalysis < ggraph
         
         function h = plotPSTH(PSTH, tVec, nEpochs, col)
             % Plot PSTH on specficed timeVec (second output from PSTH).
-            % nEpochs (non-NaN n from raster) and col are optional inputs 
+            % nEpochs (non-NaN n from raster) and col are optional inputs
             % for adding to graph
             
             % Get nChans
             nC = size(PSTH, 2);
-           
+            
             % Set nEpochs if provided - just used to write n on plot
             if exist('nEpochs', 'var') && ~isempty(nEpochs)
                 if length(nEpochs) == 1
@@ -133,7 +133,7 @@ classdef NeuralAnalysis < ggraph
                 
                 legend(['c=', num2str(c), ', n=', nE(c).char])
             end
-       end
+        end
         
         function h = plotRaster(raster, fs)
             % Get nEpochs and nChans
@@ -144,7 +144,7 @@ classdef NeuralAnalysis < ggraph
             
             % If fs is supplied, convert xaxis to ms
             if ~exist('fs', 'var')
-                 fs = 1000;
+                fs = 1000;
             end
             
             h = figure;
@@ -155,7 +155,38 @@ classdef NeuralAnalysis < ggraph
             end
         end
         
+        function [yBuff, x, fsError, timeError] = ...
+                bufferY(data, fs, preTime, postTime, alignTo)
+            % Place data (y) in to buffered time axis, aligned to point
+            % specificed in alignTo
+            % Not handeling errors - ensure buffer is big enough in
+            % appropriate directions to align data.
+            
+            % Time point to align to
+            if ~exist('alignTo', 'var')
+                alignTo = 0;
+            end
+            
+            % Length of data to place
+            n = length(data);
+            
+            % Round fs and calcuate error
+            fs2 = round(fs);
+            fsError = abs(fs-fs2);
+            
+            % Create time axis (using rounded fs)
+            totalTime = abs(preTime) + abs(postTime);
+            x = linspace(preTime, postTime, totalTime*fs2);
+            
+            % Create output buffer
+            yBuff = zeros(1, length(x));
+            
+            % Find cloest point to align point zero
+            [timeError, mIdx] = min(abs(x)-alignTo);
+            
+            % Place stim in yBuff
+            yBuff(mIdx-(n-1):mIdx) = data;
+        end
         
     end
-    
 end

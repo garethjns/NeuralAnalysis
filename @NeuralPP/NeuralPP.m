@@ -134,9 +134,15 @@ classdef NeuralPP
             end
         end
         
-        function [fData, lfpData] = filter(data, fs)
-            disp('Filtering...')
+        function [fData, lfpData] = filter(data, fs, lowMem)
+            % Run BP, LFP + remove50 filters.
             
+            % Lower memory usage flag for remove50 
+            if ~exist('lowMem', 'var')
+                lowMem = False;
+            end
+            
+            disp('Filtering...')
             % Params
             % Spikes
             BPs = [300, 5000];
@@ -160,7 +166,8 @@ classdef NeuralPP
                             out{s} = Neural.BPFilter(data, fs, BPs);
                         case 2
                             % LFP
-                            out{s} = Neural.LFPFilter(data, fs, BPl);
+                            out{s} = ...
+                                Neural.LFPFilter(data, fs, BPl, lowMem);
                     end
                 end
                 fData = out{1};
@@ -172,7 +179,7 @@ classdef NeuralPP
                 % Spikes
                 fData = Neural.BPFilter(data, fs, BPs);
                 % LFP
-                lfpData = Neural.LFPFilter(data, fs, BPl);
+                lfpData = Neural.LFPFilter(data, fs, BPl, lowMem);
                 toc(a);
             end
         end
@@ -195,13 +202,28 @@ classdef NeuralPP
             disp(['Done in ', num2str(tt), ' S'])
         end
         
-        function fData = LFPFilter(data, Fs, BP)
+        function fData = LFPFilter(data, Fs, BP, lowMem)
             % Filter for LFP using LFPprocessBand and LFPRemove50
+            
+            % Reduce memory usage flag
+            if ~exist('lowMem', 'var')
+                lowMem = False;
+            end
             
             % Band pass
             fData = Neural.LFPProcessBAND(data, Fs, BP(2), BP(1));
-            % Band stop
-            fData = Neural.LFPRemove50(fData, Fs);
+            
+            % Band stop 
+            % Uses fft/ifft - need to convert to float first - 
+            % memory intensive - ~5GB block will use ~14GB and take ~40s
+            % per 16 channels using standard function.
+            % If lowMem flag true, use the looping version
+            % Uses much less memory and takes ~55s per 16 channels.
+            if lowMem
+                fData = Neural.LFPRemove50MemEf(fData, Fs);
+            else
+                fData = Neural.LFPRemove50(fData, Fs);
+            end
         end
         
         function fData = LFPProcessBAND(data, fs, lowPass, highPass)
@@ -275,6 +297,61 @@ classdef NeuralPP
             tt = toc;
             disp(['Done in ', num2str(tt), ' S'])
         end
+        
+        
+        function fData = LFPRemove50MemEf(data, sampleRate)
+            % Remove 50 Hz with BS filter.
+            % Same as LFPRemove50, except loops over channels to reduce
+            % memory requirement for multi-channel fft/ifft 
+            % (requires int16 conversion to float)
+            %
+            % Assumes there is an additive, constant artifact at that
+            % frequency which can be removed by setting
+            % the maplitude of f equal to the average amplitude on either
+            % side of f.
+            tic
+            
+            chans = size(data, 2);
+            fData = zeros(size(data), 'int16');
+            
+            % Use an even number of points
+            if mod(size(data, 1), 2)
+                data = data(1:end-1,:);
+            end
+            
+            % Frequency range to process
+            fStop = [49, 51];
+                
+            disp(['Removing 50 Hz on ', ...
+                    num2str(chans), ' channels (looping)'])
+                 
+            for c = 1:chans
+                % FFT
+                % Need to convert to float here
+                spect = fft(single(data(:,c)));
+                
+                % Find index (rows) of fStop frequencies
+                fIdx = round(fStop/sampleRate * (size(data,1)-1))+1;
+                fIdx = fIdx(1):1:fIdx(end);
+                
+                % Calculate scale factor
+                scaleFact = spect(fIdx,:) ...
+                    ./ mean(cat(3, spect(fIdx-5,:), spect(fIdx+5,:)), 3);
+                
+                % Apply scale factor
+                spect(fIdx,:) = spect(fIdx,:)./scaleFact;
+                spect(end-fIdx+2,:) = ...
+                    spect(end-fIdx+2,:)./scaleFact;
+                
+                % Inverse FFT
+                % Also return to int16
+                fData(:,c) = int16(real(ifft(spect)));
+            end
+            tt = toc;
+            
+            disp(['Done in ', num2str(tt), ' S'])
+        end
+        
         
         function [fData, fsNew] = resampleLFP(data, fs, fsNew)
             

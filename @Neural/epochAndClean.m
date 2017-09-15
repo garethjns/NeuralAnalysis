@@ -89,8 +89,8 @@ for e = 1:numel(EvIDs)
             end
 
             % Epoch current id
-            dataEpoch = epochData(...
-                obj, behav, data, fs);
+            dataEpoch = obj.epochData(obj.neuralParams,...
+                behav.StartTrialTime, data, fs);
             clear data
             
             % Save to epoched file

@@ -61,12 +61,11 @@ classdef ComboSess < Sess
             % Append sessions data to sessionData
             nS = obj.sessions.nS;
             
-            % Preallocate
+            % Preallocate behavioural data
             sessionData = obj.sessionTable(obj.sessions.nT);
-            
+            % Get behavioural data from each individual session
             row = 1;
             for s = 1:nS
-                
                 n = height(obj.sessions.sessionData{s}.data);
                 
                 sessionData(row:row+n-1,:) = ...
@@ -84,10 +83,12 @@ classdef ComboSess < Sess
             ds = datestr(min(sessions.sessions.DateNum));
             de = datestr(max(sessions.sessions.DateNum));
             
-            % Type of split
+            % Type of split (just used for graph title)
             switch split
                 case 'SID2s'
                     s = ['SID2s_', sessions.sessions.SID2{1}];
+                case 'DID'
+                    s = ['DID_', sessions.sessions.DID{1}];
                 case 'All'
                     s = 'All';
             end
@@ -95,12 +96,16 @@ classdef ComboSess < Sess
                 s, '_', ds, '_', de ...
                 ];
             
+            % Collect the attached neural objects from the sessions and
+            % concatenate into single object to attach to ComboSess object
+            comboNeural = Neural(obj);
         end
+        
         
     end
     
     methods (Static)
         
     end
+    
 end
-

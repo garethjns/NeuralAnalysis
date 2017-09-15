@@ -44,9 +44,15 @@ classdef Subject
            % where appropriate.
            % For level 8, divide by requested dates - has auto date range
            % been added yet?
-           % For level 10 (and 9), find weekIDs, create session for each.
-           % For level 11, find weekIDs, create session for each. 
+           % For level 10 (and 9), find WIDs/DIDs, create session for each.
+           % For level 11, find seedIDs, create session for each. 
+           % 
+           % Concatenate neural data where available
+           % Save this to disk in \ComboNeural\ID
+           % And set this as the spike path in the attached neural object
            
+           % Auto will only work if subject contains only sessions of one
+           % level
            if strcmp(how, 'auto')
               switch obj.level
                   case 8
@@ -54,13 +60,11 @@ classdef Subject
                   case 9 
                       how = ''; % WIDs?
                   case 10
-                      how = 'DIDs';
+                      how = 'DID';
                   case 11
-                      how = 'SIDs';
+                      how = 'SID2s';
               end
            end
-           
-           % Use the how tag to create a
            
            % Copy the sessions object to comboSessions. This will hold all
            % the combine sessions in one object. Not saving to obj yet.
@@ -72,13 +76,12 @@ classdef Subject
            cS.type = how;
            
            switch how
-               case 'DIDs'
+               case 'DID'
                    % Divide by DID
-                   disp('NOT YET IMPLEMENTED')
-                   return
+                   [obj, cS] = divideByID(obj, cS, how);
 
                case 'SID2s'
-                   [obj, cS] = divideBySID2s(obj, cS);
+                   [obj, cS] = divideByID(obj, cS, how);
                    % Divide by DID  
                    
                case 'Dates'
@@ -104,13 +107,6 @@ classdef Subject
             obj.comboSessions.(how) = cS;
         end
         
-        function obj = divideByDIDs(obj)
-            % WIP
-            sessions = obj.sessions.sessions;
-            % Find all DIDs
-            DIDs = findgroups(sessions.DID);
-            
-        end
         
         function [obj, cS] = comboAll(obj, cS)
             % Copy sessions object
@@ -131,21 +127,21 @@ classdef Subject
             
         end
         
-        function [obj, cS] = divideBySID2s(obj, cS)
+        
+        function [obj, cS] = divideByID(obj, cS, how)
             
             % Find all DIDs
-            SIDs = unique(obj.sessions.sessions.SID2);
+            IDs = unique(obj.sessions.sessions.(how));
             
-            % Create a ComboSess object for each SID
-            nSIDs = numel(SIDs);
-            for s = 1:nSIDs
+            % Create a ComboSess object for each SID/DID
+            nIDs = numel(IDs);
+            for s = 1:nIDs
                 
                 % Copy sessions object
                 someSessions = obj.sessions;
-                % Remove data - will be reimported
-                someSessions.sessionData = {};
                 % Keep only relevant rows in session table
-                sIdx = strcmp(obj.sessions.sessions.SID2, SIDs{s});
+                sIdx = strcmp(obj.sessions.sessions.(how), IDs{s});
+                someSessions.sessionData = someSessions.sessionData(sIdx);
                 % And reset n
                 someSessions.nS = sum(sIdx);
                 someSessions.sessions = obj.sessions.sessions(sIdx,:);
@@ -153,10 +149,10 @@ classdef Subject
                 % Import the data for this sub group and save it back in to
                 % the new sessions object holding the combo sessions
                 cS.sessionData{s} = ...
-                    ComboSess(someSessions, obj, 'SID2s');
+                    ComboSess(someSessions, obj, how);
+                
             end
-            
-            
+
         end
         
     end
@@ -164,4 +160,5 @@ classdef Subject
     methods (Static)
         
     end
+    
 end

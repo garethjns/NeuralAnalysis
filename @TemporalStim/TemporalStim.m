@@ -3,10 +3,15 @@ classdef TemporalStim
     properties
         params
         event
-        sound2
         sound = [];
+        sound2 = [];
         verifySound = [];
         gapIndex
+    end
+    
+    properties (Hidden)
+        Sound
+        Sound2
     end
     
     methods
@@ -14,7 +19,11 @@ classdef TemporalStim
         function obj = TemporalStim(params)
             % Set parameters
             
-            obj = obj.setDefaultParams();
+            if exist('params', 'var') && isfield(params, 'type')
+                obj = obj.setDefaultParams(params.type);
+            else
+                obj = obj.setDefaultParams();
+            end
             
             switch class(params)
                 case 'TemporalStim'
@@ -543,13 +552,25 @@ classdef TemporalStim
             
         end
         
+        function out = get.Sound(obj)
+            % If the wrong case is used - ie. .Sound instead of .sound,
+            % return correct propery
+            out = obj.sound;
+        end
+        
+        function out = get.Sound2(obj)
+            % If the wrong case is used - ie. .Sound2 instead of .sound2,
+            % return correct propery
+            out = obj.sound2;
+        end
+        
     end
     
     methods (Static)
         
         function seed2 = setSeed(seed)
             % Set specified seed in reliable way and return
-            
+
             seed2 = rng(seed); %#ok<NASGU> necessary
             seed2 = rng(seed);
             rng(seed2);

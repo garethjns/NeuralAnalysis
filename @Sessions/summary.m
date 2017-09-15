@@ -5,7 +5,6 @@ function obj = summary(obj)
 
 %% nTrials
 
-og
 figure
 
 clc
@@ -49,7 +48,7 @@ for l = 1:length(levs)
 end
 
 title('Number of trials vs level')
-ng;
+ggraph.ng;
 
 obj.sessionStats.n.Totaln = totaln;
 obj.sessionStats.n.Neuraln = neuraln;
@@ -60,15 +59,13 @@ obj.sessionStats.n.Greatn = greatn;
 
 %% nTrials vs date vs time
 
-og
 figure
 hold on
 timen = NaN(1,3);
 for t = 1:3 % All, AM, PM
     switch t
         case 1
-            tInd = ones(1,height(obj.sessions));
-            tInd = tInd==1;
+            tInd = true(1, height(obj.sessions));
         case 2
             tInd = strcmp(obj.sessions.Time, 'AM');
         case 3
@@ -83,7 +80,7 @@ xlabel('Date')
 ylabel('nTrials')
 legend({'Overall', 'AM sessions', 'PM sessions'})
 title('Number of trials vs date')
-ng;
+ggraph.ng;
 
 disp(['Out of ', num2str(timen(1)), ...
     ' sessions ', num2str(timen(2)), ...
@@ -92,13 +89,11 @@ disp(['Out of ', num2str(timen(1)), ...
 
 %% Performamce vs date vs time
 
-og
 figure
 hold on
-timen = NaN(1,3);
 % Perf for overall (2 or more sessions average)
 dn = unique(obj.sessions.DateNum);
-dayPerf = NaN(1,numel(dn));
+dayPerf = NaN(1, numel(dn));
 for d = 1:length(dn)
     % For each dateNum (ie. day) get index
     dInd = obj.sessions.DateNum == dn(d);
@@ -129,11 +124,7 @@ ylabel('Overall % correct');
 legend({'Overall', 'AM sessions', 'PM sessions'})
 ylim([0 100]);
 title('Performance vs date')
-ng;
-
-disp(['Out of ', num2str(timen(1)), ...
-    ' sessions ', num2str(timen(2)), ...
-    ' were AM and ', num2str(timen(3)), ' were PM.'])
+ggraph.ng;
 
 
 %% Average level performamce
@@ -160,6 +151,6 @@ legend({'All trials', 'A trials', 'V trials', 'AVs', 'AVa'})
 xlabel('Session Number')
 ylabel('Performance %')
 title('Performance vs date')
-ng('ScatterLine');
+ggraph.ng;
 
 

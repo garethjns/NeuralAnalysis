@@ -1,12 +1,12 @@
 classdef Neural < NeuralPP & NeuralAnalysis
-    % This object creates structure for analysis. and includes saving and
-    % get methods. It's not necessarily speicifc to temporal tasks and
-    % imports general methods from NeuralPP and NeuralAnalysis. It is held
-    % by session object which is specific to temporal task, and contains
-    % behavioural data (and imported methods) and methods to do analysis
-    % requiring both behavioural and neural data. Behavioural data is
-    % required here for epoching, really only trial times are required
-    % - update in future.
+    % This object creates structure for analysis and includes
+    % saving and get methods. It's not necessarily speicifc to temporal
+    % tasks and imports general methods from NeuralPP and NeuralAnalysis.
+    % It is held by session object which is specific to temporal task, and
+    % contains behavioural data (and imported methods) and methods to do
+    % analysis requiring both behavioural and neural data. Behavioural data
+    % is required here for epoching, really only trial times are required -
+    % update in future.
     % 
     % Takes parent Sess ohject as input, which contains paths to neural
     % data and behavioural data.
@@ -54,21 +54,75 @@ classdef Neural < NeuralPP & NeuralAnalysis
         extractedData = []
         filteredData = []
         epochedData = []
+        nSessions = []
     end
     
     methods
         function obj = Neural(sess)
+            % Can be created from input of session object or from cell
+            % array of existing neural objects to concatenate
             
-            % Paths contain .TDT, .Extracted, PreProFilt, .Epoch, .Analysis
-            obj.neuralPaths = sess.neuralPaths;
-            obj.neuralParams = sess.subjectParams.PP;
-            % Add here a set stage function - needs to check which files
-            % already exist
+            switch class(sess)
+                case 'Sess' % Check correct
+                    % Input is session object containing:
+                    % Paths contain .TDT, .Extracted, PreProFilt, .Epoch, 
+                    % .Analysis
+                    obj.neuralPaths = sess.neuralPaths;
+                    obj.neuralParams = sess.subjectParams.PP;
+                    obj.nSessions = 1;
+                    % Add here a set stage function - needs to check 
+                    % which files already exist
+                case 'ComboSess'
+                    % Input is combSess object to concatenate together
+                    % Assuming neural extraction has already been run 
+                    % during import of this data.
+                    % Neural objects are in
+                    % combSess.sessions.sessionData{n}.NeuralData 
+                    % and may or may not be present for all sessions.
+                    % Get params from first session object
+                    % Title will be used to generate final paths
+                    obj.nSessions = numel(sess.sessions.sessionData);
+                    
+                    obj = obj.concat(sess);
+            end
             
             obj.force = sess.forceNeural;
             if obj.force > 0
                 obj.clearStageOn
             end
+        end
+        
+        function obj = concat(obj, sess)
+            % Concat neural data
+            % For now, setting up for spikes only...
+            % TO DO:
+            % Load spikes
+            % Concatenate
+            % Run checks 
+            % Save concat version
+            
+            nS = obj.nSessions;
+            nd = cell(1, nS);
+            
+            for n = 1:obj.nSessions
+                % Check neural object exists
+                
+                % If so, load spike data
+                
+                % Run stim/recording checks and update OKIdx as appropriate
+                % (Use .epochCheck (NeuralAnalysis, not 
+                % .CheckRecording (Neural))
+                
+                % If not, zero out channels
+                % And mark OKIdx as not ok
+            end
+
+            % Data now in memory, rehape
+            
+            % Set OKIdx
+            
+            % Set new paths
+            
         end
         
         function obj = clearStageOn(obj)
@@ -546,7 +600,6 @@ classdef Neural < NeuralPP & NeuralAnalysis
             
             % If neural data from previous stage is not available, don't
             % run
-            
             % Load
             [fData, fs, ok] = loadSpikeData(obj, 'BB_2', 'fData');
             % Check if required data is available
@@ -554,7 +607,6 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 disp('Spike data not available, skipping.')
                 return
             end
-            
             
             % Set analysis path
             obj.analysisPath = [obj.neuralPaths.Analysis, 'Analysis.mat'];

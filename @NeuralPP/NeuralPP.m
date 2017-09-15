@@ -1,8 +1,11 @@
 classdef NeuralPP
+    
     properties
     end
+    
     methods
     end
+    
     methods (Static)
         function spikes = eventDetectG(data, inputs)
             % Unpack inputs
@@ -298,7 +301,6 @@ classdef NeuralPP
             disp(['Done in ', num2str(tt), ' S'])
         end
         
-        
         function fData = LFPRemove50MemEf(data, sampleRate)
             % Remove 50 Hz with BS filter.
             % Same as LFPRemove50, except loops over channels to reduce
@@ -351,7 +353,6 @@ classdef NeuralPP
             
             disp(['Done in ', num2str(tt), ' S'])
         end
-        
         
         function [fData, fsNew] = resampleLFP(data, fs, fsNew)
             

@@ -142,7 +142,7 @@ classdef NeuralPP
             
             % Lower memory usage flag for remove50 
             if ~exist('lowMem', 'var')
-                lowMem = False;
+                lowMem = false;
             end
             
             disp('Filtering...')

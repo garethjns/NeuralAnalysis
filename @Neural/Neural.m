@@ -20,7 +20,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
     % Extract events 
     % to \spikes\block\
     % Check recordings and stimuli presentation
-    % to \behavAnlaysis\[session type]\[level]\[id]\ and object?
+    % to \behavAnlaysis\[session type]\[level]\[id]\analysis.mat
+    % Get methods get from this file.
     %
     % Add PSTH etc as methods here? - Added in NeuralAnalysis and importing
     % here
@@ -43,10 +44,12 @@ classdef Neural < NeuralPP & NeuralAnalysis
         processingPaths % Filtered data - stage 2 done
         epochedPaths % Epoched and cleaned data - stage 3 done
         spikePaths % Saved file after event detection - stage 4
-        analysisPath
+        analysisPath % .mat with spikes/ok idx in analysis dir
         neuralParams
         force = 0 % Force processing from stage onwards, or 0 for off
-        
+        recOK % Recording looks ok
+        stimOK = true % Stim were ok (not yet implemented)
+        spikes % 
     end
     
     properties (Hidden = true)
@@ -72,6 +75,13 @@ classdef Neural < NeuralPP & NeuralAnalysis
                     obj.nSessions = 1;
                     % Add here a set stage function - needs to check 
                     % which files already exist
+                    
+                    % Start processing
+                    obj.force = sess.forceNeural;
+                    if obj.force > 0
+                        obj.clearStageOn
+                    end
+                    
                 case 'ComboSess'
                     % Input is combSess object to concatenate together
                     % Assuming neural extraction has already been run 
@@ -81,15 +91,16 @@ classdef Neural < NeuralPP & NeuralAnalysis
                     % and may or may not be present for all sessions.
                     % Get params from first session object
                     % Title will be used to generate final paths
+                    obj.neuralParams = sess.subjectParams.PP;
                     obj.nSessions = numel(sess.sessions.sessionData);
                     
                     obj = obj.concat(sess);
+                    
+                    % Don't do processing - already done. Just return new
+                    % combined object.
             end
             
-            obj.force = sess.forceNeural;
-            if obj.force > 0
-                obj.clearStageOn
-            end
+
         end
         
         function obj = concat(obj, sess)
@@ -104,25 +115,97 @@ classdef Neural < NeuralPP & NeuralAnalysis
             nS = obj.nSessions;
             nd = cell(1, nS);
             
+            sp = cell(1, nS);
+            ok = cell(1, nS);
             for n = 1:obj.nSessions
-                % Check neural object exists
-                
-                % If so, load spike data
-                
-                % Run stim/recording checks and update OKIdx as appropriate
-                % (Use .epochCheck (NeuralAnalysis, not 
-                % .CheckRecording (Neural))
-                
-                % If not, zero out channels
-                % And mark OKIdx as not ok
+                % Neural object should exist, check that it's processed to
+                % spike -> analysis .mat stage
+                if sess.sessions.sessionData{n}.neuralData.stage >= 5
+                    
+                    curObj = sess.sessions.sessionData{n}.neuralData;
+                    
+                    sp{1, n} = curObj.spikes;
+                    ok{1, n} = curObj.recOK;
+                    
+                else % No neural object
+                    % If not, zero out channels
+                    % And mark OKIdx as not ok
+                    
+                    % Need to know expected length of epoch to zero out
+                    % spikes (t x c x e)
+                    % Can get this info from params:
+                    fs = sess.subjectParams.extractEvIDs{1}{4};
+                    t = ceil(fs * (abs(sess.subjectParams.PP.EpochPreTime) ...
+                        + abs(sess.subjectParams.PP.EpochPostTime)));
+                    % Always 32 chans
+                    c = 32;
+                    % Get number of epochs from number of trials in session
+                    e = sess.sessions.sessionData{n}.nTrials;
+                    
+                    sp{1, n} = false(t, c, e);
+                    
+                    % Set OK indexes
+                    % .OK: [1×c×e logical]
+                    % .evPerEP: [1×c×e double]
+                    % .ST: [c×e double]
+                    ok{1, n}.OK = false(1, c, e);
+                    ok{1, n}.evPerEP = zeros(1, c, e);
+                    ok{1, n}.ST = zeros(c, e);
+                end
+
             end
 
-            % Data now in memory, rehape
+            % Data now in memory, rehape...
+            sp2 = false(size(sp{1}, 1), 32, sess.nTrials);
+            ok2.OK = false(1, 32, sess.nTrials);
+            ok2.evPerEP = zeros(1, 32, sess.nTrials);
+            ok2.ST = zeros(32, sess.nTrials);
+            sIdx = 0;
+            for n = 1:nS
+                % Spikes
+                nAdd = sIdx + size(sp{1,n},3);
+                sp2(:,:,sIdx+1:nAdd) = sp{1,n};
+                
+                % OKs
+                ok2.OK(:,:,sIdx+1:nAdd) = ok{1,n}.OK;
+                ok2.evPerEP(:,:,sIdx+1:nAdd) = ok{1,n}.evPerEP;
+                ok2.ST(:,sIdx+1:nAdd) = ok{1,n}.ST;
+                
+                % Increment for next step
+                sIdx = sIdx + nAdd;
+            end
             
-            % Set OKIdx
+            % Leave most paths blank - they are no longer valid
+            % Set obj.neuralPaths.Analysis dir
+            obj.neuralPaths.Analysis = ...
+                [sess.subjectPaths.behav.joinedSessAnalysis, ...
+                sess.title, '\'];
+            if ~exist(obj.neuralPaths.Analysis, 'file')
+                mkdir(obj.neuralPaths.Analysis)
+            end
             
-            % Set new paths
+            % Set new analysisPath
+            obj.analysisPath = [obj.neuralPaths.Analysis ...
+                'Analysis.mat'];
             
+            % If exist delete for now - ignoring force - no warning!
+            if exist(obj.analysisPath, 'file')
+                delete(obj.analysisPath)
+            end
+            
+            % Save spikes and oks here
+            % Create a file to append to
+            a.spikes = sp; %#ok<STRNU>
+            save(obj.analysisPath, 'a', '-v7.3')
+            recOK.OK = ok2.OK; %#ok<PROPLC>
+            recOK.evPerEP = ok2.evPerEP; %#ok<PROPLC>
+            recOK.ST = ok2.ST;  %#ok<STRNU,PROPLC>
+            
+            % Append to analysis file as concat matrix
+            save(obj.analysisPath, 'recOK', '-append');
+            
+            % Set stage
+            obj.stage = 6;
         end
         
         function obj = clearStageOn(obj)
@@ -483,7 +566,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             if obj.stage < 4
                 % Here
                 EvIDs = {'BB_2', 'BB_3'};
-                obj = spikes(obj, EvIDs);
+                obj = processSpikes(obj, EvIDs);
                 obj.stage = 4;
             end
             
@@ -541,7 +624,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             obj.processingPaths = string(obj.processingPaths);
         end
         
-        function obj = spikes(obj, EvIDs)
+        function obj = processSpikes(obj, EvIDs)
             % Run spike detection specified in obj.neuralParams.evMode
             % Input here will be epoched BB_2 or BB_3
             
@@ -601,7 +684,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             % If neural data from previous stage is not available, don't
             % run
             % Load
-            [fData, fs, ok] = loadSpikeData(obj, 'BB_2', 'fData');
+            [sp, ~, ok] = loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
             % Check if required data is available
             if ~ok
                 disp('Spike data not available, skipping.')
@@ -621,7 +704,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             end
             
             % Create a file to append to
-            a = []; %#ok<NASGU>
+            a.spikes = sp; %#ok<STRNU>
             save(obj.analysisPath, 'a', '-v7.3')
             
             % Run analysis
@@ -631,6 +714,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 
                 % Check condition of recorded data - unplugs, correct
                 % orientation, etc. - recOK
+                % Loads from spike folder, 
+                % saves to analysis file not object
                 obj = obj.checkRecording('K');
                 
                 % Check stimuli channels - correct stimuli presented? ect.
@@ -639,6 +724,15 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 
                 obj.stage = 5;
             end
+        end
+        
+        function recOK = get.recOK(obj)
+            recOK = load(obj.analysisPath, 'recOK');
+            recOK = recOK.recOK;
+        end
+        
+        function spikes = get.spikes(obj)
+            [spikes, ~, ~] = loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
         end
         
         function obj = checkRecording(obj, type)
@@ -677,9 +771,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 close all
             end
             
-            recOK.OK = [OK{1}, OK{2}];
-            recOK.evPerEP = [evPerEp{1}, evPerEp{2}];
-            recOK.ST = [ST{1}; ST{2}]; %#ok<STRNU>
+            recOK.OK = [OK{1}, OK{2}]; %#ok<PROPLC>
+            recOK.evPerEP = [evPerEp{1}, evPerEp{2}]; %#ok<PROPLC>
+            recOK.ST = [ST{1}; ST{2}];  %#ok<STRNU,PROPLC>
             
             % Append to analysis file as concat matrix
             save(obj.analysisPath, 'recOK', '-append');
@@ -714,8 +808,6 @@ classdef Neural < NeuralPP & NeuralAnalysis
     end
     
     methods (Static)
-        
 
-        
     end
 end

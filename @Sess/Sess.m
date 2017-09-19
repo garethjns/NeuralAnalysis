@@ -16,7 +16,7 @@ classdef Sess < BehavAnalysis
     end
     
     properties
-        single = 1 % 1 = single, 0 = combo
+        single = true % 1 = single, 0 = combo
         nTrials % Number of trials available
         data % Imported data table
         behavAnalysisDone = 0 % Indicate if Sess. analysis has been run yet
@@ -257,7 +257,7 @@ classdef Sess < BehavAnalysis
             figInfo = obj.figInfo;
             
             % Set parent folder to save to - individual or joined 
-            if obj.single == 0
+            if obj.single
                 pType = obj.subjectPaths.behav.individualSessAnalysis;
             else
                 pType = obj.subjectPaths.behav.joinedSessAnalysis;

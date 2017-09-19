@@ -14,9 +14,10 @@ trialIdx = obj.setTrialIdx(obj);
 trialInd = trInd & trialIdx;
 
 % Get WID
-obj.figInfo.WID = obj.session.WID{1};
-% Get DID
-obj.figInfo.DID = obj.session.DID{1};
+obj.figInfo.WID = obj.session.WID{1,1};
+% Get DID - If combo session, will contain more than one row (but just use
+% first)
+obj.figInfo.DID = obj.session.DID{1,1};
 
 % Set file/folder string to use when saving graphs
 figInfo = obj.prepDir(obj);
@@ -34,10 +35,16 @@ if sum(trialInd)>10
     snapnow; close all force
     
     % Explore asychrony metric and recalculate fastProp
-    fastPropAs = ...
+    bDiv = fParams.asParams.bDiv;
+    figInfo.fnsAppend = [char(BehavAnalysis.BES(bDiv)), 'Recalc0'];
+    [fastPropAs, ~] = ...
         obj.calcFastProp2(obj.data, trialInd, figInfo, ...
-        fParams.asParams.bDiv);
+        bDiv);
     snapnow; close all force
+    % Plot these
+    [fastPropFittedAs, bsAvgAs] = ...
+        obj.plotPsychAs(obj.data, fastPropAs, trialInd, figInfo, ...
+        bDiv);
     
     % Plot performance and psych curves
     [fastPropFitted, bsAvg] = ...

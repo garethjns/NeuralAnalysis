@@ -46,8 +46,8 @@ for e = 1:numel(EvIDs)
             % Epoch fData
             % epochData moved to static in Neural PP. Will error here - see
             % Comments in Neural.process (caller)
-            fDataEpoch = epochData(...
-                obj, behav, fData, fs);
+            fDataEpoch = obj.epochData(obj.neuralParams, ...
+               behav.StartTrialTime, fData, fs);
             clear fData
             
             % Clean fDataEpoch
@@ -63,8 +63,8 @@ for e = 1:numel(EvIDs)
                 loadFilteredData(obj, id, 'lfpData');
             
             % Epoch lfpData
-            lfpDataEpoch = epochData(...
-                obj, behav, lfpData, fs);
+            lfpDataEpoch = obj.epochData(obj.neuralParams,...
+                behav.StartTrialTime, lfpData, fs);
             clear lfpData
             
             % Save to epoched file

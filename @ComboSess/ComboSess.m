@@ -42,6 +42,7 @@ classdef ComboSess < Sess
             obj.subject = sub.subject;
             obj.level = sub.levels;
             obj.fID = sub.fID;
+            obj.single = false;
             
             if exist('forceNeural', 'var')
                 obj.forceNeural = forceNeural;
@@ -60,6 +61,10 @@ classdef ComboSess < Sess
             
             % Append sessions data to sessionData
             nS = obj.sessions.nS;
+            
+            % Add the whole sessions table to .session (usually a single
+            % row)
+            obj.session = sessions.sessions;
             
             % Preallocate behavioural data
             sessionData = obj.sessionTable(obj.sessions.nT);
@@ -98,9 +103,10 @@ classdef ComboSess < Sess
             
             % Collect the attached neural objects from the sessions and
             % concatenate into single object to attach to ComboSess object
+            disp('Concatenating neural data...')
             comboNeural = Neural(obj);
-        end
-        
+            obj.neuralData = comboNeural;
+        end       
         
     end
     

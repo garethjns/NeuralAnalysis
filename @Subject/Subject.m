@@ -87,6 +87,7 @@ classdef Subject
                case 'Dates'
                    % Divide by auto date ranges (and any set in params?)
                    disp('NOT YET IMPLEMENTED')
+                   keyboard
                    return
                    
                case 'All'
@@ -95,6 +96,8 @@ classdef Subject
                
                otherwise
                    disp('Unknown combo param')
+                   keyboard
+                   return
            end
             
             % Set nSess to number of combined sessions. Leave nT as total
@@ -150,6 +153,9 @@ classdef Subject
                 % the new sessions object holding the combo sessions
                 cS.sessionData{s} = ...
                     ComboSess(someSessions, obj, how);
+                
+                % After-Spike data is saved to analysis folder
+                % Check correct path already set
                 
             end
 

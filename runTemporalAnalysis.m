@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 20;
+lim = 10;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -61,13 +61,13 @@ sub.sessions.analyseBehav(force)
 sub.sessions.analyseNerual(force)
 
 
-%% Create combined sessions - level 9/10
+%% Create combined sessions - level 9/10/11
 % Join on dayIDs
 
 sub = sub.importComboSessions('DID');
 % Analyse combine sessions
 force = true;
-sub.comboSessions.DIDs = sub.comboSessions.DIDs.analyseBehav(force);
+sub.comboSessions.DID = sub.comboSessions.DID.analyseBehav(force);
 
 
 %% Create combined sessions - level 11

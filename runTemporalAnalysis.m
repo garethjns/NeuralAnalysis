@@ -1,4 +1,4 @@
-clear
+clear all
 
 %% 1) Set up subject
 
@@ -48,7 +48,7 @@ if lim
 end
 % Import
 reImport = true;
-forceNeural = 0; % Force prcoessing of neural data from this stage.
+forceNeural = false; % Force prcoessing of neural data from this stage.
 sub.sessions = sub.sessions.importData(reImport, forceNeural);
 
 
@@ -68,6 +68,7 @@ sub = sub.importComboSessions('DID');
 % Analyse combine sessions
 force = true;
 sub.comboSessions.DID = sub.comboSessions.DID.analyseBehav(force);
+sub.comboSessions.DID = sub.comboSessions.DID.analyseNerual(force);
 
 
 %% Create combined sessions - level 11

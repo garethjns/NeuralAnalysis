@@ -54,7 +54,7 @@ if sum(trialInd)>10
     % And async
     [fastPropFittedAs, bsAvgAs] = ...
         obj.plotPsychAs(obj.data, fastPropAs, trialInd, figInfo, ...
-        fParams.asParams.bDiv);
+        bDiv);
     snapnow; close all force
     
     % % Correct
@@ -63,7 +63,7 @@ if sum(trialInd)>10
     
     % % Correct asyncs
     [PCCorAsM, PCCorOff] = ...
-        obj.PCCorrectAs(obj.data, trialInd, figInfo, fParams);
+        obj.PCCorrectAs(obj.data, trialInd, figInfo, bDiv);
     snapnow; close all force
     
     % Plot RTs

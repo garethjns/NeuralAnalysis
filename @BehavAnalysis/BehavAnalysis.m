@@ -154,6 +154,8 @@ classdef BehavAnalysis < ggraph & fitPsyche
         function [ok, str] = stimCheck(behavTrials)
            % From a behavioural table, check stim for rows are all the same
            % eg for behavTrials(trialIdx,:)
+           % WIP
+           % Runs checks but doesn't act on pass or fail yet
            
            nT = height(behavTrials);
            
@@ -180,7 +182,7 @@ classdef BehavAnalysis < ggraph & fitPsyche
                    % Vis
                    strAV = strV;
                    strAV(1,2) = 3;
-               elseif isempty(strA) && ~isempty(strV)
+               elseif ~isempty(strA) && ~isempty(strV)
                    % AV
                    if (strA(3,2) == strV(3,2)) ...
                            && (strA(2,2) == strV(2,2))
@@ -194,14 +196,18 @@ classdef BehavAnalysis < ggraph & fitPsyche
                        strAV(1,2) = 5;
                    else
                        % ??
-                       keyboard
+                       disp('Possible struct/table mismatch?')
+                       % keyboard
                    end
                end
                
                % Check row matches stuct
                if str1(1,2) ~= strAV(1,2) ...
                        || str1(2,2) ~= strAV(2,2) 
-                   keyboard
+                   
+                   
+                   disp('Sync seed mismatch?')
+                   % keyboard
                end
                
                % Save to list of stim

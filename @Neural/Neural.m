@@ -152,27 +152,31 @@ classdef Neural < NeuralPP & NeuralAnalysis
                     ok{1, n}.evPerEP = zeros(1, c, e);
                     ok{1, n}.ST = zeros(c, e);
                 end
-
             end
 
             % Data now in memory, rehape...
             sp2 = false(size(sp{1}, 1), 32, sess.nTrials);
             ok2.OK = false(1, 32, sess.nTrials);
-            ok2.evPerEP = zeros(1, 32, sess.nTrials);
-            ok2.ST = zeros(32, sess.nTrials);
+            ok2.evPerEP = zeros(1, 32, sess.nTrials, 'single');
+            ok2.ST = zeros(32, sess.nTrials, 'single');
             sIdx = 0;
             for n = 1:nS
+                disp(['Concatenating block ', num2str(n), '/' num2str(nS)])
                 % Spikes
-                nAdd = sIdx + size(sp{1,n},3);
-                sp2(:,:,sIdx+1:nAdd) = sp{1,n};
+                nAdd = size(sp{1,n},3);
+                sp2(:,:,sIdx+1:sIdx+nAdd) = sp{1,n};
                 
                 % OKs
-                ok2.OK(:,:,sIdx+1:nAdd) = ok{1,n}.OK;
-                ok2.evPerEP(:,:,sIdx+1:nAdd) = ok{1,n}.evPerEP;
-                ok2.ST(:,sIdx+1:nAdd) = ok{1,n}.ST;
+                ok2.OK(:,:,sIdx+1:sIdx+nAdd) = ok{1,n}.OK;
+                ok2.evPerEP(:,:,sIdx+1:sIdx+nAdd) = single(ok{1,n}.evPerEP);
+                ok2.ST(:,sIdx+1:sIdx+nAdd) = single(ok{1,n}.ST);
                 
                 % Increment for next step
                 sIdx = sIdx + nAdd;
+                
+                % Destroy current step to save menory
+                sp{n} = [];
+                ok{n} = [];
             end
             
             % Leave most paths blank - they are no longer valid
@@ -195,7 +199,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             
             % Save spikes and oks here
             % Create a file to append to
-            a.spikes = sp; %#ok<STRNU>
+            a.spikes = sp2; %#ok<STRNU>
             save(obj.analysisPath, 'a', '-v7.3')
             recOK.OK = ok2.OK; %#ok<PROPLC>
             recOK.evPerEP = ok2.evPerEP; %#ok<PROPLC>
@@ -448,9 +452,34 @@ classdef Neural < NeuralPP & NeuralAnalysis
             
         end
         
+        function [data, fs, ok] = ...
+                loadSpikeDataFromAnalysis(obj)
+            % This is an alternative to Neural.loadSpikeData. For combo
+            % sessions, the data is no longer loaded from from \Spikes\,
+            % but from the already-concatenated (on channels and sessions)
+            % version saved in Analysis.mat, so load from there instead.
+            % This function overloads Sess.loadSpikeData
+            
+            data = [];
+            ok = false;
+            try
+                fs = obj.neuralParams.Fs;
+            catch
+                fs = 24414.0625;
+            end
+            
+            if ~isempty(obj.analysisPath)
+                load([obj.analysisPath]);
+                data = a.spikes;
+                ok = true;
+            end
+        end
+        
         function [data] = loadFromAnalysis(obj, var)
             % Load individual variables, or presets.
             % Return as variable or structre.
+            % NOTE: Replaceing with get methods in NeuralObj.recOK
+            
             switch var
                 case 'OK'
                     % Load OK variables, return in structure
@@ -468,7 +497,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
         end
         
         % Write functions - may turn out to be redundent 
-        function path = writeFilteredData(obj, data, EvID, type, fs)  %#ok<INUSL,INUSD>
+        function path = writeFilteredData(...
+                obj, data, EvID, type, fs)  %#ok<INUSL,INUSD>
             % Save file for EvID and of type fData (spikes) or lfpData
             path = getFilteredDataPath(obj, EvID, type);
             
@@ -479,7 +509,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
             save(path.char(), 'data', 'fs')
         end
         
-        function path = writeSpikeData(obj, data, EvID, type, fs) %#ok<INUSL,INUSD>
+        function path = writeSpikeData(...
+                obj, data, EvID, type, fs) %#ok<INUSL,INUSD>
             % Save file for EvID and of type fData (spikes) or lfpData
             path = getSpikesDataPath(obj, EvID, type);
             
@@ -488,7 +519,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
             save(path.char(), 'data', 'fs')
         end
         
-        function path = writeEpochedData(obj, data, EvID, type, fs) %#ok<INUSL,INUSD>
+        function path = writeEpochedData(...
+                obj, data, EvID, type, fs) %#ok<INUSL,INUSD>
             % Save epoched file
             path = getEpochedDataPath(obj, EvID, type);
             
@@ -540,21 +572,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 % Epoch
                 EvIDs = {'BB_2', 'BB_3', 'Sond', 'Sens'};
                 
-                % ****
-                % WILL ERROR HERE-MOVED epochData function from Neural to
-                % NeuralPP.
-                % Was Neural.epochAndClean -> Neural.epochData(obj...)
-                % Now Neural.epochAndClean -> Neural.epochData(data, times,
-                % params). epochData now static andd inherited from 
-                % NeuralPP.
-                % Need to update the inputs as specified inside
-                % epochAndClean handler.
-                % obj -> params: Not directly interchangable
-                % behav -> times was taking all data and getting
-                % behav.StartTrialTimes. Now input should just be 
-                % behav.StartTrialTimes rather than behav)
-                % ****
-                
+                % Use Neural.epochAndClean to handle running epochData on
+                % multiple EvIDs.
                 obj = epochAndClean(obj, EvIDs, behav);
                 
                 % Update stage
@@ -692,11 +711,11 @@ classdef Neural < NeuralPP & NeuralAnalysis
             end
             
             % Set analysis path
-            obj.analysisPath = [obj.neuralPaths.Analysis, 'Analysis.mat'];
+            obj.analysisPath = obj.neuralPaths.Analysis;
            
             % If exist delete for now - ignoring force - no warning!
-            if exist(obj.analysisPath, 'file')
-                delete(obj.analysisPath)
+            if exist([obj.analysisPath, 'Analysis.mat'], 'file')
+                delete([obj.analysisPath, 'Analysis.mat'])
             end
             
             if ~exist(obj.neuralPaths.Analysis, 'file')
@@ -705,7 +724,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             
             % Create a file to append to
             a.spikes = sp; %#ok<STRNU>
-            save(obj.analysisPath, 'a', '-v7.3')
+            save([obj.analysisPath, 'Analysis.mat'], 'a', '-v7.3')
             
             % Run analysis
             % Stage 5 - checking
@@ -727,12 +746,26 @@ classdef Neural < NeuralPP & NeuralAnalysis
         end
         
         function recOK = get.recOK(obj)
-            recOK = load(obj.analysisPath, 'recOK');
-            recOK = recOK.recOK;
+            % RecOK always comes from .Analysis
+            if exist([obj.analysisPath, 'Analysis.mat'], 'file')
+                recOK = load(obj.analysisPath, 'recOK');
+                recOK = recOK.recOK;
+            else
+                recOK = false;
+            end
+            
         end
         
         function spikes = get.spikes(obj)
-            [spikes, ~, ~] = loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
+            if obj.stage < 6
+                % Load from library
+                [spikes, ~, ~] = ...
+                    loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
+            else
+                % Load from analysis
+                [spikes, ~, ~] = ...
+                    loadSpikeDataFromAnalysis(obj);
+            end
         end
         
         function obj = checkRecording(obj, type)

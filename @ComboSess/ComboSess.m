@@ -9,6 +9,7 @@ classdef ComboSess < Sess
     % Sessions can then handle batch processing of ComboSess objects using
     % the same methods used to handle Sess objects.
     %
+    %
     % Need (external):
     % 1) To add method to Sessions or Subject to handle creation of new set
     % of Sessions.
@@ -16,9 +17,7 @@ classdef ComboSess < Sess
     % 2) Methods to sumarise statistics from each Sess object. Stats run on
     % ComboSession object will be run using BehavAnalysis in the same way as
     % Sess
-    % 3) Methods to handle loading of neural data - keep original paths and
-    % load and concatonate from individual files?
-    % 4) To change properties of Sess class as needed (some are ummutable)
+    % 3) To change properties of Sess class as needed (some are ummutable)
     % and to ID as ComboSess. Sess already imports BehavAnalysis &
     % fitPsyche.
     
@@ -100,6 +99,10 @@ classdef ComboSess < Sess
             obj.title = ['Level', num2str(obj.level), '\', ...
                 s, '_', ds, '_', de ...
                 ];
+            % Set full analysis path
+            obj.analysisPath = ...
+                [obj.subjectPaths.behav.joinedSessAnalysis, ...
+                obj.title, '\'];
             
             % Collect the attached neural objects from the sessions and
             % concatenate into single object to attach to ComboSess object
@@ -107,7 +110,6 @@ classdef ComboSess < Sess
             comboNeural = Neural(obj);
             obj.neuralData = comboNeural;
         end       
-        
     end
     
     methods (Static)

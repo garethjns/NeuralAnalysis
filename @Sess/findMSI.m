@@ -3,25 +3,22 @@ function [hAVs, hAVa] = findMSI(obj, chan)
 % All trials in data used, so handle idexing in calling function
 %
 
-% Load spikes
+% Get index of ok neural data on this channel
 eIdx = obj.neuralData.recOK.OK;
 okIdx = eIdx(1,chan,:);
 
+% Load spikes
 eSpikes = obj.neuralData.spikes(:,chan,okIdx);
-
-
-% Get index of ok neural data on this channel
 
 % Get behav data
 data = obj.data(okIdx,:);
 
+hAVs = figure;
+hAVa = figure;
+
 if isempty(data)
     return
 end
-
-
-hAVs = figure;
-hAVa = figure;
 
 
 %% A, V, AVs figure
@@ -109,7 +106,8 @@ for sp = nRates+1:nMods*nRates+nRates
     ylim([0, maxEvents])
 end
 
-drawnow
+ng('Huge')
+hgx([obj.analysisPath, 'MSI\Chan', num2str(chan), '_AVs.png'])
 
 
 %% AVa Figure
@@ -182,16 +180,20 @@ for sp = nRates+1:nMods*nRates+nRates
     ylim([0, maxEvents])
 end
 
-drawnow
+ng('Huge')
+hgx([obj.analysisPath, 'MSI\Chan', num2str(chan), '_AVs.png'])
 
 
 function plotStimRow(obj, data, dIdx)
 % Plot stimulus row
+
 % Regen the "generic" stim
-% Only need to do this once per column
+% Only need to do this once per column, but might be in A or V depending on
+% type
 stimA.sound = [];
 stimV.sound = [];
 if isstruct(data(dIdx,:).aStim{1})
+    % Get from A
     cfgA = data(dIdx,:).aStim{1};
     cfgA.eventType = 'flat';
     cfgA.noiseType = 'blocked';
@@ -202,6 +204,7 @@ if isstruct(data(dIdx,:).aStim{1})
     
     FsS = cfgA.Fs;
 elseif isstruct(data(dIdx,:).vStim{1})
+    % Get from V
     cfgV = data(dIdx,:).vStim{1};
     cfgV.eventType = 'flat';
     cfgV.noiseType = 'blocked';
@@ -213,9 +216,9 @@ elseif isstruct(data(dIdx,:).vStim{1})
     FsS = cfgV.Fs;
 end
 
-stims = zeros(2, max([length(stimV.sound), length(stimA.sound)]));
-stims(1, 1:length(stimA.sound)) = stimA.sound;
-stims(2, 1:length(stimV.sound)) = stimV.sound; %#ok<NASGU>
+% stims = zeros(2, max([length(stimV.sound), length(stimA.sound)]));
+% stims(1, 1:length(stimA.sound)) = stimA.sound;
+% stims(2, 1:length(stimV.sound)) = stimV.sound; 
 
 % Drop in buffer
 preTime = obj.neuralData.neuralParams.EpochPreTime;
@@ -227,13 +230,12 @@ buffer = zeros(2, SepochPts);
 tVecS = ...
     linspace(preTime, postTime, size(buffer,2));
 [~, zIdx] = min(abs(tVecS));
-% buffer(:,zIdx-(length(stim.sound)-1):zIdx) = ...
-%     stim.sound;
 buffer(1,zIdx-(length(stimA.sound)-1):zIdx) = ...
     stimA.sound;
 buffer(1,zIdx-(length(stimV.sound)-1):zIdx) = ...
     stimV.sound;
 
+% Add start/end lines
 hold on
 line([-1.15, -1.15],[-1000, 1000], ...
     'LineStyle', '--', ...
@@ -241,20 +243,25 @@ line([-1.15, -1.15],[-1000, 1000], ...
 line([0, 0],[-1000, 1000], ...
     'LineStyle', '--', ...
     'color', [0.80, 0.80, 0.80])
+
+% Plot stim
 plot(tVecS, buffer, 'color', 'k')
+
+% Finish
 ylim([-0.05, 1.1])
 xlim([-1.5, 0.2])
 
 
-
 function [nEv, PSTH, acc] = plotPSTHBox(obj, eSpikes, dIdx, col)
-% Get PSTH and raster
-% Using sIdx & eIdx
+% Get PSTH and raster, plot
+
+% Get PSTH
 fs = obj.neuralData.neuralParams.Fs; 
 [raster, ~, ~] = ...
     obj.neuralData.raster(eSpikes(:,:,dIdx), fs);
 [PSTH, tVecP] = obj.neuralData.PSTH(raster, fs, 10);
 
+% Plot
 plot(tVecP, PSTH, 'color', col)
 leg = [num2str(sum(dIdx)), ' trials'];
 
@@ -276,6 +283,7 @@ nEv = max(acc)/10;
 % plotLayout{vi,r} = acc;
 % tVec = tVec+50;
 
+% Add start/end lines
 hold on
 line([3000-1150, 3000-1150], [-10000, 10000], ...
     'LineStyle', '--', ...
@@ -285,10 +293,9 @@ line([3000, 3000], [-10000, 10000], ...
     'color', [0.80, 0.80, 0.80])
 plot(tVecP(window), acc/10, 'color', 'k')
 
+% Finish
 legend(leg)
-
 ylim([-2, 20])
 xlim([1500, 3200])
 a = gca;
-% a.YTickLabel = {'','',''};
 a.XTickLabel = {'-1','0'};

@@ -61,6 +61,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
     end
     
     methods
+        
+        %% Creation methods
+        
         function obj = Neural(sess)
             % Can be created from input of session object or from cell
             % array of existing neural objects to concatenate
@@ -257,14 +260,55 @@ classdef Neural < NeuralPP & NeuralAnalysis
             end
         end
         
-        function fs = getFs(obj, EvID)
-            % Get fs from EvID params in TDT object. Nested cells. Urgh.
-            for e = 1:numel(obj.extractionObject.evIDs)
-                if strcmp(obj.extractionObject.evIDs{e}{1}, EvID)
-                    fs = obj.extractionObject.evIDs{e}{3};
-                end
+        function obj = prepNeural(obj, force)
+            
+            % If neural data from previous stage is not available, don't
+            % run
+            % Load
+            [sp, ~, ok] = loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
+            % Check if required data is available
+            if ~ok
+                disp('Spike data not available, skipping.')
+                return
+            end
+            
+            % Set analysis path
+            obj.analysisPath = obj.neuralPaths.Analysis;
+           
+            % If exist delete for now - ignoring force - no warning!
+            % if exist([obj.analysisPath, 'Analysis.mat'], 'file')
+            %     delete([obj.analysisPath, 'Analysis.mat'])
+            % end
+            
+            if ~exist(obj.neuralPaths.Analysis, 'file')
+                mkdir(obj.neuralPaths.Analysis)
+            end
+            
+            % Create a file to append to
+            a.spikes = sp; %#ok<STRNU>
+            save([obj.analysisPath, 'Analysis.mat'], 'a', '-v7.3')
+            
+            % Run analysis
+            % Stage 5 - checking
+            if obj.stage < 5
+                % Saves indexes to Analysis.mat - recOK.OK, stimOK.OK.
+                
+                % Check condition of recorded data - unplugs, correct
+                % orientation, etc. - recOK
+                % Loads from spike folder, 
+                % saves to analysis file not object
+                obj = obj.checkRecording('K');
+                
+                % Check stimuli channels - correct stimuli presented? ect.
+                % - stimOK
+                obj = obj.checkStimuli();
+                
+                obj.stage = 5;
             end
         end
+        
+        
+        %% Path setting helpers
         
         function path = getEpochedDataPath(obj, EvID, type)
             % Get the expected save path for the filtered data
@@ -333,6 +377,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
             end
             
         end
+        
+        
+        %% Data loaders
         
         function [data, fs, ok] = loadAndFsVerify(obj, fn, EvID)
             % Check file is available
@@ -496,7 +543,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
             end
         end
         
-        % Write functions - may turn out to be redundent 
+        
+        %% Data writers 
+        
         function path = writeFilteredData(...
                 obj, data, EvID, type, fs)  %#ok<INUSL,INUSD>
             % Save file for EvID and of type fData (spikes) or lfpData
@@ -528,6 +577,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
             % simplicity when loading.
             save(path.char(), 'data', 'fs')
         end
+        
+        
+        %% Bath processers
         
         function obj = process(obj, behav)
             % Run through all processing
@@ -684,94 +736,25 @@ classdef Neural < NeuralPP & NeuralAnalysis
                 inputs.plotOn = true;
                 inputs.thresh = obj.neuralParams.GDetectThresh;
                 inputs.reject = obj.neuralParams.GDetectReject;
-                events = Neural.eventDetectG(fData, inputs);
-                writeSpikeData(obj, events, id, 'G', fs)
+                eventsL = Neural.eventDetectG(fData, inputs);
+                writeSpikeData(obj, eventsL, id, 'G', fs)
                 clear inputs
                 
                 inputs.plotOn = true;
                 inputs.medThresh = obj.neuralParams.medianThresh;
                 inputs.artThresh = obj.neuralParams.artThresh;
-                events = Neural.eventDetectK(fData, inputs);
-                writeSpikeData(obj, events, id, 'K', fs)
+                eventsR = Neural.eventDetectK(fData, inputs);
+                writeSpikeData(obj, eventsR, id, 'K', fs)
                 clear inputs
+                
+                % Set spikes?
+                % obj.spikes = [eventsL; eventsR];
             end
             
         end
         
-        function obj = prepNeural(obj, force)
-            
-            % If neural data from previous stage is not available, don't
-            % run
-            % Load
-            [sp, ~, ok] = loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
-            % Check if required data is available
-            if ~ok
-                disp('Spike data not available, skipping.')
-                return
-            end
-            
-            % Set analysis path
-            obj.analysisPath = obj.neuralPaths.Analysis;
-           
-            % If exist delete for now - ignoring force - no warning!
-            % if exist([obj.analysisPath, 'Analysis.mat'], 'file')
-            %     delete([obj.analysisPath, 'Analysis.mat'])
-            % end
-            
-            if ~exist(obj.neuralPaths.Analysis, 'file')
-                mkdir(obj.neuralPaths.Analysis)
-            end
-            
-            % Create a file to append to
-            a.spikes = sp; %#ok<STRNU>
-            save([obj.analysisPath, 'Analysis.mat'], 'a', '-v7.3')
-            
-            % Run analysis
-            % Stage 5 - checking
-            if obj.stage < 5
-                % Saves indexes to Analysis.mat - recOK.OK, stimOK.OK.
-                
-                % Check condition of recorded data - unplugs, correct
-                % orientation, etc. - recOK
-                % Loads from spike folder, 
-                % saves to analysis file not object
-                obj = obj.checkRecording('K');
-                
-                % Check stimuli channels - correct stimuli presented? ect.
-                % - stimOK
-                obj = obj.checkStimuli();
-                
-                obj.stage = 5;
-            end
-        end
         
-        function recOK = get.recOK(obj)
-            % RecOK always comes from .Analysis
-            % Load and return, or return single failure for unavailable
-            % data
-            if exist([obj.analysisPath, 'Analysis.mat'], 'file')
-                recOK = load([obj.analysisPath, 'Analysis.mat'], 'recOK');
-                recOK = recOK.recOK;
-            else
-                recOK = false;
-            end
-            
-        end
-        
-        function spikes = get.spikes(obj)
-            
-            if isempty(obj.spikes)
-                if obj.stage < 6
-                    % Load from library
-                    [spikes, ~, ~] = ...
-                        loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
-                else
-                    % Load from analysis
-                    [spikes, ~, ~] = ...
-                        loadSpikeDataFromAnalysis(obj);
-                end
-            end
-        end
+        %% Data checkers
         
         function obj = checkRecording(obj, type)
             % Run checks on recoreded data
@@ -844,6 +827,59 @@ classdef Neural < NeuralPP & NeuralAnalysis
         end
         
         
+        %% Gets/sets
+        
+        function recOK = get.recOK(obj)
+            % RecOK always comes from .Analysis
+            % Load and return, or return single failure for unavailable
+            % data
+            if exist([obj.analysisPath, 'Analysis.mat'], 'file')
+                recOK = load([obj.analysisPath, 'Analysis.mat'], 'recOK');
+                recOK = recOK.recOK;
+            else
+                recOK = false;
+            end
+            
+        end
+        
+        function fs = getFs(obj, EvID)
+            % Get fs from EvID params in TDT object. Nested cells. Urgh.
+            for e = 1:numel(obj.extractionObject.evIDs)
+                if strcmp(obj.extractionObject.evIDs{e}{1}, EvID)
+                    fs = obj.extractionObject.evIDs{e}{3};
+                end
+            end
+        end
+        
+        function obj = set.spikes(obj, spikes)
+           % Spikes get/set allows spikes to be held in memory.
+           % For example neuralData.spikes = neuralData.spikes;
+           % Will get (load) spikes, and then set them
+           % Later calles to neuralData.spikes won't be empty, so won't
+           % reload
+           % Can then be dropped with:
+           % neuralData.spikes = [];
+           % And next get will load.
+           obj.spikes = spikes; 
+        end
+        
+        function spikes = get.spikes(obj)
+            % Either return spikes held in memory, or load from disk
+            % If individual session, load from
+            spikes = obj.spikes;
+            if isempty(spikes)
+                if obj.stage < 6
+                    % Load from library
+                    [spikes, ~, ~] = ...
+                        loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
+                else
+                    % Load from analysis
+                    [spikes, ~, ~] = ...
+                        loadSpikeDataFromAnalysis(obj);
+                end
+           end
+        end
+
         
     end
     

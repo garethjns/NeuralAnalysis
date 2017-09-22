@@ -193,15 +193,18 @@ classdef Sess < BehavAnalysis
                 mkdir([obj.analysisPath, 'MSI'])
             end
             
-           
+           % Hold spike data in memeory
+           obj.neuralData.spikes = obj.neuralData.spikes;
             
             % For all channels
             for c = 1:32
                 close all
                 % Run find MSI
-                    [hAVs, hAVa] = obj.findMSI(12);
-                
+                    [hAVs, hAVa] = obj.findMSI(c);
             end
+            
+            % Drop spike data from memory
+            obj.neuralData.spikes = [];
         end
         
         function obj = processPSTH(obj)
@@ -270,7 +273,7 @@ classdef Sess < BehavAnalysis
                     obj.hgx([obj.analysisPath, 'Rasters\',fn])
                     
                     hPSTH = obj.neuralData.plotPSTH(PSTH, tVecP, ...
-                        obj.nTrials, typeColour(obj, t)); %#ok<CPROP>
+                        obj.nTrials, typeColour(obj, t));
                     suptitle(['Stim: ', 'Type: ', num2str(t), ...
                         ', Rate:', num2str(r)])
                     obj.ng('Huge')

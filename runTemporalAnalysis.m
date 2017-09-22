@@ -1,4 +1,4 @@
-clear all
+clear all %#ok<CLALL>
 
 %% 1) Set up subject
 

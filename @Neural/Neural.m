@@ -49,7 +49,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
         force = 0 % Force processing from stage onwards, or 0 for off
         recOK % Recording looks ok
         stimOK = true % Stim were ok (not yet implemented)
-        spikes % 
+        spikes = [] % 
     end
     
     properties (Hidden = true)
@@ -714,9 +714,9 @@ classdef Neural < NeuralPP & NeuralAnalysis
             obj.analysisPath = obj.neuralPaths.Analysis;
            
             % If exist delete for now - ignoring force - no warning!
-            if exist([obj.analysisPath, 'Analysis.mat'], 'file')
-                delete([obj.analysisPath, 'Analysis.mat'])
-            end
+            % if exist([obj.analysisPath, 'Analysis.mat'], 'file')
+            %     delete([obj.analysisPath, 'Analysis.mat'])
+            % end
             
             if ~exist(obj.neuralPaths.Analysis, 'file')
                 mkdir(obj.neuralPaths.Analysis)
@@ -747,8 +747,10 @@ classdef Neural < NeuralPP & NeuralAnalysis
         
         function recOK = get.recOK(obj)
             % RecOK always comes from .Analysis
+            % Load and return, or return single failure for unavailable
+            % data
             if exist([obj.analysisPath, 'Analysis.mat'], 'file')
-                recOK = load(obj.analysisPath, 'recOK');
+                recOK = load([obj.analysisPath, 'Analysis.mat'], 'recOK');
                 recOK = recOK.recOK;
             else
                 recOK = false;
@@ -757,14 +759,17 @@ classdef Neural < NeuralPP & NeuralAnalysis
         end
         
         function spikes = get.spikes(obj)
-            if obj.stage < 6
-                % Load from library
-                [spikes, ~, ~] = ...
-                    loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
-            else
-                % Load from analysis
-                [spikes, ~, ~] = ...
-                    loadSpikeDataFromAnalysis(obj);
+            
+            if isempty(obj.spikes)
+                if obj.stage < 6
+                    % Load from library
+                    [spikes, ~, ~] = ...
+                        loadSpikeData(obj, {'BB_2', 'BB_3'}, 'K');
+                else
+                    % Load from analysis
+                    [spikes, ~, ~] = ...
+                        loadSpikeDataFromAnalysis(obj);
+                end
             end
         end
         
@@ -809,7 +814,7 @@ classdef Neural < NeuralPP & NeuralAnalysis
             recOK.ST = [ST{1}; ST{2}];  %#ok<STRNU,PROPLC>
             
             % Append to analysis file as concat matrix
-            save(obj.analysisPath, 'recOK', '-append');
+            save([obj.analysisPath, 'Analysis.mat'], 'recOK', '-append');
         end
         
         function obj = checkStimuli(obj)
@@ -834,9 +839,11 @@ classdef Neural < NeuralPP & NeuralAnalysis
            stimOK.OK = true(1,32,size(sond,3));
            
            % Append to analysis file as concat matrix
-           save(obj.analysisPath, 'stimOK', '-append');
+           save([obj.analysisPath, 'Analysis.mat'], 'stimOK', '-append');
            
         end
+        
+        
         
     end
     

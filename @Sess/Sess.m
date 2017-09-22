@@ -174,14 +174,14 @@ classdef Sess < BehavAnalysis
             % easy access to both
             
             % Is neural data available?
-            if isempty(obj.neuralData.analysisPath)
+            if ~isstruct(obj.neuralData.recOK)
                 % No
-                disp('Neural data not available for ....  , skipping')
+                disp(['Neural data not available for ', obj.title, ', skipping'])
                 return
             end
             
             % Run prep to create analysis file and check stimuli
-            obj = processPSTH(obj);
+            % obj = processPSTH(obj);
             
             % Run findMSI
             obj = processMSI(obj);
@@ -189,14 +189,17 @@ classdef Sess < BehavAnalysis
         
         function obj = processMSI(obj)
             
-            % Load spikes
+            if ~exist([obj.analysisPath, 'MSI'], 'dir')
+                mkdir([obj.analysisPath, 'MSI'])
+            end
             
+           
             
+            % For all channels
             for c = 1:32
-                
-                
-                [hAV, hAVs] = findMSI(data, spikes)
-                
+                close all
+                % Run find MSI
+                    [hAVs, hAVa] = obj.findMSI(12);
                 
             end
         end
@@ -219,8 +222,8 @@ classdef Sess < BehavAnalysis
             eIdx = obj.neuralData.recOK.OK;
             
             % Load spikes
-            [eSpikes, fs, ok] = ...
-                obj.neuralData.spikes;
+            eSpikes = obj.neuralData.spikes;
+            fs = obj.neuralData.neuralParams.Fs;
             
             % Expand eIdx time dimension to size(eSpikes,1);
             eIdx = repmat(eIdx, size(eSpikes,1), 1, 1);
@@ -267,7 +270,7 @@ classdef Sess < BehavAnalysis
                     obj.hgx([obj.analysisPath, 'Rasters\',fn])
                     
                     hPSTH = obj.neuralData.plotPSTH(PSTH, tVecP, ...
-                        nTrials, typeColour(obj, t)); %#ok<CPROP>
+                        obj.nTrials, typeColour(obj, t)); %#ok<CPROP>
                     suptitle(['Stim: ', 'Type: ', num2str(t), ...
                         ', Rate:', num2str(r)])
                     obj.ng('Huge')
@@ -277,6 +280,10 @@ classdef Sess < BehavAnalysis
             end
             
         end
+        
+        % This function is here as it is specific to this analysis, and
+        % uses both behavioural and neural data
+        [hAV, hAVs] = findMSI(obj, chan);
         
     end
     
@@ -290,6 +297,8 @@ classdef Sess < BehavAnalysis
         
         % Template table for session (external file)
         emptyTable = sessionTable(nTrials)
+        
+        acc = Brunton2013G(ev, params)
         
         function figInfo = prepDir(obj, del)
             % Set file/folder string to use when saving graphs

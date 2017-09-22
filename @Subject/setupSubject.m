@@ -90,7 +90,7 @@ fParams.extractEvIDs = { ...
 
 % Pre-processing
 % Fs
-fParams.PP.LFPResampleFs = 24414.0625;
+fParams.PP.Fs = 24414.0625;
 % Epoch size
 fParams.PP.EpochPreTime = -3;
 fParams.PP.EpochPostTime = +2;

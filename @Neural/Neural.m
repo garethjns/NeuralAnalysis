@@ -123,7 +123,8 @@ classdef Neural < NeuralPP & NeuralAnalysis
             for n = 1:obj.nSessions
                 % Neural object should exist, check that it's processed to
                 % spike -> analysis .mat stage
-                if sess.sessions.sessionData{n}.neuralData.stage >= 5
+                if ~isempty(sess.sessions.sessionData{n}.neuralData) ...
+                        && sess.sessions.sessionData{n}.neuralData.stage >= 5
                     
                     curObj = sess.sessions.sessionData{n}.neuralData;
                     

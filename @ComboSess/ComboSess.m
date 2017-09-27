@@ -34,14 +34,13 @@ classdef ComboSess < Sess
             % Advantage: Doesn't require individual sessions to have already
             % been processed
             
-            % as in Sess object, dupliate reference data
+            % As in Sess object, dupliate reference data
             % Import session data from input sessions row
             % Copy meta data
-            
             obj.subject = sub.subject;
-            obj.level = sub.levels;
             obj.fID = sub.fID;
             obj.single = false;
+            obj.level = sessions.levels;
             
             if exist('forceNeural', 'var')
                 obj.forceNeural = forceNeural;
@@ -89,8 +88,8 @@ classdef ComboSess < Sess
             
             % Type of split (just used for graph title)
             switch split
-                case 'SID2s'
-                    s = ['SID2s_', sessions.sessions.SID2{1}];
+                case 'SID2'
+                    s = ['SID2_', sessions.sessions.SID2{1}];
                 case 'DID'
                     s = ['DID_', sessions.sessions.DID{1}];
                 case 'All'
@@ -106,9 +105,15 @@ classdef ComboSess < Sess
             
             % Collect the attached neural objects from the sessions and
             % concatenate into single object to attach to ComboSess object
-            disp('Concatenating neural data...')
-            comboNeural = Neural(obj);
-            obj.neuralData = comboNeural;
+            switch split
+                case {'SID2', 'DID'}
+                    disp('Concatenating neural data...')
+                    comboNeural = Neural(obj);
+                    obj.neuralData = comboNeural;
+                case {'All'}
+                    % Don't concatenate neural data
+                    obj.neuralData = [];
+            end
         end       
     end
     

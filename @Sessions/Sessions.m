@@ -84,7 +84,7 @@ classdef Sessions
             if reImport
                 obj.sessions = obj.findSessions(sub);
                 obj.nS = height(obj.sessions);
-                obj.saveSessions(sub);
+                % obj.saveSessions(sub);
             end
             
         end

@@ -41,7 +41,7 @@ sub.sessions = sub.sessions.summary();
 % Try to import and preprocess neural data, if data is available
 
 % Limit for debugging
-lim = 10;
+lim = 0;
 if lim 
     sub.sessions.sessions = sub.sessions.sessions(1:lim,:);
     sub.sessions.nS = lim;
@@ -64,7 +64,8 @@ sub.sessions.analyseNerual(force)
 %% Create combined sessions - level 9/10/11
 % Join on dayIDs
 
-sub = sub.importComboSessions('DID');
+level = 10;
+sub = sub.importComboSessions('DID', level);
 % Analyse combine sessions
 force = true;
 sub.comboSessions.DID = sub.comboSessions.DID.analyseBehav(force);
@@ -74,15 +75,17 @@ sub.comboSessions.DID = sub.comboSessions.DID.analyseNerual(force);
 %% Create combined sessions - level 11
 % Join on seedIDs
 
-sub = sub.importComboSessions('SID2s');
+level = 11;
+sub = sub.importComboSessions('SID2', level);
 % Analyse combine sessions
 force = true;
-sub.comboSessions.SID2s = sub.comboSessions.SID2s.analyseBehav(force);
+sub.comboSessions.SID2 = sub.comboSessions.SID2.analyseBehav(force);
 
 
 %% Create combo sessions using all
 
-sub = sub.importComboSessions('All');
+level = 11;
+sub = sub.importComboSessions('All', level);
 sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 
 
@@ -91,7 +94,7 @@ sub.comboSessions.All = sub.comboSessions.All.analyseBehav(force);
 
 % Do comps
 sub.comboSessions.All = ...
-    sub.comboSessions.All.compareSessions(sub.comboSessions.SID2s);
+    sub.comboSessions.All.compareSessions(sub.comboSessions.SID2);
 
 % Plot summary
 sub.comboSessions.All.plotSummaryComps
@@ -102,19 +105,19 @@ sub.comboSessions.All.plotSummaryComps
 
 close all
 
-sub.comboSessions.SID2s = ...
-    sub.comboSessions.SID2s.compareSessions(...
-    sub.comboSessions.SID2s, false);
+sub.comboSessions.SID2 = ...
+    sub.comboSessions.SID2.compareSessions(...
+    sub.comboSessions.SID2, false);
 
 
 %% Plot summary deltas
 
 close all
-sub.comboSessions.SID2s.plotSummaryCompsDeltas
+sub.comboSessions.SID2.plotSummaryCompsDeltas
 
 
 %% Plot summary
 
 close all
-sub.comboSessions.SID2s = sub.comboSessions.SID2s.plotSummaryComps;
+sub.comboSessions.SID2 = sub.comboSessions.SID2.plotSummaryComps;
 

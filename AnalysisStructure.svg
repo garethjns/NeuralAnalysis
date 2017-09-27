@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="AnalysisStructure.svg">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker6156"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path6154"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#ac9393;stroke-width:1pt;stroke-opacity:1;fill:#ac9393;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker6036"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path6034"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5928"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5926"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5836"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5834"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5752"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5750"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5650"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5648"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5335"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5333"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5269"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5267"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5020"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5018"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker4972"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4970"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker4930"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4928"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker4894"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4892"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4599"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker5020-3"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5018-8"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker5020-3-7"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path5018-8-1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#c8b7b7;fill-opacity:1;fill-rule:evenodd;stroke:#c8b7b7;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="2894.7136"
+     inkscape:cy="564.72533"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="1672"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="671.49951"
+       y="443.11911"
+       id="text4506"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4504"
+         x="671.49951"
+         y="443.11911"
+         style="font-weight:bold;stroke-width:0.26458332">@TDTHelper</tspan><tspan
+         sodipodi:role="line"
+         x="671.49951"
+         y="453.70245"
+         style="stroke-width:0.26458332;font-size:6.35px"
+         id="tspan4508">- Extraction</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="652.07135"
+       y="61.584671"
+       id="text4512"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4510"
+         x="652.07135"
+         y="61.584671"
+         style="font-weight:bold;stroke-width:0.26458332">@Neural</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="72.168007"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6286">- Batch pre-</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="82.751335"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6298">  processing, </tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="93.334671"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6300">  processing</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="103.918"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6290">- Stim/recording</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="114.50133"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6292">  checking</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="125.08467"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6294">- Path handelling</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="135.668"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6302">- Epoching/concat</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="146.25133"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6304">- Spike get</tspan><tspan
+         sodipodi:role="line"
+         x="652.07135"
+         y="156.83467"
+         style="font-weight:bold;stroke-width:0.26458332"
+         id="tspan6288" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="626.86554"
+       y="363.20551"
+       id="text4516"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4514"
+         x="626.86554"
+         y="363.20551"
+         style="font-weight:bold;stroke-width:0.26458332">@NeuralPP</tspan><tspan
+         sodipodi:role="line"
+         x="626.86554"
+         y="373.78885"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6140">- Filtering</tspan><tspan
+         sodipodi:role="line"
+         x="626.86554"
+         y="384.37216"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6142">- Cleaning</tspan><tspan
+         sodipodi:role="line"
+         x="626.86554"
+         y="394.95551"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6144">- Spikes</tspan><tspan
+         sodipodi:role="line"
+         x="626.86554"
+         y="405.53885"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6146">- Epoching</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="695.34802"
+       y="309.48434"
+       id="text4520"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4518"
+         x="695.34802"
+         y="309.48434"
+         style="font-weight:bold;stroke-width:0.26458332">@NeuralAnalysis</tspan><tspan
+         sodipodi:role="line"
+         x="695.34802"
+         y="320.06769"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6148">- Rasters</tspan><tspan
+         sodipodi:role="line"
+         x="695.34802"
+         y="330.651"
+         style="font-weight:normal;stroke-width:0.26458332;font-size:6.35px"
+         id="tspan6150">- PSTH</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="878.67786"
+       y="115.72316"
+       id="text4524"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4522"
+         x="878.67786"
+         y="115.72316"
+         style="font-weight:bold;stroke-width:0.26458332">@BehavAnalysis</tspan><tspan
+         sodipodi:role="line"
+         x="878.67786"
+         y="126.3065"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4554">- .level8()</tspan><tspan
+         sodipodi:role="line"
+         x="878.67786"
+         y="136.88982"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4560">- .level9()</tspan><tspan
+         sodipodi:role="line"
+         x="878.67786"
+         y="147.47314"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4562">- .level10()</tspan><tspan
+         sodipodi:role="line"
+         x="878.67786"
+         y="158.05649"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4564">- .level11()</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="746.60229"
+       y="-0.81558019"
+       id="text4528"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4526"
+         x="746.60229"
+         y="-0.81558019"
+         style="font-weight:bold;stroke-width:0.26458332">@Sess</tspan><tspan
+         sodipodi:role="line"
+         x="746.60229"
+         y="9.7677517"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6390">- Holds behav data (mem)</tspan><tspan
+         sodipodi:role="line"
+         x="746.60229"
+         y="20.351084"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6392">- Holds neural data (disk)</tspan><tspan
+         sodipodi:role="line"
+         x="746.60229"
+         y="30.93442"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6396">- Analysis combining </tspan><tspan
+         sodipodi:role="line"
+         x="746.60229"
+         y="41.51775"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6398">  neural and behav data</tspan><tspan
+         sodipodi:role="line"
+         x="746.60229"
+         y="52.101086"
+         style="font-weight:bold;stroke-width:0.26458332"
+         id="tspan6394" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="856.75397"
+       y="-101.62531"
+       id="text4532"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4530"
+         x="856.75397"
+         y="-101.62531"
+         style="font-weight:bold;stroke-width:0.26458332">@Sessions</tspan><tspan
+         sodipodi:role="line"
+         x="856.75397"
+         y="-91.041969"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6590">- Holds Sess objects</tspan><tspan
+         sodipodi:role="line"
+         x="856.75397"
+         y="-80.458641"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6592">- Summary methods</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="906.69012"
+       y="428.77829"
+       id="text4536"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4534"
+         x="906.69012"
+         y="428.77829"
+         style="font-weight:bold;stroke-width:0.26458332">@fitPsyche</tspan><tspan
+         sodipodi:role="line"
+         x="906.69012"
+         y="439.36163"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4566">- Psychometric curve </tspan><tspan
+         sodipodi:role="line"
+         x="906.69012"
+         y="449.94495"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4572">fitting</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="817.15491"
+       y="428.77826"
+       id="text4540"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4538"
+         x="817.15491"
+         y="428.77826"
+         style="font-weight:bold;stroke-width:0.26458332">@ggraph</tspan><tspan
+         sodipodi:role="line"
+         x="817.15491"
+         y="439.3616"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4574">- graphics </tspan><tspan
+         sodipodi:role="line"
+         x="817.15491"
+         y="449.94492"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan4576">functions</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="745.50311"
+       y="-184.95969"
+       id="text4548"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4546"
+         x="745.50311"
+         y="-184.95969"
+         style="font-weight:bold;stroke-width:0.26458332">@Subject</tspan><tspan
+         sodipodi:role="line"
+         x="745.50311"
+         y="-174.37636"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6594">- Subject level information</tspan><tspan
+         sodipodi:role="line"
+         x="745.50311"
+         y="-163.79301"
+         style="font-weight:bold;stroke-width:0.26458332"
+         id="tspan6596" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="957.47797"
+       y="221.81995"
+       id="text4552"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4550"
+         x="957.47797"
+         y="221.81995"
+         style="font-weight:bold;stroke-width:0.26458332">@TemporalStim</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:8, 4;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 575.26686,266.41661 H 980.13399"
+       id="path4578"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:9.87777778px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       x="-70.559151"
+       y="571.21857"
+       id="text4582"><tspan
+         sodipodi:role="line"
+         id="tspan4580"
+         x="-70.559151"
+         y="577.01184"
+         style="stroke-width:0.26458332;font-size:9.87777778px;" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.3499999px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-402.4209"
+       y="586.19196"
+       id="text4586"
+       transform="rotate(-90)"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4584"
+         x="-402.4209"
+         y="586.19196"
+         style="font-weight:bold;font-size:9.87777805px;stroke-width:0.26458332">Non-specific</tspan><tspan
+         sodipodi:role="line"
+         x="-402.4209"
+         y="598.53918"
+         style="font-weight:bold;font-size:9.87777805px;stroke-width:0.26458332"
+         id="tspan4592"> classes</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.3499999px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-109.32729"
+       y="591.11066"
+       id="text4590"
+       transform="rotate(-90)"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4588"
+         x="-109.32729"
+         y="591.11066"
+         style="font-weight:bold;font-size:8.46666622px;stroke-width:0.26458332">Specific classes</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 653.20671,354.19907 c 0,-5.27662 27.79604,-208.18665 27.79604,-208.18665"
+       id="path4594"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker4894)"
+       d="M 749.42374,310.54704 701.31524,155.60627"
+       id="path4890"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker4930);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 828.53553,410.85682 754.76914,316.77795"
+       id="path4926"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker4972);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 875.57495,102.42778 C 868.62596,100.82417 800.73949,56.457423 800.73949,56.457423"
+       id="path4968"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5020);stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 957.89397,-118.33684 h 93.00983"
+       id="path5016"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.3499999px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="959.49756"
+       y="-126.88947"
+       id="text5072"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan5070"
+         x="959.49756"
+         y="-126.88947"
+         style="font-weight:bold;font-size:8.46666622px;stroke-width:0.26458332">Inherits</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.00000003;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.00000011,2.00000006;stroke-opacity:1;marker-end:url(#marker5020-3);stroke-dashoffset:0"
+       d="m 957.99236,-88.794512 h 93.00984"
+       id="path5016-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.3499999px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="959.59595"
+       y="-97.347145"
+       id="text5072-4"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan5070-8"
+         x="959.59595"
+         y="-97.347145"
+         style="font-weight:bold;font-size:8.46666622px;stroke-width:0.26458332">Holds</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5269);stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 846.17532,415.13312 49.71212,-243.7498"
+       id="path5265"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5335);stroke-miterlimit:4;stroke-dasharray:none"
+       d="M 932.23611,415.13312 910.85455,175.65963"
+       id="path5331"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:#c8b7b7;stroke:#c8b7b7;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.00000015, 2.00000007999999996;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker5020-3-7)"
+       d="m 957.18511,-59.013726 h 93.00979"
+       id="path5016-1-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.3499999px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="958.7887"
+       y="-67.56636"
+       id="text5072-4-0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan5070-8-1"
+         x="958.7887"
+         y="-67.56636"
+         style="font-weight:bold;font-size:8.46666622px;stroke-width:0.26458332">Uses</tspan></text>
+    <path
+       style="fill:#000000;stroke:#000000;stroke-width:1.00000003;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker5650)"
+       d="M 758.815,-15.256889 702.87455,-37.935461"
+       id="path5646"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:8.46666622px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="601.43964"
+       y="-52.350842"
+       id="text4544"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996"><tspan
+         sodipodi:role="line"
+         id="tspan4542"
+         x="601.43964"
+         y="-52.350842"
+         style="font-weight:bold;stroke-width:0.26458332">@ComboSess</tspan><tspan
+         sodipodi:role="line"
+         x="601.43964"
+         y="-41.767509"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6384">- Combine using ID</tspan><tspan
+         sodipodi:role="line"
+         x="601.43964"
+         y="-31.184175"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6526">- Holds combined behav data</tspan><tspan
+         sodipodi:role="line"
+         x="601.43964"
+         y="-20.600843"
+         style="font-weight:normal;font-size:6.3499999px;stroke-width:0.26458332"
+         id="tspan6528">- Holds combined neural data</tspan><tspan
+         sodipodi:role="line"
+         x="601.43964"
+         y="-10.01751"
+         style="font-weight:bold;stroke-width:0.26458332"
+         id="tspan6530"><tspan
+           style="font-weight:normal;font-size:6.3499999px"
+           id="tspan6532">  (access to \Analysis.mat)</tspan></tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4, 2;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker5752)"
+       d="m 794.50593,-27.035744 57.07441,-57.074404"
+       id="path5748"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:6, 2;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker5836)"
+       d="m 850.44641,-101.11908 -56.31844,-60.47619"
+       id="path5832"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.00000012, 2.00000007;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker5928)"
+       d="m 693.51374,-54.936731 c 3.06842,-3.836387 79.77895,-106.566309 79.77895,-106.566309"
+       id="path5924"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:4,2;stroke-dashoffset:0;marker-end:url(#marker6036)"
+       d="M 707.19515,93.34062 775.08163,54.853808"
+       id="path6032"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+    <path
+       style="fill:#ac9393;stroke:#ac9393;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.00000001, 2.00000001;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker6156)"
+       d="m 686.88267,429.03113 3.20725,-260.95284"
+       id="path6152"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="S:\Gareth Projects\Ferret Temporal\Analysis structre.png"
+       inkscape:export-xdpi="89.700996"
+       inkscape:export-ydpi="89.700996" />
+  </g>
+</svg>

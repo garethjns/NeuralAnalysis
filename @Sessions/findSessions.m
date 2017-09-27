@@ -283,7 +283,9 @@ for s = 1:length(sessions) % For each session
         
         % Level 9 and 10 stuff - WID
         allData.WID{row,1} = '';
-        if allData.Level(row)==9 || allData.Level(row)==10
+        if allData.Level(row)==9 || ...
+                allData.Level(row)==10 || ...
+                allData.Level(row)==11
             if isfield(fData.saveData{1,2},'weekID')
                 allData.WID{row} = fData.saveData{1,2}.weekID;
             else
@@ -293,7 +295,8 @@ for s = 1:length(sessions) % For each session
         
         % Level 10 stuff - DID
         allData.DID{row,1} = '';
-        if allData.Level(row)==10
+        if allData.Level(row)==10 ...
+                || allData.Level(row)==11
             if isfield(fData.saveData{1,2},'dayID')
                 allData.DID{row} = fData.saveData{1,2}.dayID;
             else
@@ -303,7 +306,8 @@ for s = 1:length(sessions) % For each session
         
         % Level 10 and 11 stuff - SID
         allData.SID{row,1}='';
-        if allData.Level(row)==10 || allData.Level(row)==11
+        if allData.Level(row)==10 ...
+                || allData.Level(row)==11
             if isfield(fData.saveData{1,2},'seedID')
                 allData.SID{row} = fData.saveData{1,2}.seedID;
             else

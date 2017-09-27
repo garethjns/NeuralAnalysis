@@ -39,7 +39,7 @@ classdef Subject
             obj.sessions = Sessions(obj, reImport);
         end
         
-        function obj = importComboSessions(obj, how)
+        function obj = importComboSessions(obj, how, lev)
            % Look through already imported sessions, create combo sessions 
            % where appropriate.
            % For level 8, divide by requested dates - has auto date range
@@ -54,7 +54,7 @@ classdef Subject
            % Auto will only work if subject contains only sessions of one
            % level
            if strcmp(how, 'auto')
-              switch obj.level
+              switch lev
                   case 8
                       how = 'Dates';
                   case 9 
@@ -62,7 +62,7 @@ classdef Subject
                   case 10
                       how = 'DID';
                   case 11
-                      how = 'SID2s';
+                      how = 'SID2';
               end
            end
            
@@ -74,13 +74,15 @@ classdef Subject
            cS.sessionData = {};
            cS.sessions = table;
            cS.type = how;
+           % Set level
+           cS.levels = lev;
            
            switch how
                case 'DID'
                    % Divide by DID
                    [obj, cS] = divideByID(obj, cS, how);
 
-               case 'SID2s'
+               case 'SID2'
                    [obj, cS] = divideByID(obj, cS, how);
                    % Divide by DID  
                    
@@ -110,18 +112,22 @@ classdef Subject
             obj.comboSessions.(how) = cS;
         end
         
-        
         function [obj, cS] = comboAll(obj, cS)
             % Copy sessions object
             someSessions = obj.sessions;
+            someSessions.levels = cS.levels;
+            
             % Remove data - will be reimported
             someSessions.sessionData = {};
             
-            % Keep only relevant rows in session table - tin this case, all
+            % Keep only relevant rows in session table - in this case, all
+            % at level
             sIdx = true(height(someSessions.sessions),1);
+            lIdx = obj.sessions.sessions.Level==cS.levels;
+             
             % And reset n
-            someSessions.nS = sum(sIdx);
-            someSessions.sessions = obj.sessions.sessions(sIdx,:);
+            someSessions.nS = sum(sIdx & lIdx);
+            someSessions.sessions = obj.sessions.sessions(sIdx & lIdx,:);
             
             % Import the data for this sub group and save it back in to
             % the new sessions object holding the combo sessions
@@ -130,11 +136,13 @@ classdef Subject
             
         end
         
-        
         function [obj, cS] = divideByID(obj, cS, how)
             
             % Find all DIDs
             IDs = unique(obj.sessions.sessions.(how));
+            % Exclude "Missing" (don't want to merge all level 10s on
+            % missing SID, for example...)
+            IDs = IDs(~string(IDs).contains('Missing'));
             
             % Create a ComboSess object for each SID/DID
             nIDs = numel(IDs);
@@ -142,11 +150,16 @@ classdef Subject
                 
                 % Copy sessions object
                 someSessions = obj.sessions;
+                someSessions.levels = cS.levels;
+                
                 % Keep only relevant rows in session table
                 sIdx = strcmp(obj.sessions.sessions.(how), IDs{s});
-                someSessions.sessionData = someSessions.sessionData(sIdx);
+                lIdx = obj.sessions.sessions.Level==cS.levels;
+                someSessions.sessionData = ...
+                    someSessions.sessionData(lIdx & sIdx);
+                
                 % And reset n
-                someSessions.nS = sum(sIdx);
+                someSessions.nS = sum(sIdx & lIdx);
                 someSessions.sessions = obj.sessions.sessions(sIdx,:);
                 
                 % Import the data for this sub group and save it back in to
